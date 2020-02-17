@@ -95,7 +95,7 @@
 	light_range = 0
 	update_light()
 	if(R)
-		R.RemoveComponent()
+		QDELL_NULL(R)
 
 /obj/effect/decal/cleanable/greenglow/filled/Initialize()
 	. = ..()

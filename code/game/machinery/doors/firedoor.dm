@@ -436,10 +436,7 @@
 /obj/structure/firelock_frame/border/ComponentInitialize()
 	. = ..()
 	AddComponent(
-		/datum/component/simple_rotation,
-		ROTATION_ALTCLICK | ROTATION_CLOCKWISE | ROTATION_COUNTERCLOCKWISE | ROTATION_VERBS,
-		null
-		)
+		/datum/component/simple_rotation)
 
 /obj/structure/firelock_frame/border/CanAllowThrough(atom/movable/mover, turf/target)
 	. = ..()

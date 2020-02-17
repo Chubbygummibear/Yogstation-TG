@@ -147,14 +147,14 @@ def irc_handler():
 			logger.exception("Lost connection to IRC server.")
 			irc = setup_irc_socket()
 
-def signal_handler(signum, frame):
+def //SIGNAL_HANDLER(signum, frame):
 	global irc, running, con_attempts, logger
 	logger.info("Recieved term kill, closing")
 	running = False
 
 if __name__ == "__main__":
 	#listen to signals (quit on ctrl c or kill from OS)
-	signal.signal(signal.SIGINT, signal_handler)
+	signal.signal(signal.SIGINT, //SIGNAL_HANDLER)
 	irc = setup_irc_socket()
 	t = threading.Thread(target=nudge_handler)
 	t.daemon = True
