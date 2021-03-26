@@ -14,27 +14,24 @@
  *
  * @returns {any[]}
  */
-export const filter = <T>(iterateeFn: (
-  input: T,
-  index: number,
-  collection: T[],
-) => boolean) =>
-    (collection: T[]): T[] => {
-      if (collection === null || collection === undefined) {
-        return collection;
-      }
-      if (Array.isArray(collection)) {
-        const result: T[] = [];
-        for (let i = 0; i < collection.length; i++) {
-          const item = collection[i];
-          if (iterateeFn(item, i, collection)) {
-            result.push(item);
-          }
+export const filter =
+  <T>(iterateeFn: (input: T, index: number, collection: T[]) => boolean) =>
+  (collection: T[]): T[] => {
+    if (collection === null || collection === undefined) {
+      return collection;
+    }
+    if (Array.isArray(collection)) {
+      const result: T[] = [];
+      for (let i = 0; i < collection.length; i++) {
+        const item = collection[i];
+        if (iterateeFn(item, i, collection)) {
+          result.push(item);
         }
-        return result;
       }
-      throw new Error(`filter() can't iterate on type ${typeof collection}`);
-    };
+      return result;
+    }
+    throw new Error(`filter() can't iterate on type ${typeof collection}`);
+  };
 
 type MapFunction = {
   <T, U>(iterateeFn: (
