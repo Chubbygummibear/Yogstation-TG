@@ -1,4 +1,3 @@
-import { Fragment } from 'inferno';
 import { useBackend } from '../backend';
 import { Button, Section, Flex } from '../components';
 import { Window } from '../layouts';
@@ -14,7 +13,7 @@ export const BrigTimer = (props, context) => {
         <Section
           title="Cell Timer"
           buttons={(
-            <Fragment>
+            <>
               <Button
                 icon="clock-o"
                 content={data.timing ? 'Stop' : 'Start'}
@@ -25,11 +24,7 @@ export const BrigTimer = (props, context) => {
                 content={data.flash_charging ? 'Recharging' : 'Flash'}
                 disabled={data.flash_charging}
                 onClick={() => act('flash')} />
-              <Button
-                icon="id-card-alt"
-                content={data.desired_name ? data.desired_name : "Enter Prisoner Name"}
-                onClick={() => act("prisoner_name")} />
-            </Fragment>
+            </>
           )}>
           <Flex>
             <Flex.Item>

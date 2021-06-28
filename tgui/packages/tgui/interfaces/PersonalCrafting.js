@@ -1,4 +1,3 @@
-import { Fragment } from 'inferno';
 import { useBackend, useLocalState } from '../backend';
 import { Button, Dimmer, Flex, Icon, LabeledList, Section, Tabs } from '../components';
 import { Window } from '../layouts';
@@ -60,9 +59,8 @@ export const PersonalCrafting = (props, context) => {
   return (
     <Window
       title="Crafting Menu"
-      width={800}
-      height={600}
-      resizable>
+      width={700}
+      height={800}>
       <Window.Content scrollable>
         {!!busy && (
           <Dimmer fontSize="32px">
@@ -73,7 +71,7 @@ export const PersonalCrafting = (props, context) => {
         <Section
           title="Personal Crafting"
           buttons={(
-            <Fragment>
+            <>
               <Button.Checkbox
                 content="Compact"
                 checked={display_compact}
@@ -82,7 +80,7 @@ export const PersonalCrafting = (props, context) => {
                 content="Craftable Only"
                 checked={display_craftable_only}
                 onClick={() => act('toggle_recipes')} />
-            </Fragment>
+            </>
           )}>
           <Flex>
             <Flex.Item>

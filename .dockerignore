@@ -1,6 +1,5 @@
 .dockerignore
 .editorconfig
-.travis.yml
 GPLv3.txt
 LICENSE
 README.md
@@ -28,9 +27,6 @@ yogstation.int
 yogstation.rsc
 yogstation.lk
 yogstation.dyn.rsc
-libvg.dll
-libmariadb.dll
-rust_g.dll
-BSQL.dll
+*.dll
 appveyor.yml
 Dockerfile

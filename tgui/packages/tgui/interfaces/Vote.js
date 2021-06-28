@@ -6,17 +6,20 @@ export const Vote = (props, context) => {
   const { data } = useBackend(context);
   const { mode, question, lower_admin } = data;
 
-  /**
-   * Adds the voting type to title if there is an ongoing vote.
-   */
-  let windowTitle = 'Vote';
-  if (mode) {
-    windowTitle += ': ' + (question || mode).replace(/^\w/, c => c.toUpperCase());
-  }
-
   return (
-    <Window resizable title={windowTitle} width={400} height={500}>
-      <Window.Content>
+    <Window
+      title={`Vote${
+        mode
+          ? `: ${
+            question
+              ? question.replace(/^\w/, c => c.toUpperCase())
+              : mode.replace(/^\w/, c => c.toUpperCase())
+          }`
+          : ""
+      }`}
+      width={400}
+      height={500} >
+      <Window.Content overflowY="scroll">
         <Flex direction="column" height="100%">
           <Section title="Create Vote">
             <VoteOptions />

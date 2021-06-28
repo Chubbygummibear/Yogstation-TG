@@ -174,14 +174,14 @@ export const PowerMonitorContent = (props, context) => {
           ))}
         </Table>
       </Section>
-    </Fragment>
+    </>
   );
 };
 
 export const AreaCharge = props => {
   const { charging, charge } = props;
   return (
-    <Fragment>
+    <>
       <Icon
         width="18px"
         textAlign="center"
@@ -209,7 +209,7 @@ export const AreaCharge = props => {
         textAlign="right">
         {toFixed(charge) + '%'}
       </Box>
-    </Fragment>
+    </>
   );
 };
 
