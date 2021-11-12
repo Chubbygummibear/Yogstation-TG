@@ -70,7 +70,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/skin_tone = "caucasian1"		//Skin color
 	var/eye_color = "000"				//Eye color
 	var/datum/species/pref_species = new /datum/species/human()	//Mutant race
-	var/list/features = list("mcolor" = "FFF", "gradientstyle" = "None", "gradientcolor" = "000", "ethcolor" = "9c3030", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "wings" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None", "legs" = "Normal Legs", "moth_wings" = "Plain", "tail_polysmorph" = "Polys", "teeth" = "None", "dome" = "None", "dorsal_tubes" = "No")
+	var/list/features = list("mcolor" = "FFF", "mcolor_accent" = "FFF", "gradientstyle" = "None", "gradientcolor" = "000", "ethcolor" = "9c3030", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "wings" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None", "legs" = "Normal Legs", "moth_wings" = "Plain", "tail_polysmorph" = "Polys", "teeth" = "None", "dome" = "None", "dorsal_tubes" = "No")
 	var/list/genders = list(MALE, FEMALE, PLURAL)
 	var/list/friendlyGenders = list("Male" = "male", "Female" = "female", "Other" = "plural")
 
@@ -473,6 +473,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 				dat += "<a href='?_src_=prefs;preference=body_markings;task=input'>[features["body_markings"]]</a>"
 				dat += "<a href ='?_src_=prefs;preference=body_markings;task=lock'>[random_locks["body_markings"] ? "Unlock" : "Lock"]</a><BR>"
+
+				dat += "<span style='border: 1px solid #161616; background-color: #[features["mcolor_accent"]];'>&nbsp;&nbsp;&nbsp;</span>"
+				dat += "<a href='?_src_=prefs;preference=mcolor_accent;task=input'>Change</a> <a href ='?_src_=prefs;preference=mcolor_accent;task=lock'>[random_locks["mcolor_accent"] ? "Unlock" : "Lock"]</a><BR>"
 
 				mutant_category++
 				if(mutant_category >= MAX_MUTANT_ROWS)
@@ -1364,6 +1367,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					random_locks = list(
 						"gender" = gender,
 						"mcolor" = 1,
+						"mcolor_accent" = 1,
 						"ethcolor" = 1,
 						"tail_lizard" = 1,
 						"tail_human" = 1,
@@ -1575,6 +1579,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							features["mcolor"] = sanitize_hexcolor(new_mutantcolor)
 						else
 							to_chat(user, span_danger("Invalid color. Your color is not bright enough."))
+
+				if("mcolor_accent")
+					var/new_mutantcolor_accent = input(user, "Choose your character's alien/mutant accent color:", "Character Preference","#"+features["mcolor_accent"]) as color|null
+					if(new_mutantcolor_accent)
+						var/temp_hsv = RGBtoHSV(new_mutantcolor_accent)
+						if(new_mutantcolor_accent == "#000000")
+							features["mcolor_accent"] = GrayScale(features["mcolor"])
+						else if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV("#7F7F7F")[3]) // mutantcolors must be bright, but only if they affect the skin
+							features["mcolor_accent"] = sanitize_hexcolor(new_mutantcolor_accent)
+						else
+							to_chat(user, span_danger("Invalid color. Your color is not bright enough."))			
 
 				if("ethcolor")
 					var/new_etherealcolor = input(user, "Choose your ethereal color", "Character Preference") as null|anything in GLOB.color_list_ethereal
