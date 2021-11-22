@@ -189,11 +189,13 @@
 			AM.unbuckle_mob(rider)
 	. = ..()
 
-/obj/item/riding_offhand/on_thrown(mob/living/carbon/user, atom/target)
-	if(rider == user)
-		return //Piggyback user.
-	user.unbuckle_mob(rider)
-	if(HAS_TRAIT(user, TRAIT_PACIFISM))
-		to_chat(user, span_notice("You gently let go of [rider]."))
-		return
-	return rider
+//we don't have on thrown yet
+
+// /obj/item/riding_offhand/on_thrown(mob/living/carbon/user, atom/target)
+// 	if(rider == user)
+// 		return //Piggyback user.
+// 	user.unbuckle_mob(rider)
+// 	if(HAS_TRAIT(user, TRAIT_PACIFISM))
+// 		to_chat(user, span_notice("You gently let go of [rider]."))
+// 		return
+// 	return rider

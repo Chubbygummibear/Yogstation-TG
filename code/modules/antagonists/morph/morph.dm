@@ -53,6 +53,12 @@
 							You can attack any item or dead creature to consume it - creatures will restore your health. \
 							Finally, you can restore yourself to your original form while morphed by shift-clicking yourself.</b>"
 
+/mob/living/simple_animal/hostile/morph/Initialize(mapload)
+	. = ..()
+	//todo
+	//if this doesn't work, remove the element until elements aren't broke
+	AddElement(/datum/element/content_barfer)
+
 /mob/living/simple_animal/hostile/morph/examine(mob/user)
 	if(morphed)
 		. = form.examine(user)
@@ -158,7 +164,7 @@
 		visible_message(span_warning("[src] twists and dissolves into a pile of green flesh!"), \
 						span_userdanger("Your skin ruptures! Your flesh breaks apart! No disguise can ward off de--"))
 		restore()
-	barf_contents()
+	//barf_contents()
 	..()
 
 /mob/living/simple_animal/hostile/morph/proc/barf_contents()
@@ -167,9 +173,9 @@
 		if(prob(90))
 			step(AM, pick(GLOB.alldirs))
 
-/mob/living/simple_animal/hostile/morph/wabbajack_act(mob/living/new_mob)
-	barf_contents()
-	. = ..()
+// /mob/living/simple_animal/hostile/morph/wabbajack_act(mob/living/new_mob)
+// 	barf_contents()
+// 	. = ..()
 
 /mob/living/simple_animal/hostile/morph/Aggro() // automated only
 	..()

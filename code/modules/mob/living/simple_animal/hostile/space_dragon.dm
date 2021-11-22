@@ -80,6 +80,7 @@
 
 /mob/living/simple_animal/hostile/space_dragon/Initialize(mapload)
 	. = ..()
+	AddElement(/datum/element/content_barfer)
 	if(small_sprite_type)
 		var/datum/action/small_sprite/small_action = new small_sprite_type()
 		small_action.Grant(src)
@@ -151,14 +152,14 @@
 	fire_stream()
 
 /mob/living/simple_animal/hostile/space_dragon/death(gibbed)
-	empty_contents()
+	//empty_contents()
 	if(!objective_complete)
 		destroy_rifts()
 	..()
 
-/mob/living/simple_animal/hostile/space_dragon/wabbajack_act(mob/living/new_mob)
-	empty_contents()
-	. = ..()
+// /mob/living/simple_animal/hostile/space_dragon/wabbajack_act(mob/living/new_mob)
+// 	empty_contents()
+// 	. = ..()
 
 /**
   * Determines a line of turfs from sources's position to the target with length range.

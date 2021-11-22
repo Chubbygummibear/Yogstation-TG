@@ -378,30 +378,30 @@
 			qdel(O)
 	return TRUE
 
-/obj/item/riding_offhand
-	name = "offhand"
-	icon = 'icons/obj/misc.dmi'
-	icon_state = "offhand"
-	w_class = WEIGHT_CLASS_HUGE
-	item_flags = ABSTRACT | DROPDEL | NOBLUDGEON
-	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
-	var/mob/living/carbon/rider
-	var/mob/living/parent
-	var/selfdeleting = FALSE
+// /obj/item/riding_offhand
+// 	name = "offhand"
+// 	icon = 'icons/obj/misc.dmi'
+// 	icon_state = "offhand"
+// 	w_class = WEIGHT_CLASS_HUGE
+// 	item_flags = ABSTRACT | DROPDEL | NOBLUDGEON
+// 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+// 	var/mob/living/carbon/rider
+// 	var/mob/living/parent
+// 	var/selfdeleting = FALSE
 
-/obj/item/riding_offhand/dropped()
-	selfdeleting = TRUE
-	. = ..()
+// /obj/item/riding_offhand/dropped()
+// 	selfdeleting = TRUE
+// 	. = ..()
 
-/obj/item/riding_offhand/equipped()
-	if(loc != rider && loc != parent)
-		selfdeleting = TRUE
-		qdel(src)
-	. = ..()
+// /obj/item/riding_offhand/equipped()
+// 	if(loc != rider && loc != parent)
+// 		selfdeleting = TRUE
+// 		qdel(src)
+// 	. = ..()
 
-/obj/item/riding_offhand/Destroy()
-	var/atom/movable/AM = parent
-	if(selfdeleting)
-		if(rider in AM.buckled_mobs)
-			AM.unbuckle_mob(rider)
-	. = ..()
+// /obj/item/riding_offhand/Destroy()
+// 	var/atom/movable/AM = parent
+// 	if(selfdeleting)
+// 		if(rider in AM.buckled_mobs)
+// 			AM.unbuckle_mob(rider)
+// 	. = ..()

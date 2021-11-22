@@ -16,15 +16,18 @@
 	. = ..()
 	UnregisterSignal(target, COMSIG_MOVABLE_MOVED)
 	if(istype(target))
-		target.remove_movespeed_modifier(/datum/movespeed_modifier/snail_crawl)
+		//target.remove_movespeed_modifier(/datum/movespeed_modifier/snail_crawl)
+		target.remove_movespeed_modifier(MOVESPEED_ID_SNAIL_CRAWL)
 
 /datum/element/snailcrawl/proc/snail_crawl(mob/living/carbon/snail)
 	//SIGNAL_HANDLER
 
 	if(snail.resting && !snail.buckled && lubricate(snail))
-		snail.add_movespeed_modifier(/datum/movespeed_modifier/snail_crawl)
+		//snail.add_movespeed_modifier(/datum/movespeed_modifier/snail_crawl)
+		snail.add_movespeed_modifier(MOVESPEED_ID_SNAIL_CRAWL, update=TRUE, priority=100, multiplicative_slowdown=-7, movetypes=GROUND)
 	else
-		snail.remove_movespeed_modifier(/datum/movespeed_modifier/snail_crawl)
+		//snail.remove_movespeed_modifier(/datum/movespeed_modifier/snail_crawl)
+		snail.remove_movespeed_modifier(MOVESPEED_ID_SNAIL_CRAWL)
 
 /datum/element/snailcrawl/proc/lubricate(atom/movable/snail)
 	//SIGNAL_HANDLER

@@ -3,12 +3,12 @@
 	element_flags = ELEMENT_DETACH | ELEMENT_BESPOKE
 	id_arg_index = 2
 	var/casingtype = /obj/item/ammo_casing/glockroach
-	var/projectilesound = 'sound/weapons/gun/pistol/shot.ogg'
+	var/projectilesound = "sound/weapons/gunshot.ogg"
 	var/projectiletype
 
 /datum/element/ranged_attacks/Attach(atom/movable/target, casingtype, projectilesound, projectiletype)
 	. = ..()
-	if(!isbasicmob(target))
+	if(!isliving(target))
 		return COMPONENT_INCOMPATIBLE
 
 	src.casingtype = casingtype
@@ -24,12 +24,12 @@
 	UnregisterSignal(target, COMSIG_MOB_ATTACK_RANGED)
 	return ..()
 
-/datum/element/ranged_attacks/proc/fire_ranged_attack(mob/living/basic/firer, atom/target, modifiers)
+/datum/element/ranged_attacks/proc/fire_ranged_attack(mob/living/firer, atom/target, modifiers)
 	//SIGNAL_HANDLER
 	INVOKE_ASYNC(src, .proc/async_fire_ranged_attack, firer, target, modifiers)
 
 
-/datum/element/ranged_attacks/proc/async_fire_ranged_attack(mob/living/basic/firer, atom/target, modifiers)
+/datum/element/ranged_attacks/proc/async_fire_ranged_attack(mob/living/firer, atom/target, modifiers)
 	var/turf/startloc = get_turf(firer)
 
 	if(casingtype)

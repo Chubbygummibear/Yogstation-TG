@@ -95,7 +95,7 @@ GLOBAL_LIST_INIT(blacklisted_automated_baseturfs, typecacheof(list(
 	SEND_SIGNAL(src, COMSIG_TURF_CHANGE, path, new_baseturfs, flags, transferring_comps)
 	for(var/i in transferring_comps)
 		var/datum/component/comp = i
-		QDELL_NULL(comp)
+		QDEL_NULL(comp)
 
 	changing_turf = TRUE
 	qdel(src)	//Just get the side effects and call Destroy

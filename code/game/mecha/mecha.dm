@@ -655,7 +655,7 @@
 /obj/mecha/Bump(var/atom/obstacle)
 	var/turf/newloc = get_step(src,dir)
 	var/area/newarea = newloc.loc
-	if(newloc.flags_1 & NOJAUNT_1)
+	if(newloc.flags_1 & NOJAUNT)
 		to_chat(occupant, span_warning("Some strange aura is blocking the way."))
 		return
 

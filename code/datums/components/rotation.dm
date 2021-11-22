@@ -41,9 +41,9 @@
 
 /datum/component/simple_rotation/proc/AddSignals()
 	RegisterSignal(parent, COMSIG_CLICK_ALT, .proc/RotateLeft)
-	//RegisterSignal(parent, COMSIG_CLICK_ALT_SECONDARY, .proc/RotateRight)
+	RegisterSignal(parent, COMSIG_CLICK_ALT_SECONDARY, .proc/RotateRight)
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, .proc/ExamineMessage)
-	//RegisterSignal(parent, COMSIG_ATOM_REQUESTING_CONTEXT_FROM_ITEM, .proc/on_requesting_context_from_item)
+	RegisterSignal(parent, COMSIG_ATOM_REQUESTING_CONTEXT_FROM_ITEM, .proc/on_requesting_context_from_item)
 
 /datum/component/simple_rotation/proc/AddVerbs()
 	var/obj/rotated_obj = parent

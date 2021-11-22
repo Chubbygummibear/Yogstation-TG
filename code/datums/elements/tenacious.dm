@@ -3,6 +3,7 @@
  *
  * Used by sparring sect!
  */
+#define TENACIOUS_ID "tenacious"
 /datum/element/tenacious
 	element_flags = ELEMENT_DETACH
 
@@ -27,7 +28,15 @@
 
 	if(new_stat == SOFT_CRIT)
 		target.balloon_alert(target, "your tenacity kicks in")
-		target.add_movespeed_modifier(/datum/movespeed_modifier/tenacious)
+		//target.add_movespeed_modifier(/datum/movespeed_modifier/tenacious)
+		target.add_movespeed_modifier(TENACIOUS_ID, update=TRUE, priority=101, multiplicative_slowdown=-0.7, movetypes = GROUND)
 	else
 		target.balloon_alert(target, "your tenacity wears off")
 		target.remove_movespeed_modifier(/datum/movespeed_modifier/tenacious)
+		target.remove_movespeed_modifier(TENACIOUS_ID)
+
+// /datum/movespeed_modifier/tenacious
+// 	multiplicative_slowdown = -0.7
+// 	movetypes = GROUND
+
+#undef TENACIOUS_ID

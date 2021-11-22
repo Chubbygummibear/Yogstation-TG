@@ -355,7 +355,49 @@
 //Wabbacjack staff projectiles
 #define WABBAJACK     (1<<6)
 
+// Randomization keys for calling wabbajack with.
+// Note the contents of these keys are important, as they're displayed to the player
+// Ex: (You turn into a "monkey", You turn into a "xenomorph")
+#define WABBAJACK_MONKEY "monkey"
+#define WABBAJACK_ROBOT "robot"
+#define WABBAJACK_SLIME "slime"
+#define WABBAJACK_XENO "xenomorph"
+#define WABBAJACK_HUMAN "humanoid"
+#define WABBAJACK_ANIMAL "animal"
+
+// Reasons a defibrilation might fail
+#define DEFIB_POSSIBLE (1<<0)
+#define DEFIB_FAIL_SUICIDE (1<<1)
+#define DEFIB_FAIL_HUSK (1<<2)
+#define DEFIB_FAIL_TISSUE_DAMAGE (1<<3)
+#define DEFIB_FAIL_FAILING_HEART (1<<4)
+#define DEFIB_FAIL_NO_HEART (1<<5)
+#define DEFIB_FAIL_FAILING_BRAIN (1<<6)
+#define DEFIB_FAIL_NO_BRAIN (1<<7)
+#define DEFIB_FAIL_NO_INTELLIGENCE (1<<8)
+#define DEFIB_FAIL_BLACKLISTED (1<<9)
+#define DEFIB_NOGRAB_AGHOST (1<<10)
+
+// Bit mask of possible return values by can_defib that would result in a revivable patient
+#define DEFIB_REVIVABLE_STATES (DEFIB_FAIL_NO_HEART | DEFIB_FAIL_FAILING_HEART | DEFIB_FAIL_HUSK | DEFIB_FAIL_TISSUE_DAMAGE | DEFIB_FAIL_FAILING_BRAIN | DEFIB_POSSIBLE)
+
+
 #define SLEEP_CHECK_DEATH(X) sleep(X); if(QDELETED(src) || stat == DEAD) return;
+
+#define SLEEP_CHECK_DEATH_TARGET(X, A) \
+	sleep(X); \
+	if(QDELETED(A)) return; \
+	if(ismob(A)) { \
+		var/mob/sleep_check_death_mob = A; \
+		if(sleep_check_death_mob.stat == DEAD) return; \
+	}
+
+//#define INTERACTING_WITH(X, Y) (Y in X.do_afters) this was replaced with DOING_INTERACTION_WITH_TARGET and god i hope that's right
+
+#define DOING_INTERACTION(user, interaction_key) (LAZYACCESS(user.do_afters, interaction_key))
+#define DOING_INTERACTION_LIMIT(user, interaction_key, max_interaction_count) ((LAZYACCESS(user.do_afters, interaction_key) || 0) >= max_interaction_count)
+#define DOING_INTERACTION_WITH_TARGET(user, target) (LAZYACCESS(user.do_afters, target))
+#define DOING_INTERACTION_WITH_TARGET_LIMIT(user, target, max_interaction_count) ((LAZYACCESS(user.do_afters, target) || 0) >= max_interaction_count)
 
 // recent examine defines
 /// How long it takes for an examined atom to be removed from recent_examines. Should be the max of the below time windows
@@ -373,10 +415,15 @@
 //this should be in the ai defines, but out ai defines are actual ai, not simplemob ai
 #define IS_DEAD_OR_INCAP(source) (source.incapacitated() || source.stat)
 
-#define INTERACTING_WITH(X, Y) (Y in X.do_afters)
 
+// Body position defines.
+/// Mob is standing up, usually associated with lying_angle value of 0.
+#define STANDING_UP 0
+/// Mob is lying down, usually associated with lying_angle values of 90 or 270.
+#define LYING_DOWN 1
 
-#define DOING_INTERACTION(user, interaction_key) (LAZYACCESS(user.do_afters, interaction_key))
+///How much a mob's sprite should be moved when they're lying down
+#define PIXEL_Y_OFFSET_LYING -6
 
 ///Define for spawning megafauna instead of a mob for cave gen
 #define SPAWN_MEGAFAUNA "bluh bluh huge boss"

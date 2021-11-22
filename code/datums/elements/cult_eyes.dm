@@ -26,11 +26,18 @@
 	ADD_TRAIT(target, TRAIT_UNNATURAL_RED_GLOWY_EYES, CULT_TRAIT)
 	if (ishuman(target))
 		var/mob/living/carbon/human/human_parent = target
-		human_parent.eye_color_left = BLOODCULT_EYE
-		human_parent.eye_color_right = BLOODCULT_EYE
-		human_parent.dna.update_ui_block(DNA_EYE_COLOR_LEFT_BLOCK)
-		human_parent.dna.update_ui_block(DNA_EYE_COLOR_RIGHT_BLOCK)
-		human_parent.update_body()
+		human_parent.eye_color = "f00"
+		human_parent.dna.update_ui_block(DNA_EYE_COLOR_BLOCK)
+		ADD_TRAIT(human_parent, CULT_EYES, CULT_TRAIT)
+		human_parent.updateappearance()
+
+		//use this commented code chunk when we update to better mob dna and eye color handling
+		// human_parent.eye_color_left = BLOODCULT_EYE
+		// human_parent.eye_color_right = BLOODCULT_EYE
+		// human_parent.dna.update_ui_block(DNA_EYE_COLOR_LEFT_BLOCK)
+		// human_parent.dna.update_ui_block(DNA_EYE_COLOR_RIGHT_BLOCK)
+		// human_parent.update_body()
+
 
 /**
  * Detach proc
@@ -41,10 +48,15 @@
 	REMOVE_TRAIT(target, TRAIT_UNNATURAL_RED_GLOWY_EYES, CULT_TRAIT)
 	if (ishuman(target))
 		var/mob/living/carbon/human/human_parent = target
-		human_parent.eye_color_left = initial(human_parent.eye_color_left)
-		human_parent.eye_color_right = initial(human_parent.eye_color_right)
-		human_parent.dna.update_ui_block(DNA_EYE_COLOR_LEFT_BLOCK)
-		human_parent.dna.update_ui_block(DNA_EYE_COLOR_RIGHT_BLOCK)
-		human_parent.update_body()
+		human_parent.eye_color = initial(human_parent.eye_color)
+		human_parent.dna.update_ui_block(DNA_EYE_COLOR_BLOCK)
+		REMOVE_TRAIT(human_parent, CULT_EYES, null)
+		human_parent.remove_overlay(HALO_LAYER)
+		human_parent.updateappearance()
+		// human_parent.eye_color_left = initial(human_parent.eye_color_left)
+		// human_parent.eye_color_right = initial(human_parent.eye_color_right)
+		// human_parent.dna.update_ui_block(DNA_EYE_COLOR_LEFT_BLOCK)
+		// human_parent.dna.update_ui_block(DNA_EYE_COLOR_RIGHT_BLOCK)
+		// human_parent.update_body()
 	UnregisterSignal(target, list(COMSIG_CHANGELING_TRANSFORM, COMSIG_HUMAN_MONKEYIZE, COMSIG_MONKEY_HUMANIZE))
 	return ..()

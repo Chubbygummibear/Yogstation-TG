@@ -38,7 +38,7 @@
 	try_eating(eater, target)
 
 /datum/element/basic_eating/proc/try_eating(mob/living/eater, atom/target)
-	if(eater.combat_mode)
+	if(eater.a_intent == INTENT_HARM)
 		return
 	if(!is_type_in_list(target, food_types))
 		return

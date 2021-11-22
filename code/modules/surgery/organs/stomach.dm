@@ -232,4 +232,4 @@
 	..()
 	var/datum/component/crawl/vomit/B = M.GetComponent(/datum/component/crawl/vomit)
 	if(B)
-		QDELL_NULL(B)
+		QDEL_NULL(B)

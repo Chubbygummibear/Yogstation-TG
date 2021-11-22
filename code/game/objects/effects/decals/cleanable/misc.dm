@@ -95,7 +95,7 @@
 	light_range = 0
 	update_light()
 	if(R)
-		QDELL_NULL(R)
+		QDEL_NULL(R)
 
 /obj/effect/decal/cleanable/greenglow/filled/Initialize()
 	. = ..()

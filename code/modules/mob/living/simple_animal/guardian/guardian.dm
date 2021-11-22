@@ -58,6 +58,35 @@ GLOBAL_LIST_EMPTY(parasites) //all currently existing/living guardians
 
 	. = ..()
 
+/// Setter for our summoner mob.
+/mob/living/simple_animal/hostile/guardian/proc/set_summoner(mob/to_who)
+	if(summoner)
+		UnregisterSignal(summoner, list(COMSIG_LIVING_ON_WABBAJACKED, COMSIG_LIVING_SHAPESHIFTED, COMSIG_LIVING_UNSHAPESHIFTED))
+
+	summoner = to_who
+	Recall(TRUE)
+	RegisterSignal(to_who, COMSIG_LIVING_ON_WABBAJACKED, .proc/on_owner_wabbajacked)
+	RegisterSignal(to_who, COMSIG_LIVING_SHAPESHIFTED, .proc/on_owner_shapeshifted)
+	RegisterSignal(to_who, COMSIG_LIVING_UNSHAPESHIFTED, .proc/on_owner_unshapeshifted)
+
+/// Signal proc for [COMSIG_LIVING_ON_WABBAJACKED], when our summoner is wabbajacked we should be alerted.
+/mob/living/simple_animal/hostile/guardian/proc/on_owner_wabbajacked(mob/living/source, mob/living/new_mob)
+
+	set_summoner(new_mob)
+	to_chat(src, span_holoparasite("Your summoner has changed form!"))
+
+/// Signal proc for [COMSIG_LIVING_SHAPESHIFTED], when our summoner is shapeshifted we should change to the new mob
+/mob/living/simple_animal/hostile/guardian/proc/on_owner_shapeshifted(mob/living/source, mob/living/new_shape)
+
+	set_summoner(new_shape)
+	to_chat(src, span_holoparasite("Your summoner has shapeshifted into that of a [new_shape]!"))
+
+/// Signal proc for [COMSIG_LIVING_UNSHAPESHIFTED], when our summoner unshapeshifts go back to that mob
+/mob/living/simple_animal/hostile/guardian/proc/on_owner_unshapeshifted(mob/living/source, mob/living/old_summoner)
+
+	set_summoner(old_summoner)
+	to_chat(src, span_holoparasite("Your summoner has shapeshifted back into their normal form!"))
+
 /mob/living/simple_animal/hostile/guardian/med_hud_set_health()
 	if(summoner)
 		var/image/holder = hud_list[HEALTH_HUD]
@@ -555,7 +584,7 @@ GLOBAL_LIST_EMPTY(parasites) //all currently existing/living guardians
 		used = FALSE
 		return
 	var/mob/living/simple_animal/hostile/guardian/G = new pickedtype(user, theme)
-	G.summoner = user
+	G.set_summoner(user)
 	G.key = key
 	G.mind.enslave_mind_to_creator(user)
 	log_game("[key_name(user)] has summoned [key_name(G)], a [guardiantype] holoparasite.")

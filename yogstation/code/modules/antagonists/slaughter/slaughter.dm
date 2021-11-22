@@ -136,7 +136,7 @@
 	..()
 	var/datum/component/crawl/blood/B = M.GetComponent(/datum/component/crawl/blood)
 	if(B)
-		QDELL_NULL(B)
+		QDEL_NULL(B)
 
 /obj/item/organ/heart/demon/Stop()
 	return 0 // Always beating.
@@ -182,7 +182,7 @@
 	. = ..()
 	var/datum/component/crawl/blood/demonic/scary = GetComponent(/datum/component/crawl/blood/demonic)
 	if(scary)
-		QDELL_NULL(scary)
+		QDEL_NULL(scary)
 	var/datum/component/crawl/blood/demonic/hilarious/bloodcrawl = AddComponent(/datum/component/crawl/blood/demonic/hilarious)
 	if(bloodcrawl && istype(loc, /obj/effect/dummy/crawling))
 		bloodcrawl.holder = loc

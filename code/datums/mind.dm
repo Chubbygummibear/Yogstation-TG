@@ -121,7 +121,7 @@
 				mood_was_enabled = TRUE
 				var/datum/component/mood/c = H.GetComponent(/datum/component/mood)
 				if(c)
-					QDELL_NULL(c)
+					QDEL_NULL(c)
 		// Yogs End
 		current.mind = null
 		UnregisterSignal(current, COMSIG_MOB_DEATH)
