@@ -138,7 +138,7 @@
 
 /obj/item/organ/cyberimp/brain/trauma_inhibitor
 	name = "Cerebral Trauma Inhibitor"
-	desc = "This implant will allow neural signals to bypass damaged portions of the brain. Negating the effects of all brain traumas."
+	desc = "This implant will allow neural signals to bypass damaged portions of the brain, nullifying non-genetic brain traumas while active."
 	implant_color = "#FFC0CB"
 	zone = BODY_ZONE_HEAD
 	w_class = WEIGHT_CLASS_TINY
@@ -146,20 +146,37 @@
 
 /obj/item/organ/cyberimp/brain/trauma_inhibitor/Insert()
 	. = ..()
-	traumas = owner.get_traumas()
-	owner.cure_all_traumas(TRAUMA_RESILIENCE_LOBOTOMY)
+	if(owner.get_traumas())
+		traumas = owner.get_traumas()
+		owner.cure_all_traumas(TRAUMA_RESILIENCE_MAGIC)
 
 /obj/item/organ/cyberimp/brain/trauma_inhibitor/Remove(mob/living/carbon/M, special = FALSE)
 	. = ..()
-	UnregisterSignal(M, signalCache)
+	if(LAZYLEN(traumas))
+		for(var/datum/brain_trauma/b in traumas)
+			owner.gain_trauma(b, TRAUMA_RESILIENCE_MAGIC)
+
+/obj/item/organ/cyberimp/brain/trauma_inhibitor/on_life()
+	. = ..()
+	if(LAZYLEN(owner.get_traumas()))
+		for(var/datum/brain_trauma/b in traumas)
+			owner.gain_trauma(b, TRAUMA_RESILIENCE_LOBOTOMY)
+		owner.cure_all_traumas(TRAUMA_RESILIENCE_MAGIC)
+		to_chat(owner, span_warning("You feel a tingle as your trauma inhibitor recalibrates itself."))
 
 /obj/item/organ/cyberimp/brain/trauma_inhibitor/emp_act(severity)
 	. = ..()
 	if(!owner || . & EMP_PROTECT_SELF)
 		return
 	if(severity)
-	destroy()
-	to_chat(owner, span_warning("Your body seizes up!"))
+		owner.gain_trauma_type(BRAIN_TRAUMA_SEVERE, TRAUMA_RESILIENCE_MAGIC)
+		owner.adjustOrganLoss(ORGAN_SLOT_BRAIN, 50)
+		to_chat(owner, span_warning("Your head pounds as you hear an internal pop reverberate between your ears!"))
+		src.destroy()
+	else
+		owner.gain_trauma_type(BRAIN_TRAUMA_MILD, TRAUMA_RESILIENCE_MAGIC)
+		owner.adjustOrganLoss(ORGAN_SLOT_BRAIN, 25)
+		to_chat(owner, span_warning("A searing pain shoots through your head!"))
 
 //[[[[MOUTH]]]]
 /obj/item/organ/cyberimp/mouth
