@@ -19,7 +19,7 @@
 	charge_max = 100
 	clothes_req = FALSE
 	antimagic_allowed = TRUE
-	icon = 'icons/mob/actions/humble/actions_humble.dmi'
+	action_icon = 'icons/mob/actions/actions_humble.dmi'
 	action_icon_state = "zap"
 
 /obj/item/melee/touch_attack/shock

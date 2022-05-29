@@ -117,9 +117,9 @@
 	range = 20
 	cooldown_min = 20 //10 deciseconds reduction per rank
 	projectile_type = /obj/item/projectile/magic/aoe/fireball
-	action_icon = 'icons/mob/actions/humble/actions_humble.dmi'
+	action_icon = 'icons/mob/actions/actions_humble.dmi'
 	base_icon_state = "fireball"
-	action_icon_state = "fireball0"
+	action_icon_state = "fireball"
 	sound = 'sound/magic/fireball.ogg'
 	active_msg = "You prepare to cast your fireball spell!"
 	deactive_msg = "You extinguish your fireball... for now."

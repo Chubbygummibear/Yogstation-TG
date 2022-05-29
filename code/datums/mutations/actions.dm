@@ -123,7 +123,7 @@
 	range = 20
 	projectile_type = /obj/item/projectile/magic/aoe/fireball/firebreath
 	base_icon_state = "fireball"
-	action_icon_state = "fireball0"
+	action_icon_state = "fireball"
 	sound = 'sound/magic/demon_dies.ogg' //horrifying lizard noises
 	active_msg = "You build up heat in your mouth."
 	deactive_msg = "You swallow the flame."

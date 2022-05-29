@@ -8,6 +8,7 @@
 /obj/effect/proc_holder/spell/targeted/touch/shock/far
 	name = "Extended Shock Touch"
 	hand_path = /obj/item/melee/touch_attack/shock/far
+	action_icon_state = "lightning"
 
 /obj/item/melee/touch_attack/shock/far
 	far = TRUE
