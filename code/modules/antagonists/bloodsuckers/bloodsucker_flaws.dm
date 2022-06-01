@@ -73,7 +73,7 @@
 			var/datum/objective/bloodsucker/hierarchy/lasombra_objective = new
 			lasombra_objective.owner = owner
 			objectives += lasombra_objective
-			to_chat(owner, span_notice("You have also learned how to channel the abyss's power into an iron knight's armor that can be build in the structure ta and activated as a trap for your lair."))
+			to_chat(owner, span_notice("You have also learned how to channel the abyss's power into an iron knight's armor that can be build in the structure tab and activated as a trap for your lair."))
 			owner.teach_crafting_recipe(/datum/crafting_recipe/possessedarmor)
 			owner.teach_crafting_recipe(/datum/crafting_recipe/restingplace)
 	owner.announce_objectives()
