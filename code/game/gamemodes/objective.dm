@@ -5,7 +5,8 @@ GLOBAL_LIST_EMPTY(objectives)
 	var/datum/mind/owner				//The primary owner of the objective. !!SOMEWHAT DEPRECATED!! Prefer using 'team' for new code.
 	var/datum/team/team					//An alternative to 'owner': a team. Use this when writing new code.
 	var/name = "generic objective" 		//Name for admin prompts
-	var/explanation_text = "Nothing"	//What that person is supposed to do.
+	var/explanation_text = "Nothing"	//What that person is supposed to do.	
+	var/objective_name = "Objective"	///name used in printing this objective (Objective #1)
 	var/team_explanation_text			//For when there are multiple owners.
 	var/datum/mind/target = null		//If they are focused on a particular person.
 	var/target_amount = 0				//If they are focused on a particular number. Steal objectives have their own counter.

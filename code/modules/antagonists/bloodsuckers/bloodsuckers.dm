@@ -285,9 +285,14 @@
 
 	// Default Report
 	var/objectives_complete = TRUE
+	var/optional_objectives_complete = TRUE
 	if(objectives.len)
 		report += printobjectives(objectives)
 		for(var/datum/objective/objective in objectives)
+			if(objective.objective_name == "Optional Objective")
+				if(!objective.check_completion())
+					optional_objectives_complete = FALSE
+				continue
 			if(!objective.check_completion())
 				objectives_complete = FALSE
 				break
@@ -300,10 +305,12 @@
 				var/jobname = all_vassals.owner.assigned_role ? "the [all_vassals.owner.assigned_role]" : ""
 				report += "<b>[all_vassals.owner.name]</b> [jobname][all_vassals.favorite_vassal == TRUE ? " and was the <b>Favorite Vassal</b>" : ""]"
 
-	if(objectives.len == 0 || objectives_complete)
-		report += "<span class='greentext big'>The [name] was successful!</span>"
+	if(objectives.len == 0 || objectives_complete && optional_objectives_complete)
+		report += span_greentext(span_big("The [name] was successful!"))
+	else if(objectives_complete && !optional_objectives_complete)
+		report += span_greentext("The [name] survived, but has not made a name for themself...")
 	else
-		report += "<span class='redtext big'>The [name] has failed!</span>"
+		report += span_redtext(span_big("The [name] has failed!"))
 
 	return report
 
@@ -532,6 +539,7 @@
 			rolled_objectives = list(new /datum/objective/bloodsucker/heartthief, new /datum/objective/bloodsucker/gourmand)
 	for(var/datum/objective/bloodsucker/objective in rolled_objectives)
 		objective.owner = owner
+		objective.objective_name = "Optional Objective"
 		objectives += objective
 
 /// Name shown on antag list
