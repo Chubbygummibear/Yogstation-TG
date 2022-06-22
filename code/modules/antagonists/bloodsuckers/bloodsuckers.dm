@@ -308,7 +308,7 @@
 	if(objectives.len == 0 || objectives_complete && optional_objectives_complete)
 		report += span_greentext(span_big("The [name] was successful!"))
 	else if(objectives_complete && !optional_objectives_complete)
-		report += span_greentext("The [name] survived, but has not made a name for themself...")
+		report += span_greentext("The [name] survived, but has not made a name for [owner.current.p_them()]self...")
 	else
 		report += span_redtext(span_big("The [name] has failed!"))
 
