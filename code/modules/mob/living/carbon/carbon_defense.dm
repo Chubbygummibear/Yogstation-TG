@@ -54,7 +54,7 @@
 	if(istype(I, /obj/item))
 		if(((throwingdatum ? throwingdatum.speed : I.throw_speed) >= EMBED_THROWSPEED_THRESHOLD) || I.embedding.embedded_ignore_throwspeed_threshold)
 			var/obj/item/bodypart/body_part = pick(bodyparts)
-			if(prob(clamp(I.embedding.embed_chance - run_armor_check(body_part, MELEE), 0, 100)) && embed_object(I, deal_damage = TRUE))
+			if(prob(clamp(I.embedding.embed_chance - run_armor_check(body_part, MELEE), 0, 100)) && embed_object(I, body_part, deal_damage = TRUE))
 				hitpush = FALSE
 				skipcatch = TRUE //can't catch the now embedded item
 		if(!skipcatch)	//ugly, but easy
@@ -112,8 +112,6 @@
 			body_part = part
 	if(!body_part)
 		return
-	if(!embedded.on_embed_removal(src))
-		return
 	body_part.embedded_objects -= embedded
 	if(!silent)
 		emote("scream")
@@ -122,6 +120,7 @@
 		SEND_SIGNAL(usr, COMSIG_CLEAR_MOOD_EVENT, "embedded")
 	if(new_loc)
 		embedded.forceMove(new_loc)
+	embedded.on_embed_removal(src)
 	return TRUE
 
 /**
@@ -368,6 +367,8 @@
 	if(stat == DEAD && can_defib()) //yogs: ZZAPP
 		if(!illusion && (shock_damage * siemens_coeff >= 1) && prob(80))
 			set_heartattack(FALSE)
+			adjustOxyLoss(-50)
+			adjustToxLoss(-50)
 			revive()
 			INVOKE_ASYNC(src, .proc/emote, "gasp")
 			Jitter(100)
@@ -542,7 +543,7 @@
 		return
 
 	to_chat(src, span_warning("You grasp at your [grasped_part.name], trying to stop the bleeding..."))
-	if(!do_after(src, 1.5 SECONDS, target = src))
+	if(!do_after(src, 1.5 SECONDS, src))
 		to_chat(src, span_danger("You can't get a good enough grip to slow the bleeding on [grasped_part.name]."))
 		return
 

@@ -266,6 +266,7 @@
 	name = "nar'sien bola"
 	desc = "A strong bola, bound with dark magic that allows it to pass harmlessly through Nar'sien cultists. Throw it to trip and slow your victim."
 	icon_state = "bola_cult"
+	item_state = "bola_cult"
 	breakouttime = 60
 	immobilize = 20
 
@@ -839,11 +840,11 @@ GLOBAL_VAR_INIT(curselimit, 0)
 		return
 	charging = TRUE
 	INVOKE_ASYNC(src, .proc/charge, user)
-	if(do_after(user, 90, target = user))
+	if(do_after(user, 9 SECONDS, user))
 		firing = TRUE
 		INVOKE_ASYNC(src, .proc/pewpew, user, params)
 		var/obj/structure/emergency_shield/invoker/N = new(user.loc)
-		if(do_after(user, 90, target = user))
+		if(do_after(user, 9 SECONDS, user))
 			user.Paralyze(40)
 			to_chat(user, "<span class='cult italic'>You have exhausted the power of this spell!</span>")
 		firing = FALSE

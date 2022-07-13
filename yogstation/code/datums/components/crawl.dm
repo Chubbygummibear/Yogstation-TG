@@ -140,7 +140,7 @@
 
 /datum/component/crawl/blood/stop_crawling(atom/target, mob/living/user)
 	target.visible_message(span_warning("[target] starts to bubble..."))
-	if(!do_after(user, 2 SECONDS, target = target))
+	if(!do_after(user, 2 SECONDS, target))
 		return
 	if(!target)
 		return
@@ -250,7 +250,7 @@
 	to_chat(user, span_notice("You close your eyes, plug your ears and start counting to three..."))
 	target.visible_message("<span class='warning'>[target] starts shaking uncontrollably!</span")
 	target.Shake(3, 3, 3 SECONDS * 5)
-	if(!do_after(user, 3 SECONDS, target = target))
+	if(!do_after(user, 3 SECONDS, target))
 		return
 	..()
 	to_chat(user, span_notice("You open your eyes and find yourself in the locker dimension."))
@@ -260,7 +260,7 @@
 /datum/component/crawl/locker/stop_crawling(atom/target, mob/living/user)
 	target.visible_message("<span class='warning'>[target] starts shaking uncontrollably!</span")
 	target.Shake(3, 3, 3 SECONDS * 5)
-	if(!do_after(user, 3 SECONDS, target = target))
+	if(!do_after(user, 3 SECONDS, target))
 		return
 	user.forceMove(target)
 	qdel(holder)
@@ -380,7 +380,7 @@ GLOBAL_LIST_EMPTY(vomit_spots)
 
 /datum/component/crawl/vomit/stop_crawling(atom/target, mob/living/user)
 	target.visible_message(span_warning("[target] starts to bubble...?"))
-	if(!do_after(user, 2 SECONDS, target = target))
+	if(!do_after(user, 2 SECONDS, target))
 		return
 	if(!target)
 		return
@@ -441,6 +441,10 @@ GLOBAL_LIST_EMPTY(vomit_spots)
 			index = index == 1 ? GLOB.vomit_spots.len : index - 1
 		else
 			index = index == GLOB.vomit_spots.len ? 1 : index + 1
+		var/atom/vomit_spot = GLOB.vomit_spots[index]
+		if(vomit_spot.z != src.z)
+			follow_next(reverse) //im sure this will have no ill effects since a GLOB.vomit_spots of 1 means there's at least your pace to pop out RIGHT
+			return
 		currentvomit = GLOB.vomit_spots[index]
 		follow_vomit()
 
