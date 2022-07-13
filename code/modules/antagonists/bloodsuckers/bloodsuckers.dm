@@ -286,6 +286,7 @@
 	// Default Report
 	var/objectives_complete = TRUE
 	var/optional_objectives_complete = TRUE
+	var/flavor_message
 	if(objectives.len)
 		report += printobjectives(objectives)
 		for(var/datum/objective/objective in objectives)
@@ -306,14 +307,74 @@
 				report += "<b>[all_vassals.owner.name]</b> [jobname][all_vassals.favorite_vassal == TRUE ? " and was the <b>Favorite Vassal</b>" : ""]"
 
 	if(objectives.len == 0 || objectives_complete && optional_objectives_complete)
+		//var/static/list/messages = list()
 		report += span_greentext(span_big("The [name] was successful!"))
 	else if(objectives_complete && !optional_objectives_complete)
+		//var/static/list/messages = list()
 		report += span_greentext("The [name] survived, but has not made a name for [owner.current.p_them()]self...")
 	else
+		var/static/list/messages = list(
+			"Not only did you fail your objectives, you broke the Masquerade. Your name will surely be stricken from all of history by those who uphold the tradition.")		
 		report += span_redtext(span_big("The [name] has failed!"))
-
+		flavor_message = pick(messages)
+	report += "<div><font color='#FF0000'><i>[flavor_message]</i></font>"
+	//add this to the bad bitches
+	// var/static/icon/badass = icon('icons/badass.dmi', "badass")
+	// report += "<BIG>[icon2html(badass, world)]</BIG>"
 	return report
 
+/// Evaluates the conditions of the bloodsucker at the end of each round to pick a flavor message to add
+/datum/antagonist/bloodsucker/proc/getFlavor(optional_objectives_complete, objectives_complete)
+	var/flavor_message
+	var/escaped = (owner.current.onCentCom() || owner.current.onSyndieBase())
+	//i used pick() in case anyone wants to add more messages as time goes on
+	if(objectives_complete && optional_objectives_complete && broke_masquerade && escaped)
+		//finish all objectives, break masquerade, evac
+		flavor_message = pick(list(
+			"Describing you as a tyrant is a disservice to your abilities. You're a god amongst Bloodsuckers, and a demon in the eyes of everyone else. That station was just the beginning for you."
+		))
+	else if(objectives_complete && optional_objectives_complete && broke_masquerade && !escaped)
+		//finish all objectives, break masquerade, don't evac
+		flavor_message = pick(list(
+			"You ran amok of the station, completed every task set before you, and killed any who opposed you. The Camarilla dare not risk a move against you for breaking the Masquerade."
+		))
+	else if(objectives_complete && optional_objectives_complete && !broke_masquerade && escaped)
+		//finish all objectives, don't break masquerade, escape
+		flavor_message = pick(list(
+			"You've proven your skills, you even managed to escape the station. Upon arriving back at Centom, an unassuming assistant hands you an invitation stamped with the Camerilla seal. High society is waiting for you."
+		))
+	else if(objectives_complete && optional_objectives_complete && !broke_masquerade && !escaped)
+		//finish all objectives, don't break masquerade, don't escape
+		flavor_message = pick(list(
+			"This station is your own slice of paradise. Each batch of crew is ripe for the picking of vassals and food. At this rate you might even start your own clan here."
+		))
+	else if(objectives_complete && !optional_objectives_complete && broke_masquerade && escaped)
+		//finish primary objectives only, break masquerade, escape
+		flavor_message = pick(list(
+			"You may have completed what was asked of you, but that doesn't change the fact that you violated the masqerade. Good thing you got off the station because it's time to disappear."
+		))
+	else if(objectives_complete && !optional_objectives_complete && broke_masquerade && !escaped)
+		//finish primary objectives only, break masquerade, don't escape
+		flavor_message = pick(list(
+			"You survived, but you broke the masquerade, and both monster hunters and bloodsuckers are going to know where to find you... Perhaps it's time to see what's so about special this Sol the cattle keep talking about."
+		))
+	else if(objectives_complete && !optional_objectives_complete && !broke_masquerade && escaped)
+		//finish primary objectives only, don't break masquerade, escape
+		flavor_message = pick(list(
+			"That station didn't suit you anyway, and so now it's time to find a new locale. Maybe your next haunt will prove more comfortable."
+		))
+	else if(objectives_complete && !optional_objectives_complete && !broke_masquerade && !escaped)
+		//finish primary objectives only, don't break masquerade, don't escape
+		flavor_message = pick(list(
+			"A low profile has always suited you best. Just enough to get by, don't make waves, and keep your head low. It's not luxorious living, but it beats being dead."
+		))
+	else
+		//perish or just fuck up and fail your primary objectives
+		flavor_message = pick(list(
+			"Thus ends the story of [ReturnFullName(TRUE)]. Hopefully future generations will look back on your legacy and reflect on the lessons of the past."
+		))
+	return flavor_message
+	
 /**
  *	# Assigning Sol
  *
