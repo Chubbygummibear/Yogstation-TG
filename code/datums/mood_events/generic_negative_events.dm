@@ -91,14 +91,6 @@
 	mood_change = -2
 	timeout = 2 MINUTES
 
-/datum/mood_event/table/add_effects()
-	if(iscatperson(owner))
-		var/mob/living/carbon/human/H = owner
-		H.dna.species.start_wagging_tail(H)
-		addtimer(CALLBACK(H.dna.species, /datum/species.proc/stop_wagging_tail, H), 3 SECONDS)
-		description =  "<span class='nicegreen'>They want to play on the table!</span>\n"
-		mood_change = 2
-
 /datum/mood_event/brain_damage
   mood_change = -3
 
