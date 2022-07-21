@@ -7,6 +7,7 @@
 	if(ishuman(owner.parent))
 		var/mob/living/carbon/human/H = owner.parent
 		ADD_TRAIT(H, TRAIT_BLUSHING, "[type]")
+		H.apply_status_effect(/datum/status_effect/blushing)
 		H.update_body()
 
 /datum/mood_event/drunk/remove_effects()
@@ -14,6 +15,7 @@
 	REMOVE_TRAIT(owner.parent, TRAIT_BLUSHING, "[type]")
 	if(ishuman(owner.parent))
 		var/mob/living/carbon/human/H = owner.parent
+		H.remove_status_effect(/datum/status_effect/blushing)
 		H.update_body()
 
 /datum/mood_event/quality_nice

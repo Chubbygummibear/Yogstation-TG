@@ -230,3 +230,26 @@
 	duration = 600
 	status_type = STATUS_EFFECT_UNIQUE
 	alert_type = null
+
+/datum/status_effect/blushing
+	id = "blushing"
+	duration = -1
+	status_type = STATUS_EFFECT_UNIQUE
+	alert_type = null
+
+/datum/status_effect/blushing/on_apply()
+	if(!ishuman(owner))
+		return FALSE
+	var/mob/living/carbon/human/blusher = owner
+	var/image/I = image(icon = 'icons/mob/human_face.dmi', icon_state = "blush", loc = owner)
+	I.color = COLOR_BLUSH_PINK
+	if(ispolysmorph(blusher))
+		I.color = COLOR_BLUSH_POLYSMORPH
+	if(isplasmaman(blusher))
+		I.color = COLOR_BLUSH_PLASMAMAN
+	//if(blusher.is_face_visible()) controls if the blush cares about face obscuring or not. leaving it off because syndie mask blushing is funny
+	owner.add_alt_appearance(/datum/atom_hud/alternate_appearance/basic/blushing, TRAIT_BLUSHING, I, NONE)
+	return ..()
+
+/datum/status_effect/blushing/on_remove()
+	owner.remove_alt_appearance(TRAIT_BLUSHING)

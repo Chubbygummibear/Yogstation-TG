@@ -12,12 +12,15 @@
 	message = "blushes."
 	/// Timer for the blush visual to wear off
 	var/blush_timer = TIMER_ID_NULL
+	/// this is specifically to be able to set ethereal face marks back to their old color
+	var/original_eye_color = ""
 
 /datum/emote/living/blush/run_emote(mob/user, params, type_override, intentional)
 	. = ..()
 	if(. && isliving(user))
 		var/mob/living/living_user = user
 		ADD_TRAIT(living_user, TRAIT_BLUSHING, "[type]")
+		living_user.apply_status_effect(/datum/status_effect/blushing)
 		living_user.update_body()
 
 		// Use a timer to remove the blush effect after the BLUSH_DURATION has passed
@@ -29,6 +32,7 @@
 /datum/emote/living/blush/proc/end_blush(mob/living/living_user)
 	if(!QDELETED(living_user))
 		REMOVE_TRAIT(living_user, TRAIT_BLUSHING, "[type]")
+		living_user.remove_status_effect(/datum/status_effect/blushing)
 		living_user.update_body()
 
 #undef BLUSH_DURATION

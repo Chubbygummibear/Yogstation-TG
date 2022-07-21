@@ -190,3 +190,16 @@ datum/atom_hud/alternate_appearance/basic/onePerson
 	..(key, I, FALSE)
 	seer = M
 	add_hud_to(seer)
+
+/datum/atom_hud/alternate_appearance/basic/blushing
+	
+/datum/atom_hud/alternate_appearance/basic/blushing/New()
+	..() 
+	for(var/mob in GLOB.player_list)
+		if(mobShouldSee(mob))
+			add_hud_to(mob)
+
+/datum/atom_hud/alternate_appearance/basic/blushing/mobShouldSee(mob/M)
+	if(M?.client?.prefs.visualized_blushing)
+		return TRUE
+	return FALSE

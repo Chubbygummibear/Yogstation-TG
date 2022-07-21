@@ -61,4 +61,5 @@
 
 //Colors for blushes
 #define COLOR_BLUSH_PINK       "#DE5D83"
+#define COLOR_BLUSH_PLASMAMAN  "#c05dde"
 #define COLOR_BLUSH_POLYSMORPH "#00FF32"
