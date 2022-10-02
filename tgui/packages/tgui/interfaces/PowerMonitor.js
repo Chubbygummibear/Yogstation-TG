@@ -174,7 +174,7 @@ export const PowerMonitorContent = (props, context) => {
           ))}
         </Table>
       </Section>
-    </>
+    </Fragment>
   );
 };
 

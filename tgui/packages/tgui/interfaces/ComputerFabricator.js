@@ -341,7 +341,7 @@ const CfStep2 = (props, context) => {
                   })} />
               </Table.Cell>
             </Table.Row>
-          </>
+          </Fragment>
         )}
       </Table>
       <Button
