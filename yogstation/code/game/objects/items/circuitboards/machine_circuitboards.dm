@@ -12,3 +12,13 @@
 		set_type(inverse[type])
 
 	return TRUE
+
+/obj/item/circuitboard/machine/icecream_cart
+	name = "Ice Cream Cart (Machine Board)"
+	icon_state = "service"
+	build_path = /obj/machinery/icecream_cart
+	req_components = list(
+		/obj/item/stock_parts/manipulator = 1,
+		/obj/item/reagent_containers/glass/beaker = 2,
+		/obj/item/stock_parts/matter_bin = 1,
+		/obj/item/stack/rods = 2)
