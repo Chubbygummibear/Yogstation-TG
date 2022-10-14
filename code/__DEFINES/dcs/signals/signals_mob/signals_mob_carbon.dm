@@ -88,3 +88,7 @@
 
 ///from base of mob/living/carbon/enter_stamcrit()
 #define COMSIG_CARBON_STATUS_STAMCRIT "living_stamcrit"
+
+///from  base of mob/living/carbon/set_species(): (new_race)
+#define COMSIG_CARBON_SPECIESCHANGE "mob_carbon_specieschange"
+

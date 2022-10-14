@@ -330,12 +330,12 @@ Class Procs:
 		take_damage(4, BRUTE, MELEE, 1)
 
 /obj/machinery/attack_robot(mob/user)
-	if(!(interaction_flags_machine & INTERACT_MACHINE_ALLOW_SILICON) && !IsAdminGhost(user))
+	if(!(interaction_flags_machine & INTERACT_MACHINE_ALLOW_SILICON) && !isAdminObserver(user))
 		return FALSE
 	return _try_interact(user)
 
 /obj/machinery/attack_ai(mob/user)
-	if(!(interaction_flags_machine & INTERACT_MACHINE_ALLOW_SILICON) && !IsAdminGhost(user))
+	if(!(interaction_flags_machine & INTERACT_MACHINE_ALLOW_SILICON) && !isAdminObserver(user))
 		return FALSE
 	if(iscyborg(user))// For some reason attack_robot doesn't work
 		return attack_robot(user)

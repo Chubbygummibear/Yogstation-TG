@@ -1,4 +1,5 @@
-GLOBAL_LIST_INIT(freon_color_matrix, list("#2E5E69", "#60A2A8", "#A1AFB1", rgb(0,0,0)))
+//GLOBAL_LIST_INIT(freon_color_matrix, list("#2E5E69", "#60A2A8", "#A1AFB1", rgb(0,0,0)))
+/*CURRENTLY IN ICONS DM. WHEN YOU ACTUALLY WORK ON THIS ELEMENT, USE THIS ONE HERE AND GET RID OF THE ICONS ONE*/
 
 ///simple element to handle frozen obj's
 /datum/element/frozen

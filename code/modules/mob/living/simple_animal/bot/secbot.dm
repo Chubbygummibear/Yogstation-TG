@@ -119,7 +119,7 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 
 "<A href='?src=[REF(src)];power=1'>[on ? "On" : "Off"]</A>" )
 
-	if(!locked || issilicon(user) || IsAdminGhost(user))
+	if(!locked || issilicon(user) || isAdminObserver(user))
 		dat += text({"<BR>
 Arrest Unidentifiable Persons: []<BR>
 Arrest for Unauthorized Weapons: []<BR>
@@ -141,7 +141,7 @@ Auto Patrol: []"},
 	if(..())
 		return TRUE
 
-	if(!issilicon(usr) && !IsAdminGhost(usr) && !(bot_core.allowed(usr) || !locked))
+	if(!issilicon(usr) && !isAdminObserver(usr) && !(bot_core.allowed(usr) || !locked))
 		return TRUE
 
 	switch(href_list["operation"])
