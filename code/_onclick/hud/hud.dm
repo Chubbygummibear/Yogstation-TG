@@ -123,12 +123,48 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 /mob
 	var/hud_type = /datum/hud
 
+/datum/hud/proc/on_plane_increase(datum/source, old_max_offset, new_max_offset)
+	SIGNAL_HANDLER
+	build_plane_groups(old_max_offset + 1, new_max_offset)
+
+/// Creates the required plane masters to fill out new z layers (because each "level" of multiz gets its own plane master set)
+/datum/hud/proc/build_plane_groups(starting_offset, ending_offset)
+	for(var/group_key in master_groups)
+		var/datum/plane_master_group/group = master_groups[group_key]
+		group.build_plane_masters(starting_offset, ending_offset)
+
+/// Returns the plane master that matches the input plane from the passed in group
+/datum/hud/proc/get_plane_master(plane, group_key = PLANE_GROUP_MAIN)
+	var/plane_key = "[plane]"
+	var/datum/plane_master_group/group = master_groups[group_key]
+	return group.plane_masters[plane_key]
+
+/// Returns a list of all plane masters that match the input true plane, drawn from the passed in group (ignores z layer offsets)
+/datum/hud/proc/get_true_plane_masters(true_plane, group_key = PLANE_GROUP_MAIN)
+	var/list/atom/movable/screen/plane_master/masters = list()
+	for(var/plane in TRUE_PLANE_TO_OFFSETS(true_plane))
+		masters += get_plane_master(plane, group_key)
+	return masters
+
+/// Returns all the planes belonging to the passed in group key
+/datum/hud/proc/get_planes_from(group_key)
+	var/datum/plane_master_group/group = master_groups[group_key]
+	return group.plane_masters
+
+/// Returns the corresponding plane group datum if one exists
+/datum/hud/proc/get_plane_group(key)
+	return master_groups[key]
+
 /mob/proc/create_mob_hud()
 	if(!client || hud_used)
 		return
 	hud_used = new hud_type(src)
 	update_sight()
 	SEND_SIGNAL(src, COMSIG_MOB_HUD_CREATED)
+
+/mob/proc/set_hud_used(datum/hud/new_hud)
+	hud_used = new_hud
+	new_hud.build_action_groups()
 
 //Version denotes which style should be displayed. blank or 0 means "next version"
 /datum/hud/proc/show_hud(version = 0, mob/viewmob)

@@ -112,6 +112,11 @@
 	var/held_state = null //normally use the default icon but if need be use another one
 	var/worn_layer //use to set if you want your inhand mob sprite to be hidden or not
 
+	/// FOV view that is applied from either nativeness or traits
+	var/fov_view
+	/// Lazy list of FOV traits that will apply a FOV view when handled.
+	var/list/fov_traits
+
 	//Speech
 	var/stuttering = 0
 	var/slurring = 0
