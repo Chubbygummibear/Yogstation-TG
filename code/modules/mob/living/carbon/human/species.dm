@@ -75,6 +75,8 @@ GLOBAL_LIST_EMPTY(mentor_races)
 	var/coldmod = 1
 	/// multiplier for heat damage
 	var/heatmod = 1
+	/// multiplier for temperature adjustment
+	var/tempmod = 1
 	/// multiplier for acid damage // yogs - Old Plant People
 	var/acidmod = 1
 	/// multiplier for stun duration
@@ -101,6 +103,8 @@ GLOBAL_LIST_EMPTY(mentor_races)
 	var/aiminginaccuracy = 0
 	///base electrocution coefficient
 	var/siemens_coeff = 1
+	///base action speed coefficient
+	var/action_speed_coefficient = 1
 	///what kind of damage overlays (if any) appear on our species when wounded?
 	var/damage_overlay_type = "human"
 	///to use MUTCOLOR with a fixed color that's independent of dna.feature["mcolor"]
@@ -1320,6 +1324,8 @@ GLOBAL_LIST_EMPTY(mentor_races)
 			hunger_rate *= 0.75 //hunger rate reduced by about 25%
 		if(HAS_TRAIT(H, TRAIT_EAT_MORE))
 			hunger_rate *= 3 //hunger rate tripled
+		if(HAS_TRAIT(H, TRAIT_BOTTOMLESS_STOMACH))
+			H.nutrition = min(H.nutrition, NUTRITION_LEVEL_MOSTLY_FULL) //capped, can never be truly full
 		// Whether we cap off our satiety or move it towards 0
 		if(H.satiety > MAX_SATIETY)
 			H.satiety = MAX_SATIETY
@@ -1364,13 +1370,13 @@ GLOBAL_LIST_EMPTY(mentor_races)
 /datum/species/proc/get_hunger_alert(mob/living/carbon/human/H)
 	switch(H.nutrition)
 		if(NUTRITION_LEVEL_FULL to INFINITY)
-			H.throw_alert("nutrition", /obj/screen/alert/fat)
+			H.throw_alert("nutrition", /atom/movable/screen/alert/fat)
 		if(NUTRITION_LEVEL_HUNGRY to NUTRITION_LEVEL_FULL)
 			H.clear_alert("nutrition")
 		if(NUTRITION_LEVEL_STARVING to NUTRITION_LEVEL_HUNGRY)
-			H.throw_alert("nutrition", /obj/screen/alert/hungry)
+			H.throw_alert("nutrition", /atom/movable/screen/alert/hungry)
 		if(0 to NUTRITION_LEVEL_STARVING)
-			H.throw_alert("nutrition", /obj/screen/alert/starving)
+			H.throw_alert("nutrition", /atom/movable/screen/alert/starving)
 
 /datum/species/proc/update_health_hud(mob/living/carbon/human/H)
 	return 0
@@ -1882,6 +1888,11 @@ GLOBAL_LIST_EMPTY(mentor_races)
 				H.adjustStaminaLoss(damage * hit_percent * H.physiology.stamina_mod)
 		if(BRAIN)
 			H.adjustOrganLoss(ORGAN_SLOT_BRAIN, damage * hit_percent * H.physiology.brain_mod)
+	
+	if(H.stat == DEAD && (H.mobility_flags & MOBILITY_STAND))
+		if(H.buckled && istype(H.buckled, /obj/structure))//prevent buckling corpses to chairs to make indestructible projectile walls
+			var/obj/structure/sitter = H.buckled
+			sitter.take_damage(damage, damagetype)
 	return 1
 
 /datum/species/proc/on_hit(obj/item/projectile/P, mob/living/carbon/human/H)
@@ -1913,6 +1924,12 @@ GLOBAL_LIST_EMPTY(mentor_races)
 
 	if(istype(human_loc, /obj/machinery/atmospherics/components/unary/cryo_cell))
 		return
+
+	if(environment.get_moles(/datum/gas/water_vapor) > 10)//water vapour above a certain amount makes you wet
+		if(environment.get_moles(/datum/gas/water_vapor) > 40)//if there's a lot of water vapour, preterni ded
+			H.adjust_fire_stacks(-3)
+		else
+			H.adjust_fire_stacks(-2)
 
 	var/loc_temp = H.get_temperature(environment)
 	var/heat_capacity_factor = min(1, environment.heat_capacity() / environment.return_volume())
@@ -1968,11 +1985,11 @@ GLOBAL_LIST_EMPTY(mentor_races)
 		if (burn_damage)
 			switch(burn_damage)
 				if(0 to 2)
-					H.throw_alert("temp", /obj/screen/alert/hot, 1)
+					H.throw_alert("temp", /atom/movable/screen/alert/hot, 1)
 				if(2 to 4)
-					H.throw_alert("temp", /obj/screen/alert/hot, 2)
+					H.throw_alert("temp", /atom/movable/screen/alert/hot, 2)
 				else
-					H.throw_alert("temp", /obj/screen/alert/hot, 3)
+					H.throw_alert("temp", /atom/movable/screen/alert/hot, 3)
 		burn_damage = burn_damage * heatmod * H.physiology.heat_mod
 		if (H.stat < UNCONSCIOUS && (prob(burn_damage) * 10) / 4) //40% for level 3 damage on humans
 			H.emote("scream")
@@ -1983,13 +2000,13 @@ GLOBAL_LIST_EMPTY(mentor_races)
 		SEND_SIGNAL(H, COMSIG_ADD_MOOD_EVENT, "cold", /datum/mood_event/cold)
 		switch(H.bodytemperature)
 			if(200 to BODYTEMP_COLD_DAMAGE_LIMIT)
-				H.throw_alert("temp", /obj/screen/alert/cold, 1)
+				H.throw_alert("temp", /atom/movable/screen/alert/cold, 1)
 				H.apply_damage(COLD_DAMAGE_LEVEL_1*coldmod*H.physiology.cold_mod, BURN)
 			if(120 to 200)
-				H.throw_alert("temp", /obj/screen/alert/cold, 2)
+				H.throw_alert("temp", /atom/movable/screen/alert/cold, 2)
 				H.apply_damage(COLD_DAMAGE_LEVEL_2*coldmod*H.physiology.cold_mod, BURN)
 			else
-				H.throw_alert("temp", /obj/screen/alert/cold, 3)
+				H.throw_alert("temp", /atom/movable/screen/alert/cold, 3)
 				H.apply_damage(COLD_DAMAGE_LEVEL_3*coldmod*H.physiology.cold_mod, BURN)
 
 	else
@@ -1997,27 +2014,34 @@ GLOBAL_LIST_EMPTY(mentor_races)
 		SEND_SIGNAL(H, COMSIG_CLEAR_MOOD_EVENT, "cold")
 		SEND_SIGNAL(H, COMSIG_CLEAR_MOOD_EVENT, "hot")
 
+	// Infrared luminosity, how far away can you pick up someone's heat with infrared (NOT THERMAL) vision
+	// 37C has 12 range (11 tiles)
+	// 20C has 7 range (6 tiles)
+	// 10C has 3 range (2 tiles)
+	// 0C has 0 range (0 tiles)
+	H.infra_luminosity = round(max((H.bodytemperature - T0C)/3, 0))
+
 	var/pressure = environment.return_pressure()
 	var/adjusted_pressure = H.calculate_affecting_pressure(pressure) //Returns how much pressure actually affects the mob.
 	switch(adjusted_pressure)
 		if(HAZARD_HIGH_PRESSURE to INFINITY)
 			if(!HAS_TRAIT(H, TRAIT_RESISTHIGHPRESSURE))
 				H.adjustBruteLoss(min(((adjusted_pressure / HAZARD_HIGH_PRESSURE) -1 ) * PRESSURE_DAMAGE_COEFFICIENT, MAX_HIGH_PRESSURE_DAMAGE) * H.physiology.pressure_mod)
-				H.throw_alert("pressure", /obj/screen/alert/highpressure, 2)
+				H.throw_alert("pressure", /atom/movable/screen/alert/highpressure, 2)
 			else
 				H.clear_alert("pressure")
 		if(WARNING_HIGH_PRESSURE to HAZARD_HIGH_PRESSURE)
-			H.throw_alert("pressure", /obj/screen/alert/highpressure, 1)
+			H.throw_alert("pressure", /atom/movable/screen/alert/highpressure, 1)
 		if(WARNING_LOW_PRESSURE to WARNING_HIGH_PRESSURE)
 			H.clear_alert("pressure")
 		if(HAZARD_LOW_PRESSURE to WARNING_LOW_PRESSURE)
-			H.throw_alert("pressure", /obj/screen/alert/lowpressure, 1)
+			H.throw_alert("pressure", /atom/movable/screen/alert/lowpressure, 1)
 		else
 			if(HAS_TRAIT(H, TRAIT_RESISTLOWPRESSURE))
 				H.clear_alert("pressure")
 			else
 				H.adjustBruteLoss(LOW_PRESSURE_DAMAGE * H.physiology.pressure_mod)
-				H.throw_alert("pressure", /obj/screen/alert/lowpressure, 2)
+				H.throw_alert("pressure", /atom/movable/screen/alert/lowpressure, 2)
 
 //////////
 // FIRE //
@@ -2119,6 +2143,9 @@ GLOBAL_LIST_EMPTY(mentor_races)
 /datum/species/proc/negates_gravity(mob/living/carbon/human/H)
 	if(H.movement_type & FLYING)
 		return TRUE
+	return FALSE
+	
+/datum/species/proc/has_heavy_gravity(mob/living/carbon/human/H)
 	return FALSE
 
 ////////////////

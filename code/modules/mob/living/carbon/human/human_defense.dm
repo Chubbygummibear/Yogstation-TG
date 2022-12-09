@@ -420,7 +420,7 @@
 
 
 /mob/living/carbon/human/ex_act(severity, target, origin)
-	if(TRAIT_BOMBIMMUNE in dna.species.species_traits)
+	if(HAS_TRAIT(src, TRAIT_BOMBIMMUNE))
 		return
 	if(origin && istype(origin, /datum/spacevine_mutation) && isvineimmune(src))
 		return
@@ -445,7 +445,8 @@
 				gib()
 				return
 			else
-				brute_loss = 500
+				brute_loss = 200*(2 - round(bomb_armor/60, 0.05))	//0-83% damage reduction
+				burn_loss = brute_loss/2 //don't wanna husk people	
 				var/atom/throw_target = get_edge_target_turf(src, get_dir(src, get_step_away(src, src)))
 				throw_at(throw_target, 200, 4)
 				damage_clothes(400 - bomb_armor, BRUTE, BOMB)
@@ -454,7 +455,7 @@
 			brute_loss = 60
 			burn_loss = 60
 			if(bomb_armor)
-				brute_loss = 30*(2 - round(bomb_armor/75, 0.05))	//0-66% damage reduction
+				brute_loss = 30*(2 - round(bomb_armor/60, 0.05))	//0-83% damage reduction
 				burn_loss = brute_loss					//40-120 total combined brute + burn
 			damage_clothes(200 - bomb_armor, BRUTE, BOMB)
 			if (!istype(ears, /obj/item/clothing/ears/earmuffs))
@@ -466,7 +467,7 @@
 		if (EXPLODE_LIGHT)
 			brute_loss = 24
 			if(bomb_armor)
-				brute_loss = 12*(2 - round(bomb_armor/75, 0.05))	//8-24 damage total depending on bomb armor
+				brute_loss = 12*(2 - round(bomb_armor/60, 0.05))	//4-24 damage total depending on bomb armor
 			damage_clothes(max(40 - bomb_armor, 0), BRUTE, BOMB)
 			if (!istype(ears, /obj/item/clothing/ears/earmuffs))
 				adjustEarDamage(15,60)
@@ -545,7 +546,7 @@
 /mob/living/carbon/human/emp_act(severity)
 	dna?.species.spec_emp_act(src, severity)
 	. = ..()
-	if(. & EMP_PROTECT_CONTENTS)
+	if(. & EMP_PROTECT_SELF)
 		return
 	var/informed = FALSE
 	for(var/obj/item/bodypart/L in src.bodyparts)
@@ -555,11 +556,9 @@
 				informed = TRUE
 			switch(severity)
 				if(1)
-					L.receive_damage(0,10)
-					Paralyze(200)
+					L.receive_damage(0,10,200)
 				if(2)
-					L.receive_damage(0,5)
-					Paralyze(100)
+					L.receive_damage(0,5,100)
 
 			if((TRAIT_EASYDISMEMBER in L.owner.dna.species.species_traits) && L.body_zone != "chest")
 				if(prob(5))

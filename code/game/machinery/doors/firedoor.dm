@@ -69,6 +69,10 @@
 /obj/machinery/door/firedoor/Destroy()
 	remove_from_areas()
 	affecting_areas.Cut()
+	var/turf/T = get_turf(src)
+	spawn(0)
+		if(T)
+			T.ImmediateCalculateAdjacentTurfs()
 	return ..()
 
 /obj/machinery/door/firedoor/Bumped(atom/movable/AM)
@@ -220,7 +224,6 @@
 		icon_state = "door_open"
 		if(welded)
 			add_overlay("welded_open")
-	SSdemo.mark_dirty(src)
 
 /obj/machinery/door/firedoor/open()
 	. = ..()

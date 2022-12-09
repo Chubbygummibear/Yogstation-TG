@@ -5,7 +5,7 @@
 
 /datum/component/personal_crafting/proc/create_mob_button(mob/user, client/CL)
 	var/datum/hud/H = user.hud_used
-	var/obj/screen/craft/C = new()
+	var/atom/movable/screen/craft/C = new()
 	C.icon = H.ui_style
 	H.static_inventory += C
 	CL.screen += C
@@ -44,15 +44,14 @@
 				),
 				CAT_DRINK = CAT_NONE,
 				CAT_APPAREL = list(
-					CAT_CLOTHING, 
-					CAT_ARMOR, 
+					CAT_CLOTHING,
+					CAT_ARMOR,
 					CAT_EQUIPMENT
 				),
 			)
 
 	var/cur_category = CAT_NONE
 	var/cur_subcategory = CAT_NONE
-	var/datum/action/innate/crafting/button
 	var/display_craftable_only = FALSE
 	var/display_compact = TRUE
 
@@ -335,7 +334,7 @@
 /datum/component/personal_crafting/ui_state(mob/user)
 	return GLOB.not_incapacitated_turf_state
 
-/datum/component/personal_crafting/proc/component_ui_interact(obj/screen/craft/image, location, control, params, user)
+/datum/component/personal_crafting/proc/component_ui_interact(atom/movable/screen/craft/image, location, control, params, user)
 	if(user == parent)
 		ui_interact(user)
 

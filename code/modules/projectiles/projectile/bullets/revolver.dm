@@ -14,46 +14,42 @@
 
 /obj/item/projectile/bullet/c38
 	name = ".38 bullet"
-	damage = 15 // yogs - Nerfed revolver damage
-	//knockdown = 60 //yogs - commented out
-	stamina = 35 // yogs
-	wound_bonus = -20
+	damage = 25 //High damaging but...
+	armour_penetration = -40 //Almost doubles the armor of any bullet armor it hits
+	wound_bonus = -10
 	bare_wound_bonus = 10
 
 /obj/item/projectile/bullet/c38/hotshot //similar to incendiary bullets, but do not leave a flaming trail
 	name = ".38 Hot Shot bullet"
-	damage = 15
-	stamina = 0
+	damage = 20
 
 /obj/item/projectile/bullet/c38/hotshot/on_hit(atom/target, blocked = FALSE)
-	. = ..()
-	if(iscarbon(target))
+	if((blocked != 100) && iscarbon(target))
 		var/mob/living/carbon/M = target
 		M.adjust_fire_stacks(2)
 		M.IgniteMob()
+	return ..()
 
 /obj/item/projectile/bullet/c38/iceblox //see /obj/item/projectile/temp for the original code
 	name = ".38 Iceblox bullet"
-	damage = 15
-	stamina = 0
+	damage = 20
 	var/temperature = 100
 
 /obj/item/projectile/bullet/c38/iceblox/on_hit(atom/target, blocked = FALSE)
-	. = ..()
+	..()
 	if(isliving(target))
 		var/mob/living/M = target
 		M.adjust_bodytemperature(((100-blocked)/100)*(temperature - M.bodytemperature))
 
 /obj/item/projectile/bullet/c38/gutterpunch //Vomit bullets my favorite
 	name = ".38 Gutterpunch bullet"
-	damage = 15
-	stamina = 0
+	damage = 20
 
 /obj/item/projectile/bullet/c38/gutterpunch/on_hit(atom/target, blocked = FALSE)
-	. = ..()
-	if(iscarbon(target))
+	if((blocked != 100) && iscarbon(target))
 		var/mob/living/carbon/M = target 
 		M.adjust_disgust(20)
+	return ..()
 
 // .32 TRAC (Caldwell Tracking Revolver)
 
@@ -62,15 +58,16 @@
 	damage = 5
 
 /obj/item/projectile/bullet/tra32/on_hit(atom/target, blocked = FALSE)
-	. = ..()
-	var/mob/living/carbon/M = target
-	var/obj/item/implant/tracking/tra32/imp
-	for(var/obj/item/implant/tracking/tra32/TI in M.implants) //checks if the target already contains a tracking implant
-		imp = TI
-		return
-	if(!imp)
-		imp = new /obj/item/implant/tracking/tra32(M)
-		imp.implant(M)
+	if(blocked != 100)
+		var/mob/living/carbon/M = target
+		var/obj/item/implant/tracking/tra32/imp
+		for(var/obj/item/implant/tracking/tra32/TI in M.implants) //checks if the target already contains a tracking implant
+			imp = TI
+			return
+		if(!imp)
+			imp = new /obj/item/implant/tracking/tra32(M)
+			imp.implant(M)
+	return ..()
 
 // .357 (Syndie Revolver)
 
@@ -81,7 +78,7 @@
 
 /obj/item/projectile/bullet/pellet/a357_ironfeather
 	name = ".357 Ironfeather pellet"
-	damage = 8.5 //Total of 51 damage assuming PBS
+	damage = 8 //Total of 48 damage assuming PBS; so no, it's not a two-shot anymore
 	wound_bonus = 7 //So it might be able to actually wound things
 	bare_wound_bonus = 7
 	tile_dropoff = 0.4 //Loses 0.05 damage less per tile than standard damaging pellets
@@ -109,19 +106,14 @@
 /obj/item/projectile/bullet/a357/heartpiercer
 	name = ".357 Heartpiercer bullet"
 	damage = 35
-	armour_penetration = 35
-	var/penetrations = 2 //Number of mobs the bullet can hit
-
-/obj/item/projectile/bullet/a357/heartpiercer/on_hit(atom/target)
-	. = ..()
-	penetrations -= 1
-	if(ismob(target) && penetrations > 0)
-		return BULLET_ACT_FORCE_PIERCE
+	armour_penetration = 30 //Not as good AP-wise relative to the stechy - both are a 5-hit against bulletproof armor, whereas this 3-hits normal armor versus 4 hits. Revolver has much lower RoF, too
+	penetrating = TRUE //Goes through a single mob before ending on the next target
+	penetrations = 1
 
 /obj/item/projectile/bullet/a357/wallstake
 	name = ".357 Wallstake bullet"
-	damage = 25 //Consider that they're also being thrown into the wall
-	wound_bonus = -50 //Minor chance of dislocation from the bullet itself
+	damage = 36 //Almost entirely a meme round at this point. 36 damage barely four-shots standard armor
+	wound_bonus = -60 //Minor chance of dislocation from the bullet itself
 	sharpness = SHARP_NONE //Blunt
 
 /obj/item/projectile/bullet/a357/wallstake/on_hit(atom/target, blocked = FALSE)

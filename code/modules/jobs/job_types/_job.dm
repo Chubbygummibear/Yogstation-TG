@@ -54,29 +54,37 @@
 	var/list/mind_traits
 	/// Display order of the job
 	var/display_order = JOB_DISPLAY_ORDER_DEFAULT
-	/// Map Specific changes
-	var/list/changed_maps = list()
-	/*
-		If you want to change a job on a specific map with this system, you will want to go onto that job datum
-		and add said map's name to the changed_maps list, like so:
 
+	/// Goodies that can be received via the mail system.
+	// this is a weighted list.
+	/// Keep the _job definition for this empty and use /obj/item/mail to define general gifts.
+	var/list/mail_goodies = list()
+
+	/// If this job's mail goodies compete with generic goodies.
+	var/exclusive_mail_goodies = FALSE
+
+	var/list/changed_maps = list() // Maps on which the job is changed. Should use the same name as the mapping config
+
+/*
+	If you want to change a job on a specific map with this system, you will want to go onto that job datum
+	and add said map's name to the changed_maps list, like so:
+	changed_maps = list("OmegaStation")
+
+	Then, you're going to want to make a proc called "OmegaStationChanges" on the job, which will be the one
+	actually making the changes, like so:
+
+	/datum/job/miner/proc/OmegaStationChanges()
+
+	If you want to remove the job from said map, you will return TRUE in the proc, otherwise you can make
+	whatever changes to the job datum you need to make. For example, say we want to make it so 2 wardens spawn
+	on OmegaStation, we'd do the following:
+
+	/datum/job/warden
 		changed_maps = list("OmegaStation")
 
-		Then, you're going to want to make a proc called "OmegaStationChanges" on the job, which will be the one
-		actually making the changes, like so:
-
-		/datum/job/miner/proc/OmegaStationChanges()
-
-		If you want to remove the job from said map, you will return TRUE in the proc, otherwise you can make
-		whatever changes to the job datum you need to make. For example, say we want to make it so 2 wardens spawn
-		on OmegaStation, we'd do the following:
-
-		/datum/job/warden
-			changed_maps = list("OmegaStation")
-
-		/datum/job/warden/proc/OmegaStationChanges()
-			total_positions = 2
-			spawn_positions = 2
+	/datum/job/warden/proc/OmegaStationChanges()
+		total_positions = 2
+		spawn_positions = 2
 	*/
 
 /datum/job/New()
@@ -194,6 +202,7 @@
 	back = /obj/item/storage/backpack
 	shoes = /obj/item/clothing/shoes/sneakers/black
 	box = /obj/item/storage/box/survival
+	ipc_box = /obj/item/storage/box/ipc
 
 	var/obj/item/id_type = /obj/item/card/id
 	var/obj/item/modular_computer/pda_type = /obj/item/modular_computer/tablet/pda/preset/basic
@@ -231,6 +240,8 @@
 
 	if (isplasmaman(H) && !(visualsOnly)) //this is a plasmaman fix to stop having two boxes
 		box = null
+	if (isipc(H) && !(visualsOnly)) // IPCs get their own box with special internals in it
+		box = ipc_box
 
 	if((DIGITIGRADE in H.dna.species.species_traits) && digitigrade_shoes) 
 		shoes = digitigrade_shoes
@@ -279,6 +290,12 @@
 	else
 		H.equip_to_slot_if_possible(C, SLOT_WEAR_ID)
 
+	if(H.stat != DEAD)//if a job has a gps and it isn't a decorative corpse, rename the GPS to the owner's name
+		for(var/obj/item/gps/G in H.GetAllContents())
+			G.gpstag = H.real_name
+			G.name = "global positioning system ([G.gpstag])"
+			continue
+
 /datum/outfit/job/get_chameleon_disguise_info()
 	var/list/types = ..()
 	types -= /obj/item/storage/backpack //otherwise this will override the actual backpacks
@@ -286,6 +303,10 @@
 	types += satchel
 	types += duffelbag
 	return types
+
+/// An overridable getter for more dynamic goodies.
+/datum/job/proc/get_mail_goodies(mob/recipient)
+	return mail_goodies
 
 //Warden and regular officers add this result to their get_access()
 /datum/job/proc/check_config_for_sec_maint()

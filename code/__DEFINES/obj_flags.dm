@@ -88,6 +88,8 @@
 #define SHOWEROKAY				(1<<21)	
 /// Allows helmets and glasses to scan reagents.
 #define SCAN_REAGENTS (1<<22) 
+//! For masks, allows you to breathe from internals on adjecent tiles
+#define MASKEXTENDRANGE			(1<<23) 
 
 /// Flags for the pod_flags var on /obj/structure/closet/supplypod
 #define FIRST_SOUNDS (1<<0) // If it shouldn't play sounds the first time it lands, used for reverse mode

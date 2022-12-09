@@ -1,4 +1,4 @@
-#define CULT_SCALING_COEFFICIENT 9.3 //Roughly one new cultist at roundstart per this many players
+#define CULT_SCALING_COEFFICIENT 8.3 //Roughly one new cultist at roundstart per this many players
 
 /datum/game_mode
 	var/list/datum/mind/cult = list()
@@ -217,7 +217,7 @@
 			anchor_target = B
 	SSticker.mode.anchor_bloodstone = anchor_target
 	anchor_target.name = "anchor bloodstone"
-	anchor_target.desc = "It pulses rythmetically with migrane-inducing light. Something is being reflected on every surface, something that isn't quite there..."
+	anchor_target.desc = "It pulses rhythmically with migraine-inducing light. Something is being reflected on every surface, something that isn't quite there..."
 	anchor_target.anchor = TRUE
 	anchor_target.update_integrity(1200)
 	anchor_time2kill -= anchor_power * 1 MINUTES //one minute of bloodfuckery shaved off per surviving bloodstone.

@@ -15,7 +15,7 @@
 	exp_requirements = 720
 	exp_type = EXP_TYPE_CREW
 	exp_type_department = EXP_TYPE_ENGINEERING
-	alt_titles = list("Engineering Director", "Head of Engineering")
+	alt_titles = list("Engineering Director", "Head of Engineering", "Senior Engineer")
 
 	outfit = /datum/outfit/job/ce
 
@@ -29,6 +29,15 @@
 
 	display_order = JOB_DISPLAY_ORDER_CHIEF_ENGINEER
 	minimal_character_age = 30 //Combine all the jobs together; that's a lot of physics, mechanical, electrical, and power-based knowledge
+
+	mail_goodies = list(
+		/obj/item/reagent_containers/food/snacks/cracker = 25, //you know. for poly
+		/obj/item/stack/sheet/mineral/diamond = 15,
+		///obj/item/stack/sheet/mineral/uranium/five = 15,
+		///obj/item/stack/sheet/mineral/plasma/five = 15,
+		/obj/item/stack/sheet/mineral/gold = 15
+		///obj/effect/spawner/random/engineering/tool_advanced = 3
+	)
 
 /datum/outfit/job/ce
 	name = "Chief Engineer"

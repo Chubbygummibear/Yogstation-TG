@@ -11,7 +11,7 @@
 
 	outfit = /datum/outfit/job/botanist
 
-	alt_titles = list("Ecologist", "Agriculturist", "Botany Greenhorn", "Hydroponicist")
+	alt_titles = list("Ecologist", "Agriculturist", "Botany Greenhorn", "Hydroponicist", "Gardener")
 
 	added_access = list(ACCESS_BAR, ACCESS_KITCHEN)
 	base_access = list(ACCESS_HYDROPONICS, ACCESS_MORGUE, ACCESS_MINERAL_STOREROOM)
@@ -19,6 +19,15 @@
 	paycheck_department = ACCOUNT_SRV
 	display_order = JOB_DISPLAY_ORDER_BOTANIST
 	minimal_character_age = 22 //Biological understanding of plants and how to manipulate their DNAs and produces relatively "safely". Not just something that comes to you without education
+
+	mail_goodies = list(
+		/obj/item/reagent_containers/glass/bottle/mutagen = 20,
+		/obj/item/reagent_containers/glass/bottle/saltpetre = 20,
+		/obj/item/reagent_containers/glass/bottle/diethylamine = 20,
+		/obj/item/gun/energy/floragun = 10,
+		/obj/effect/spawner/lootdrop/seed_rare = 5,// These are strong, rare seeds, so use sparingly.
+		/obj/item/reagent_containers/food/snacks/monkeycube/bee = 2
+	)
 
 	changed_maps = list("OmegaStation", "EclipseStation")
 

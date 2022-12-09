@@ -441,7 +441,7 @@
 		if(istype(src, /mob/living/silicon/ai) && istype(A, /mob/living/carbon/human)) //Override for AI's examining humans
 			var/mob/living/carbon/human/H = A
 			result = H.examine_simple(src)
-		else	
+		else
 			LAZYINITLIST(client.recent_examines)
 			if(!(isnull(client.recent_examines[A]) || client.recent_examines[A] < world.time)) // originally this wasn't an assoc list, but sometimes the timer failed and atoms stayed in a client's recent_examines, so we check here manually
 				var/extra_info = A.examine_more(src)
@@ -450,7 +450,7 @@
 				client.recent_examines[A] = world.time + EXAMINE_MORE_WINDOW
 				result = A.examine(src)
 				addtimer(CALLBACK(src, .proc/clear_from_recent_examines, A), RECENT_EXAMINE_MAX_WINDOW)
-				handle_eye_contact(A)		
+				handle_eye_contact(A)
 	else
 		result = A.examine(src) // if a tree is examined but no client is there to see it, did the tree ever really exist?
 
@@ -1148,6 +1148,9 @@
 			if(ID.registered_name == oldname)
 				ID.registered_name = newname
 				ID.update_label()
+				if(istype(ID.loc, /obj/item/computer_hardware/card_slot))
+					var/obj/item/computer_hardware/card_slot/CS = ID.loc
+					CS.holder?.update_label()
 				if(ID.registered_account?.account_holder == oldname)
 					ID.registered_account.account_holder = newname
 				if(!search_pda)
@@ -1181,7 +1184,7 @@
 ///Set the lighting plane hud alpha to the mobs lighting_alpha var
 /mob/proc/sync_lighting_plane_alpha()
 	if(hud_used)
-		var/obj/screen/plane_master/lighting/L = hud_used.plane_masters["[LIGHTING_PLANE]"]
+		var/atom/movable/screen/plane_master/lighting/L = hud_used.plane_masters["[LIGHTING_PLANE]"]
 		if (L)
 			L.alpha = lighting_alpha
 
@@ -1273,7 +1276,7 @@
 		if(!mind)
 			to_chat(usr, "This cannot be used on mobs without a mind")
 			return
-		
+
 		var/timer = input("Input AFK length in minutes, 0 to cancel the current timer", text("Input"))  as num|null
 		if(timer == null) // Explicit null check for cancel, rather than generic truthyness, so 0 is handled differently
 			return
@@ -1283,7 +1286,7 @@
 
 		if(!timer)
 			return
-		
+
 		mind.afk_verb_used = TRUE
 		mind.afk_verb_timer = addtimer(VARSET_CALLBACK(mind, afk_verb_used, FALSE), timer MINUTES, TIMER_STOPPABLE);
 

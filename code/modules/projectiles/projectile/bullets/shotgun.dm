@@ -49,14 +49,14 @@
 	if(ismovable(target))
 		var/atom/movable/M = target
 		var/atom/throw_target = get_edge_target_turf(M, get_dir(src, get_step_away(M, src)))
-		M.safe_throw_at(throw_target, 3, 2)
+		M.safe_throw_at(throw_target, 3, 2, force = MOVE_FORCE_OVERPOWERING)
 
 /obj/item/projectile/bullet/shotgun/slug/meteor/Initialize()
 	. = ..()
 	SpinAnimation()
 
 /obj/item/projectile/bullet/shotgun/slug/frag12
-	name ="frag12 slug"
+	name = "frag12 slug"
 	damage = 25
 	wound_bonus = 0
 
@@ -123,11 +123,7 @@
 	damage = 26
 	armour_penetration = 60 // he he funny round go through armor
 	wound_bonus = -40
-
-/obj/item/projectile/bullet/shotgun/slug/uranium/on_hit(atom/target)
-	. = ..()
-	if(ismob(target))
-		return BULLET_ACT_FORCE_PIERCE
+	penetrating = TRUE //Goes through an infinite number of mobs
 
 /obj/item/projectile/bullet/pellet/Range()
 	..()
