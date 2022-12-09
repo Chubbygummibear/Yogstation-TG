@@ -1028,6 +1028,9 @@
 			AT.get_remote_view_fullscreens(src)
 		else
 			clear_fullscreen("remote_view", 0)
+		
+		// I am so sorry  //i took this from tg what the hell happened?
+		SEND_SIGNAL(src, COMSIG_MOB_RESET_PERSPECTIVE)
 
 /mob/living/silicon/ai/revive(full_heal = 0, admin_revive = 0)
 	. = ..()
