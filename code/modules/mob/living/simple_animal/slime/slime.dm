@@ -226,7 +226,7 @@
 						spawn(45)
 							Atkcool = 0
 
-/mob/living/simple_animal/slime/Process_Spacemove(movement_dir = 0)
+/mob/living/simple_animal/slime/Process_Spacemove(movement_dir = 0, continuous_move = FALSE)
 	return 2
 
 /mob/living/simple_animal/slime/get_status_tab_items()

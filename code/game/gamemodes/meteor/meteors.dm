@@ -115,7 +115,7 @@ GLOBAL_LIST_INIT(meteorsC, list(/obj/effect/meteor/dust)) //for space dust event
 		if(prob(10) && !isspaceturf(T))//randomly takes a 'hit' from ramming
 			get_hit()
 
-/obj/effect/meteor/Process_Spacemove(movement_dir = 0)
+/obj/effect/meteor/Process_Spacemove(movement_dir = 0, continuous_move = FALSE)
 	return TRUE
 
 /obj/effect/meteor/Destroy()

@@ -486,7 +486,6 @@
 	if(loc)
 		SEND_SIGNAL(loc, COMSIG_ATOM_ABSTRACT_ENTERED, src, old_loc, old_locs)	
 
-	SSdemo.mark_dirty(src)
 	return TRUE
 
 /atom/movable/Destroy(force)

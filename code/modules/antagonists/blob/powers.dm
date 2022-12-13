@@ -47,7 +47,7 @@
 	if(placed && blob_core)
 		blob_core.forceMove(loc)
 	else
-		var/obj/structure/blob/core/core = new(get_turf(src), src, 1)
+		var/obj/structure/blob/special/core/core = new(get_turf(src), src, 1)
 		core.overmind = src
 		blobs_legit += src
 		blob_core = core
@@ -70,10 +70,10 @@
 	if(GLOB.blob_nodes.len)
 		var/list/nodes = list()
 		for(var/i in 1 to GLOB.blob_nodes.len)
-			var/obj/structure/blob/node/B = GLOB.blob_nodes[i]
+			var/obj/structure/blob/special/node/B = GLOB.blob_nodes[i]
 			nodes["Blob Node #[i] ([get_area_name(B)])"] = B
 		var/node_name = input(src, "Choose a node to jump to.", "Node Jump") in nodes
-		var/obj/structure/blob/node/chosen_node = nodes[node_name]
+		var/obj/structure/blob/special/node/chosen_node = nodes[node_name]
 		if(chosen_node)
 			forceMove(chosen_node.loc)
 
@@ -88,7 +88,7 @@
 		to_chat(src, span_warning("Unable to use this blob, find a normal one."))
 		return
 	if(needsNode && nodes_required)
-		if(!(locate(/obj/structure/blob/node) in orange(3, T)) && !(locate(/obj/structure/blob/core) in orange(4, T)))
+		if(!(locate(/obj/structure/blob/special/node) in orange(3, T)) && !(locate(/obj/structure/blob/special/core) in orange(4, T)))
 			to_chat(src, span_warning("You need to place this blob closer to a node or core!"))
 			return //handholdotron 2000
 	if(nearEquals)
@@ -135,26 +135,26 @@
 	set category = "Blob"
 	set name = "Create Resource Blob (40)"
 	set desc = "Create a resource tower which will generate resources for you."
-	createSpecial(40, /obj/structure/blob/resource, 4, 1)
+	createSpecial(40, /obj/structure/blob/special/resource, 4, 1)
 
 /mob/camera/blob/verb/create_node()
 	set category = "Blob"
 	set name = "Create Node Blob (50)"
 	set desc = "Create a node, which will power nearby factory and resource blobs."
-	createSpecial(50, /obj/structure/blob/node, 5, 0)
+	createSpecial(50, /obj/structure/blob/special/node, 5, 0)
 
 /mob/camera/blob/verb/create_factory()
 	set category = "Blob"
 	set name = "Create Factory Blob (60)"
 	set desc = "Create a spore tower that will spawn spores to harass your enemies."
-	createSpecial(60, /obj/structure/blob/factory, 7, 1)
+	createSpecial(60, /obj/structure/blob/special/factory, 7, 1)
 
 /mob/camera/blob/verb/create_blobbernaut()
 	set category = "Blob"
 	set name = "Create Blobbernaut (40)"
 	set desc = "Create a powerful blobbernaut which is mildly smart and will attack enemies."
 	var/turf/T = get_turf(src)
-	var/obj/structure/blob/factory/B = locate(/obj/structure/blob/factory) in T
+	var/obj/structure/blob/special/factory/B = locate(/obj/structure/blob/special/factory) in T
 	if(!B)
 		to_chat(src, span_warning("You must be on a factory blob!"))
 		return
@@ -202,7 +202,7 @@
 	set name = "Relocate Core (80)"
 	set desc = "Swaps the locations of your core and the selected node."
 	var/turf/T = get_turf(src)
-	var/obj/structure/blob/node/B = locate(/obj/structure/blob/node) in T
+	var/obj/structure/blob/special/node/B = locate(/obj/structure/blob/special/node) in T
 	if(!B)
 		to_chat(src, span_warning("You must be on a blob node!"))
 		return

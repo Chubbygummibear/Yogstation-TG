@@ -18,7 +18,7 @@
 	else
 		A.move_camera_by_click()
 
-/mob/living/silicon/ai/ClickOn(var/atom/A, params)
+/mob/living/silicon/ai/ClickOn(atom/A, params)
 	if(world.time <= next_click)
 		return
 	next_click = world.time + 1
@@ -99,14 +99,14 @@
 	for AI shift, ctrl, and alt clicking.
 */
 
-/mob/living/silicon/ai/CtrlShiftClickOn(var/atom/A)
+/mob/living/silicon/ai/CtrlShiftClickOn(atom/A)
 	A.AICtrlShiftClick(src)
-/mob/living/silicon/ai/ShiftClickOn(var/atom/A)
+/mob/living/silicon/ai/ShiftClickOn(atom/A)
 	A.AIShiftClick(src)
 
-/mob/living/silicon/ai/CtrlClickOn(var/atom/A)
+/mob/living/silicon/ai/CtrlClickOn(atom/A)
 	A.AICtrlClick(src)
-/mob/living/silicon/ai/AltClickOn(var/atom/A)
+/mob/living/silicon/ai/AltClickOn(atom/A)
 	A.AIAltClick(src)
 
 /*

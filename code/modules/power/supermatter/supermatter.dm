@@ -258,17 +258,17 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 	if(!air)
 		return SUPERMATTER_ERROR
 
-	if(get_integrity() < SUPERMATTER_DELAM_PERCENT)
+	if(get_integrity_percent() < SUPERMATTER_DELAM_PERCENT)
 		return SUPERMATTER_DELAMINATING
 
 
-	if(get_integrity() < SUPERMATTER_EMERGENCY_PERCENT)
+	if(get_integrity_percent() < SUPERMATTER_EMERGENCY_PERCENT)
 		return SUPERMATTER_EMERGENCY
 
-	if(get_integrity() < SUPERMATTER_DANGER_PERCENT)
+	if(get_integrity_percent() < SUPERMATTER_DANGER_PERCENT)
 		return SUPERMATTER_DANGER
 
-	if((get_integrity() < SUPERMATTER_WARNING_PERCENT) || (air.return_temperature() > CRITICAL_TEMPERATURE))
+	if((get_integrity_percent() < SUPERMATTER_WARNING_PERCENT) || (air.return_temperature() > CRITICAL_TEMPERATURE))
 		return SUPERMATTER_WARNING
 
 	if(air.return_temperature() > (CRITICAL_TEMPERATURE * 0.8))
@@ -289,7 +289,7 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 		if(SUPERMATTER_WARNING)
 			playsound(src, 'sound/machines/supermatter_alert.ogg', 75)
 
-/obj/machinery/power/supermatter_crystal/proc/get_integrity()
+/obj/machinery/power/supermatter_crystal/proc/get_integrity_percent()
 	var/integrity = damage / explosion_point
 	integrity = round(100 - integrity * 100, 0.01)
 	integrity = integrity < 0 ? 0 : integrity
@@ -631,10 +631,10 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 				if(corruptor_attached)
 					radio.talk_into(src, "[warning_alert] Integrity: [get_fake_integrity()]%!", common_channel)
 				else
-					radio.talk_into(src, "[emergency_alert] Integrity: [get_integrity()]%", common_channel)
+					radio.talk_into(src, "[emergency_alert] Integrity: [get_integrity_percent()]%", common_channel)
 				SEND_SIGNAL(src, COMSIG_SUPERMATTER_DELAM_ALARM)
-				log_game("The supermatter crystal: [emergency_alert] Integrity: [get_integrity()]%") // yogs start - Logs SM chatter
-				investigate_log("The supermatter crystal: [emergency_alert] Integrity: [get_integrity()]%", INVESTIGATE_SUPERMATTER) // yogs end
+				log_game("The supermatter crystal: [emergency_alert] Integrity: [get_integrity_percent()]%") // yogs start - Logs SM chatter
+				investigate_log("The supermatter crystal: [emergency_alert] Integrity: [get_integrity_percent()]%", INVESTIGATE_SUPERMATTER) // yogs end
 				lastwarning = REALTIMEOFDAY
 				if(!has_reached_emergency)
 					investigate_log("has reached the emergency point for the first time.", INVESTIGATE_SUPERMATTER)
@@ -644,18 +644,18 @@ GLOBAL_DATUM(main_supermatter_engine, /obj/machinery/power/supermatter_crystal)
 				if(corruptor_attached)
 					radio.talk_into(src, "[warning_alert] Integrity: [get_fake_integrity()]%!", engineering_channel)
 				else
-					radio.talk_into(src, "[warning_alert] Integrity: [get_integrity()]%", engineering_channel)
+					radio.talk_into(src, "[warning_alert] Integrity: [get_integrity_percent()]%", engineering_channel)
 				SEND_SIGNAL(src, COMSIG_SUPERMATTER_DELAM_ALARM)
-				log_game("The supermatter crystal: [warning_alert] Integrity: [get_integrity()]%") // yogs start - Logs SM chatter
-				investigate_log("The supermatter crystal: [warning_alert] Integrity: [get_integrity()]%", INVESTIGATE_SUPERMATTER) // yogs end
+				log_game("The supermatter crystal: [warning_alert] Integrity: [get_integrity_percent()]%") // yogs start - Logs SM chatter
+				investigate_log("The supermatter crystal: [warning_alert] Integrity: [get_integrity_percent()]%", INVESTIGATE_SUPERMATTER) // yogs end
 				lastwarning = REALTIMEOFDAY - (WARNING_DELAY * 5)
 			else	// Phew, we're safe
 				if(corruptor_attached)
 					radio.talk_into(src, "[warning_alert] Integrity: [get_fake_integrity()]%!", engineering_channel)
 				else
-					radio.talk_into(src, "[safe_alert] Integrity: [get_integrity()]%", engineering_channel)
-				log_game("The supermatter crystal: [safe_alert] Integrity: [get_integrity()]%") // yogs start - Logs SM chatter
-				investigate_log("The supermatter crystal: [safe_alert] Integrity: [get_integrity()]%", INVESTIGATE_SUPERMATTER) // yogs end
+					radio.talk_into(src, "[safe_alert] Integrity: [get_integrity_percent()]%", engineering_channel)
+				log_game("The supermatter crystal: [safe_alert] Integrity: [get_integrity_percent()]%") // yogs start - Logs SM chatter
+				investigate_log("The supermatter crystal: [safe_alert] Integrity: [get_integrity_percent()]%", INVESTIGATE_SUPERMATTER) // yogs end
 				lastwarning = REALTIMEOFDAY
 
 			if(power > POWER_PENALTY_THRESHOLD)

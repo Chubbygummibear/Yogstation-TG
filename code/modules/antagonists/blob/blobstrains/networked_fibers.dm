@@ -15,13 +15,13 @@
 
 /datum/blobstrain/reagent/networked_fibers/expand_reaction(obj/structure/blob/B, obj/structure/blob/newB, turf/T, mob/camera/blob/O)
 	if(!O && newB.overmind)
-		if(!istype(B, /obj/structure/blob/node))
+		if(!istype(B, /obj/structure/blob/special/node))
 			newB.overmind.add_points(1)
 			qdel(newB)
 	else
 		var/area/A = get_area(T)
 		if(!isspaceturf(T) && !istype(A, /area/shuttle))
-			for(var/obj/structure/blob/core/C in range(1, newB))
+			for(var/obj/structure/blob/special/core/C in range(1, newB))
 				if(C.overmind == O)
 					newB.forceMove(get_turf(C))
 					C.forceMove(T)

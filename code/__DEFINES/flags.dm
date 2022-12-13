@@ -69,7 +69,7 @@ GLOBAL_LIST_INIT(bitflags, list(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 204
 #define RAD_NO_CONTAMINATE_1 (1 << 21)
 /// This flag is what recursive_hear_check() uses to determine wether to add an item to the hearer list or not.
 #define HEAR_1						(1<<22)
-/// Projectiels will check ricochet on things impacted that have this.
+/// Projectiles will check ricochet on things impacted that have this.
 #define CHECK_RICOCHET_1			(1<<23)
 /// atom queued to SSoverlay
 #define OVERLAY_QUEUED_1			(1<<24)

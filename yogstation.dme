@@ -215,6 +215,7 @@
 #include "code\__DEFINES\{yogs_defines}\spacepods.dm"
 #include "code\__DEFINES\{yogs_defines}\status_effects.dm"
 #include "code\__DEFINES\{yogs_defines}\telecomms.dm"
+#include "code\__DEFINES\{yogs_defines}\traits.dm"
 #include "code\__DEFINES\{yogs_defines}\wires.dm"
 #include "code\__DEFINES\{yogs_defines}\components.dm"
 #include "code\__HELPERS\_lists.dm"

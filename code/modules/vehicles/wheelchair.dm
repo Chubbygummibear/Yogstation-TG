@@ -172,9 +172,10 @@
 	. = ..()
 	initialize_controller_action_type(/datum/action/vehicle/ridden/wheelchair/explosive/kaboom, VEHICLE_CONTROL_DRIVE)
 
-/obj/vehicle/ridden/wheelchair/explosive/obj_destruction(damage_flag)
+/obj/vehicle/ridden/wheelchair/explosive/atom_destruction(damage_flag)
 	explosion(src, 1, 3, 5)
 	qdel(src)
+	return ..()
 
 /datum/action/vehicle/ridden/wheelchair/explosive/kaboom
 	name = "Ding!"

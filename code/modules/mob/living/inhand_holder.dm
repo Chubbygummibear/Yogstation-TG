@@ -56,7 +56,7 @@
 /obj/item/clothing/mob_holder/proc/update_visuals(mob/living/L)
 	appearance = L.appearance
 
-/obj/item/clothing/head/mob_holder/on_thrown(mob/living/carbon/user, atom/target)
+/obj/item/clothing/mob_holder/on_thrown(mob/living/carbon/user, atom/target)
 	if((item_flags & ABSTRACT) || HAS_TRAIT(src, TRAIT_NODROP))
 		return
 	if(HAS_TRAIT(user, TRAIT_PACIFISM))

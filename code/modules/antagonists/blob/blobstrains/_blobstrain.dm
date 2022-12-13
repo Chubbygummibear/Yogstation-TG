@@ -22,8 +22,8 @@ GLOBAL_LIST_INIT(valid_blobstrains, subtypesof(/datum/blobstrain) - list(/datum/
 	var/message_living = null
 	/// Stores world.time to figure out when to next give resources
 	var/resource_delay = 0
-	
-	var/resource_delay = 0
+	/// For blob-mobs and extinguishing-based effects
+	var/fire_based = FALSE
 	var/mob/camera/blob/overmind
 	/// The amount of health regenned on core_process
 	var/base_core_regen = BLOB_CORE_HP_REGEN
@@ -81,7 +81,7 @@ GLOBAL_LIST_INIT(valid_blobstrains, subtypesof(/datum/blobstrain) - list(/datum/
 		overmind.blob_core.strong_reinforce_range += core_strong_reinforcement_range_bonus
 		overmind.blob_core.reflector_reinforce_range += core_reflector_reinforcement_range_bonus
 
-	for(var/obj/structure/blob/node/N as anything in overmind.node_blobs)
+	for(var/obj/structure/blob/special/node/N as anything in overmind.node_blobs)
 		N.max_spores += node_spore_bonus
 		N.claim_range += node_range_bonus
 		N.pulse_range += node_range_bonus
@@ -89,7 +89,7 @@ GLOBAL_LIST_INIT(valid_blobstrains, subtypesof(/datum/blobstrain) - list(/datum/
 		N.strong_reinforce_range += node_strong_reinforcement_range_bonus
 		N.reflector_reinforce_range += node_reflector_reinforcement_range_bonus
 	
-	for(var/obj/structure/blob/factory/F as anything in overmind.factory_blobs)
+	for(var/obj/structure/blob/special/factory/F as anything in overmind.factory_blobs)
 		F.max_spores += factory_spore_bonus
 	
 	for(var/obj/structure/blob/B as anything in overmind.all_blobs)
@@ -112,7 +112,7 @@ GLOBAL_LIST_INIT(valid_blobstrains, subtypesof(/datum/blobstrain) - list(/datum/
 		overmind.blob_core.strong_reinforce_range -= core_strong_reinforcement_range_bonus
 		overmind.blob_core.reflector_reinforce_range -= core_reflector_reinforcement_range_bonus
 
-	for(var/obj/structure/blob/node/N as anything in overmind.node_blobs)
+	for(var/obj/structure/blob/special/node/N as anything in overmind.node_blobs)
 		N.max_spores -= node_spore_bonus
 		N.claim_range -= node_range_bonus
 		N.pulse_range -= node_range_bonus
@@ -120,7 +120,7 @@ GLOBAL_LIST_INIT(valid_blobstrains, subtypesof(/datum/blobstrain) - list(/datum/
 		N.strong_reinforce_range -= node_strong_reinforcement_range_bonus
 		N.reflector_reinforce_range -= node_reflector_reinforcement_range_bonus
 
-	for(var/obj/structure/blob/factory/F as anything in overmind.factory_blobs)
+	for(var/obj/structure/blob/special/factory/F as anything in overmind.factory_blobs)
 		F.max_spores -= factory_spore_bonus
 
 	for(var/obj/structure/blob/B as anything in overmind.all_blobs)
@@ -160,7 +160,7 @@ GLOBAL_LIST_INIT(valid_blobstrains, subtypesof(/datum/blobstrain) - list(/datum/
 	return
 
 /datum/blobstrain/proc/tesla_reaction(obj/structure/blob/B, power, coefficient = 1) //when the blob is hit by a tesla bolt, do this
-	return 1 //return 0 to ignore damage
+	return TRUE //return 0 to ignore damage
 
 /datum/blobstrain/proc/extinguish_reaction(obj/structure/blob/B, coefficient = 1) //when the blob is hit with water, do this
 	return

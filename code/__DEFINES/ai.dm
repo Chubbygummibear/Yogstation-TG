@@ -199,22 +199,6 @@
 
 //Hunting defines
 #define SUCCESFUL_HUNT_COOLDOWN 5 SECONDS
-//AI Project Categories.
-#define AI_PROJECT_HUDS "Sensor HUDs"
-#define AI_PROJECT_CAMERAS "Visibility Upgrades"
-#define AI_PROJECT_INDUCTION "Induction"
-#define AI_PROJECT_SURVEILLANCE "Surveillance"
-#define AI_PROJECT_EFFICIENCY "Efficiency"
-#define AI_PROJECT_MISC "Misc."
-//Update this list if you add any new ones, else the category won't show up in the UIs
-GLOBAL_LIST_INIT(ai_project_categories, list(
-	AI_PROJECT_HUDS,
-	AI_PROJECT_CAMERAS,
-	AI_PROJECT_SURVEILLANCE,
-	AI_PROJECT_INDUCTION,
-	AI_PROJECT_EFFICIENCY,
-	AI_PROJECT_MISC
-))
 
 ///Hunting BB keys
 #define BB_CURRENT_HUNTING_TARGET "BB_current_hunting_target"

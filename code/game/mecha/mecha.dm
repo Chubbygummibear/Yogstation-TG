@@ -592,7 +592,7 @@
 		occupant_message(span_warning("Air port connection teared off!"))
 		log_message("Lost connection to gas port.", LOG_MECHA)
 
-/obj/mecha/Process_Spacemove(var/movement_dir = 0)
+/obj/mecha/Process_Spacemove(movement_dir = 0, continuous_move = FALSE)
 	. = ..()
 	if(.)
 		return TRUE
@@ -702,7 +702,7 @@
 		to_chat(occupant, span_warning("Some strange aura is blocking the way."))
 		return
 
-	if(phasing && ((newloc.flags_1 & NOJAUNT_1) || newarea.noteleport || SSmapping.level_trait(newloc.z, ZTRAIT_NOPHASE)))
+	if(phasing && ((newloc.flags_1 & NOJAUNT) || newarea.noteleport || SSmapping.level_trait(newloc.z, ZTRAIT_NOPHASE)))
 		to_chat(occupant, span_warning("Some strange aura is blocking the way."))
 		return	//If we're trying to phase and it's NOT ALLOWED, don't bump
 

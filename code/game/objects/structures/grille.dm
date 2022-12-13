@@ -237,6 +237,7 @@
 		..()
 
 /obj/structure/grille/atom_break()
+	.=..()
 	if(!broken && !(flags_1 & NODECONSTRUCT_1))
 		density = FALSE
 		broken = TRUE

@@ -29,7 +29,7 @@
 		I.forceMove(overmind.blob_core)
 
 /datum/blobstrain/debris_devourer/proc/debris_attack(mob/living/L, source)
-	var/obj/structure/blob/core/core = overmind.blob_core
+	var/obj/structure/blob/special/core/core = overmind.blob_core
 	if (prob(20 * DEBRIS_DENSITY)) // Pretend the items are spread through the blob and its mobs and not in the core.
 		var/obj/item/I = locate() in core
 		if (I && !QDELETED(I))
@@ -40,12 +40,12 @@
 	debris_attack(L,blobbernaut)
 
 /datum/blobstrain/debris_devourer/damage_reaction(obj/structure/blob/B, damage, damage_type, damage_flag, coefficient = 1) //when the blob takes damage, do this
-	var/obj/structure/blob/core/core = overmind.blob_core
+	var/obj/structure/blob/special/core/core = overmind.blob_core
 	return round(max((coefficient*damage)-min(coefficient*DEBRIS_DENSITY, 10), 0)) // reduce damage taken by items per blob, up to 10
 
 /datum/blobstrain/debris_devourer/examine(mob/user)
 	. = ..()
-	var/obj/structure/blob/core/core = overmind.blob_core
+	var/obj/structure/blob/special/core/core = overmind.blob_core
 	if (isobserver(user))
 		. += span_notice("Absorbed debris is currently reducing incoming damage by [round(max(min(DEBRIS_DENSITY, 10),0))]")
 	else

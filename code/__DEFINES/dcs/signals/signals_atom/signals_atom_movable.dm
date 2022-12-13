@@ -17,6 +17,9 @@
 #define COMSIG_MOVABLE_UNCROSSED "movable_uncrossed"            //from base of atom/movable/Uncrossed(): (/atom/movable)
 ///from base of atom/movable/Bump(): (/atom)
 #define COMSIG_MOVABLE_BUMP "movable_bump"
+///from base of atom/movable/newtonian_move(): (inertia_direction, start_delay)
+#define COMSIG_MOVABLE_NEWTONIAN_MOVE "movable_newtonian_move"
+	#define COMPONENT_MOVABLE_NEWTONIAN_BLOCK (1<<0)
 ///from base of atom/movable/throw_impact(): (/atom/hit_atom, /datum/thrownthing/throwingdatum)
 #define COMSIG_MOVABLE_IMPACT "movable_impact"
 	#define COMPONENT_MOVABLE_IMPACT_FLIP_HITPUSH (1<<0) //if true, flip if the impact will push what it hits
@@ -79,3 +82,7 @@
 
 ///from base of atom/movable/throw_at(): Triggers when throwing, before the item is dropped and before COMSIG_MOVABLE_PRE_THROW 
 #define COMSIG_MOVABLE_PRE_DROPTHROW "movable_pre_dropthrow"
+
+/// from base of atom/movable/Process_Spacemove(): (movement_dir, continuous_move)
+#define COMSIG_MOVABLE_SPACEMOVE "spacemove"
+	#define COMSIG_MOVABLE_STOP_SPACEMOVE (1<<0)

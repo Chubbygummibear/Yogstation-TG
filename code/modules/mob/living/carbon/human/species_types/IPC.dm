@@ -276,7 +276,7 @@ ipc martial arts stuff
 
 /datum/species/ipc/proc/throw_lightning(mob/living/carbon/human/H)
 	siemens_coeff = 0
-	tesla_zap(H, 10, 20000, TESLA_MOB_DAMAGE | TESLA_MOB_STUN)
+	tesla_zap(H, 10, 20000, ZAP_MOB_DAMAGE | ZAP_MOB_STUN)
 	siemens_coeff = initial(siemens_coeff)
 
 /datum/species/ipc/proc/add_empproof(mob/living/carbon/human/H)

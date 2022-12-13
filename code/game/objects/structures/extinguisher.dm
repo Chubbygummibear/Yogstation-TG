@@ -133,6 +133,7 @@
 		icon_state = "extinguisher_empty"
 
 /obj/structure/extinguisher_cabinet/atom_break(damage_flag)
+	.=..()
 	if(!broken && !(flags_1 & NODECONSTRUCT_1))
 		broken = 1
 		opened = 1
