@@ -331,7 +331,7 @@
 
 
 
-/obj/item/mecha_parts/mecha_equipment/rcd/do_after_cooldown(var/atom/target)
+/obj/item/mecha_parts/mecha_equipment/rcd/do_after_cooldown(atom/target)
 	. = ..()
 
 /obj/item/mecha_parts/mecha_equipment/rcd/Topic(href,href_list)
@@ -390,7 +390,7 @@
 		chassis.events.clearEvent("onMove",event)
 	return ..()
 
-/obj/item/mecha_parts/mecha_equipment/cable_layer/action(var/obj/item/stack/cable_coil/target)
+/obj/item/mecha_parts/mecha_equipment/cable_layer/action(obj/item/stack/cable_coil/target)
 	if(!action_checks(target))
 		return
 	if(istype(target) && target.amount)
@@ -450,7 +450,7 @@
 /obj/item/mecha_parts/mecha_equipment/cable_layer/proc/reset()
 	last_piece = null
 
-/obj/item/mecha_parts/mecha_equipment/cable_layer/proc/dismantleFloor(var/turf/new_turf)
+/obj/item/mecha_parts/mecha_equipment/cable_layer/proc/dismantleFloor(turf/new_turf)
 	if(isfloorturf(new_turf))
 		var/turf/open/floor/T = new_turf
 		if(!isplatingturf(T))
@@ -459,7 +459,7 @@
 			T.make_plating()
 	return !new_turf.intact
 
-/obj/item/mecha_parts/mecha_equipment/cable_layer/proc/layCable(var/turf/new_turf)
+/obj/item/mecha_parts/mecha_equipment/cable_layer/proc/layCable(turf/new_turf)
 	if(equip_ready || !istype(new_turf) || !dismantleFloor(new_turf))
 		return reset()
 	var/fdirn = turn(chassis.dir,180)
@@ -512,40 +512,40 @@
 		return FALSE
 	return TRUE
 
-/obj/item/mecha_parts/mecha_equipment/ripleyupgrade/attach(obj/mecha/M)
-	var/obj/mecha/working/ripley/mkii/N = new /obj/mecha/working/ripley/mkii(get_turf(M),1)
-	if(!N)
+/obj/item/mecha_parts/mecha_equipment/ripleyupgrade/attach(obj/mecha/markone)
+	var/obj/mecha/working/ripley/mkii/marktwo = new /obj/mecha/working/ripley/mkii(get_turf(markone),1)
+	if(!marktwo)
 		return
-	QDEL_NULL(N.cell)
-	if (M.cell)
-		N.cell = M.cell
-		M.cell.forceMove(N)
-		M.cell = null
-	QDEL_NULL(N.scanmod)
-	if (M.scanmod)
-		N.scanmod = M.scanmod
-		M.scanmod.forceMove(N)
-		M.scanmod = null
-	QDEL_NULL(N.capacitor)
-	if (M.capacitor)
-		N.capacitor = M.capacitor
-		M.capacitor.forceMove(N)
-		M.capacitor = null
-	N.update_part_values()
-	for(var/obj/item/mecha_parts/E in M.contents)
-		if(istype(E, /obj/item/mecha_parts/concealed_weapon_bay)) //why is the bay not just a variable change who did this
-			E.forceMove(N)
-	for(var/obj/item/mecha_parts/mecha_equipment/E in M.equipment) //Move the equipment over...
-		E.detach()
-		E.attach(N)
-		M.equipment -= E
-	N.dna_lock = M.dna_lock
-	N.maint_access = M.maint_access
-	N.strafe = M.strafe
-	N.atom_integrity = M.atom_integrity //This is not a repair tool
-	if (M.name != "\improper APLU MK-I \"Ripley\"")
-		N.name = M.name
-	M.wreckage = 0
-	qdel(M)
-	playsound(get_turf(N),'sound/items/ratchet.ogg',50,1)
+	QDEL_NULL(marktwo.cell)
+	if (markone.cell)
+		marktwo.cell = markone.cell
+		markone.cell.forceMove(marktwo)
+		markone.cell = null
+	QDEL_NULL(marktwo.scanmod)
+	if (markone.scanmod)
+		marktwo.scanmod = markone.scanmod
+		markone.scanmod.forceMove(marktwo)
+		markone.scanmod = null
+	QDEL_NULL(marktwo.capacitor)
+	if (markone.capacitor)
+		marktwo.capacitor = markone.capacitor
+		markone.capacitor.forceMove(marktwo)
+		markone.capacitor = null
+	marktwo.update_part_values()
+	for(var/obj/item/mecha_parts/equipment in markone.contents)
+		if(istype(equipment, /obj/item/mecha_parts/concealed_weapon_bay)) //why is the bay not just a variable change who did this
+			equipment.forceMove(marktwo)
+	for(var/obj/item/mecha_parts/mecha_equipment/equipment in markone.equipment) //Move the equipment over...
+		equipment.detach()
+		equipment.attach(marktwo)
+		markone.equipment -= equipment
+	marktwo.dna_lock = markone.dna_lock
+	marktwo.maint_access = markone.maint_access
+	marktwo.strafe = markone.strafe
+	marktwo.atom_integrity = markone.atom_integrity //This is not a repair tool
+	if (marktwo.name != initial(markone.name))
+		marktwo.name = markone.name
+	markone.wreckage = FALSE
+	qdel(markone)
+	playsound(get_turf(marktwo),'sound/items/ratchet.ogg',50,1)
 	return

@@ -439,11 +439,6 @@
 			SSticker.mode.cult_loss_bloodstones()
 	..()
 
-/obj/structure/destructible/cult/bloodstone/mech_melee_attack(obj/mecha/M, mob/living/user)
-	M.force = round(M.force/6, 1) //damage is reduced since mechs deal triple damage to objects, this sets gygaxes to 15 (5*3) damage and durands to 21 (7*3) damage
-	. = ..()
-	M.force = initial(M.force)
-
 /obj/structure/destructible/cult/bloodstone/hulk_damage()
 	return 15 //no
 

@@ -12,14 +12,15 @@
 	message = "The blob splashes you with burning oil"
 	message_living = ", and you feel your skin char and melt"
 	reagent = /datum/reagent/blob/blazing_oil
+	fire_based = TRUE
 
 /datum/blobstrain/reagent/blazing_oil/extinguish_reaction(obj/structure/blob/B)
 	B.take_damage(1, BURN, ENERGY)
 
 /datum/blobstrain/reagent/blazing_oil/damage_reaction(obj/structure/blob/B, damage, damage_type, damage_flag)
 	if(damage_type == BURN && damage_flag != ENERGY)
-		var/mob/camera/blob/O = overmind
-		O.add_points(damage / 10)//burn damage causes the blob to gain a very small amount of points: the 20 damage of a laser will generate 2 BP.
+		//var/mob/camera/blob/O = overmind
+		overmind.add_points(damage / 10)//burn damage causes the blob to gain a very small amount of points: the 20 damage of a laser will generate 2 BP.
 		damage = 0 //completely and entirely immune to burn damage!
 		for(var/turf/open/T in range(1, B))
 			var/obj/structure/blob/C = locate() in T
@@ -34,11 +35,11 @@
 	taste_description = "burning oil"
 	color = "#B68D00"
 
-/datum/reagent/blob/blazing_oil/reaction_mob(mob/living/M, method=TOUCH, reac_volume, show_message, touch_protection, mob/camera/blob/O)
+/datum/reagent/blob/blazing_oil/reaction_mob(mob/living/exposed_mob, method=TOUCH, reac_volume, show_message, touch_protection, mob/camera/blob/overmind)
 	reac_volume = ..()
-	M.adjust_fire_stacks(round(reac_volume/10))
-	M.IgniteMob()
-	if(M)
-		M.apply_damage(0.8*reac_volume, BURN, wound_bonus=CANT_WOUND)
-	if(iscarbon(M))
-		M.emote("scream")
+	exposed_mob.adjust_fire_stacks(round(reac_volume/10))
+	exposed_mob.IgniteMob()
+	if(exposed_mob)
+		exposed_mob.apply_damage(0.8*reac_volume, BURN, wound_bonus=CANT_WOUND)
+	if(iscarbon(exposed_mob))
+		exposed_mob.emote("scream")

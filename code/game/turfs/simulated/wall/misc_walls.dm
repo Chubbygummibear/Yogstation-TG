@@ -108,12 +108,6 @@
 		user.adjustFireLoss(5)
 		playsound(src, 'sound/machines/fryer/deep_fryer_emerge.ogg', 50, TRUE)
 
-/turf/closed/wall/clockwork/mech_melee_attack(obj/mecha/M, mob/living/user)
-	..()
-	if(heated)
-		to_chat(M.occupant, span_userdanger("The wall's intense heat completely reflects your [M.name]'s attack!"))
-		M.take_damage(20, BURN)
-
 /turf/closed/wall/clockwork/attack_eminence(mob/camera/eminence/user, params)
 	var/list/modifiers = params2list(params)
 	if(modifiers["alt"] && istype(user))

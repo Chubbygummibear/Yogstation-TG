@@ -136,7 +136,7 @@ GLOBAL_DATUM_INIT(welding_sparks, /mutable_appearance, mutable_appearance('icons
 	var/range_cooldown_mod = 1
 	var/break_message = "%SRC crumbles into scraps under hard use."
 	///All items with sharpness of SHARP_EDGED or higher will automatically get the butchering component.
-	var/sharpness = SHARP_NONE
+	var/sharpness = NONE
 
 	var/tool_behaviour = NONE
 	var/toolspeed = 1

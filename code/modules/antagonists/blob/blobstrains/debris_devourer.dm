@@ -12,14 +12,15 @@
 	message = "The blob blasts you"
 
 
-/datum/blobstrain/debris_devourer/attack_living(var/mob/living/L, var/list/nearby_blobs)
+/datum/blobstrain/debris_devourer/attack_living(mob/living/L, list/nearby_blobs)
 	send_message(L)
 	for (var/obj/structure/blob/blob in nearby_blobs)
 		debris_attack(L, blob)
 
 /datum/blobstrain/debris_devourer/on_sporedeath(mob/living/spore)
+	var/obj/structure/blob/special/core/core = overmind.blob_core
 	for(var/i in 1 to 3)
-		var/obj/item/I = locate() in overmind.blob_core
+		var/obj/item/I = pick(core.contents)
 		if (I && !QDELETED(I))
 			I.forceMove(get_turf(spore))
 			I.throw_at(get_edge_target_turf(spore,pick(GLOB.alldirs)), 3, 5)

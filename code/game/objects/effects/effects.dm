@@ -16,6 +16,7 @@
 		return
 
 	return ..()
+
 /obj/effect/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = 1, attack_dir, armour_penetration = 0)
 	return
 
@@ -23,16 +24,13 @@
 	return
 
 /obj/effect/acid_act()
-	return
-
-// /obj/effect/mech_melee_attack(obj/mecha/M, mob/living/user)
-// 	return 0
+	return	FALSE
 
 /obj/effect/blob_act(obj/structure/blob/B)
 	return
 
 /obj/effect/attack_hulk(mob/living/carbon/human/user, does_attack_animation = 0)
-	return 0
+	return FALSE
 
 /obj/effect/experience_pressure_difference()
 	return
@@ -53,8 +51,8 @@
 
 /obj/effect/singularity_act()
 	qdel(src)
-	return 0
 
+///The abstract effect ignores even more effects and is often typechecked for atoms that should truly not be fucked with.
 /obj/effect/abstract/ex_act(severity, target)
 	return
 

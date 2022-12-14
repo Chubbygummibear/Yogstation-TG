@@ -109,15 +109,23 @@
 
 /obj/machinery/computer/mech_bay_power_console/ui_data(mob/user)
 	var/list/data = list()
-	if(recharge_port && !QDELETED(recharge_port))
-		data["recharge_port"] = list("mech" = null)
-		if(recharge_port.recharging_mech && !QDELETED(recharge_port.recharging_mech))
-			data["recharge_port"]["mech"] = list("health" = recharge_port.recharging_mech.atom_integrity, "maxhealth" = recharge_port.recharging_mech.max_integrity, "cell" = null, "name" = recharge_port.recharging_mech.name,)
-			if(recharge_port.recharging_mech.cell && !QDELETED(recharge_port.recharging_mech.cell))
-				data["recharge_port"]["mech"]["cell"] = list(
-				"charge" = recharge_port.recharging_mech.cell.charge,
-				"maxcharge" = recharge_port.recharging_mech.cell.maxcharge
-				)
+	if(QDELETED(recharge_port))
+		return data
+	
+	data["recharge_port"] = list("mech" = null)
+	var/obj/mecha/recharging_mech = recharge_port.recharging_mech
+
+	if(!recharging_mech)
+		return data
+	data["recharge_port"]["mech"] = list("health" = recharging_mech.get_integrity(), "maxhealth" = recharging_mech.max_integrity, "cell" = null, "name" = recharging_mech.name,)
+	
+	if(QDELETED(recharging_mech.cell))
+		return data
+
+	data["recharge_port"]["mech"]["cell"] = list(
+	"charge" = recharging_mech.cell.charge,
+	"maxcharge" = recharging_mech.cell.maxcharge
+	)
 	return data
 
 

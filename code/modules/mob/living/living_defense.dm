@@ -41,6 +41,11 @@
 
 //this returns the mob's protection against ear damage (0:no protection; 1: some ear protection; 2: has no ears)
 /mob/living/proc/get_ear_protection()
+	var/turf/current_turf = get_turf(src)
+	var/datum/gas_mixture/environment = current_turf.return_air()
+	var/pressure = environment ? environment.return_pressure() : 0
+	if(pressure < SOUND_MINIMUM_PRESSURE) //space is empty
+		return 1
 	return 0
 
 /mob/living/proc/is_mouth_covered(head_only = 0, mask_only = 0)
@@ -48,7 +53,8 @@
 
 /mob/living/proc/is_eyes_covered(check_glasses = 1, check_head = 1, check_mask = 1)
 	return FALSE
-
+/mob/living/proc/is_pepper_proof(check_head = TRUE, check_mask = TRUE)
+	return FALSE
 /mob/living/proc/on_hit(obj/item/projectile/P)
 	return BULLET_ACT_HIT
 
@@ -61,7 +67,8 @@
 		var/armor_check = check_projectile_armor(def_zone, P, is_silent = TRUE)
 		armor_check = min(ARMOR_MAX_BLOCK, armor_check) //cap damage reduction at 90%
 		last_damage = P.name
-		apply_damage(P.damage, P.damage_type, def_zone, armor, wound_bonus = P.wound_bonus, bare_wound_bonus = P.bare_wound_bonus, sharpness = P.get_sharpness())
+		apply_damage(P.damage, P.damage_type, def_zone, armor_check, wound_bonus=P.wound_bonus, bare_wound_bonus=P.bare_wound_bonus, sharpness = P.sharpness, attack_direction = attack_direction)
+		apply_effects(P.stun, P.knockdown, P.unconscious, P.slur, P.stutter, P.eyeblur, P.drowsy, armor_check, P.stamina, P.jitter, P.paralyze, P.immobilize)
 		if(P.dismemberment)
 			check_projectile_dismemberment(P, def_zone)
 	if(P.penetrating && (P.penetration_type == 0 || P.penetration_type == 2) && P.penetrations > 0)
@@ -113,36 +120,6 @@
 
 	playsound(loc, 'sound/weapons/genhit.ogg', 50, TRUE, -1) //Item sounds are handled in the item itself
 	return ..()
-
-/mob/living/mech_melee_attack(obj/mecha/mecha_attacker, mob/living/user)	
-	if(mecha_attacker.occupant.a_intent != INTENT_HARM)
-		step_away(src,mecha_attacker)
-		log_combat(mecha_attacker.occupant, src, "pushed", mecha_attacker)
-		visible_message(span_warning("[mecha_attacker] pushes [src] out of the way."), null, null, 5)
-		return 0
-	
-	last_damage = "grand blunt trauma"
-	mecha_attacker.do_attack_animation(src)
-	if(mecha_attacker.damtype == "brute")
-		var/throwtarget = get_edge_target_turf(mecha_attacker, get_dir(mecha_attacker, get_step_away(src, mecha_attacker)))
-		src.throw_at(throwtarget, 5, 2, src)//one tile further than mushroom punch/psycho brawling
-	switch(mecha_attacker.damtype)
-		if(BRUTE)
-			Unconscious(20)
-			take_overall_damage(rand(mecha_attacker.force/2, mecha_attacker.force))
-			playsound(src, 'sound/weapons/punch4.ogg', 50, 1)
-		if(BURN)
-			take_overall_damage(0, rand(mecha_attacker.force/2, mecha_attacker.force))
-			playsound(src, 'sound/items/welder.ogg', 50, 1)
-		if(TOX)
-			mecha_attacker.mech_toxin_damage(src)
-		else
-			return
-	updatehealth()
-	visible_message(span_danger("[mecha_attacker.name] has hit [src]!"), \
-					span_userdanger("[mecha_attacker.name] has hit [src]!"), null, COMBAT_MESSAGE_RANGE)
-	//log_combat(M.occupant, src, "attacked", M, "(INTENT: [uppertext(M.occupant.a_intent)]) (DAMTYPE: [uppertext(M.damtype)])")
-	..()
 
 /mob/living/fire_act()
 	last_damage = "fire"

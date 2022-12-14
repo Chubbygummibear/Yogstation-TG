@@ -514,7 +514,7 @@
 
 /obj/item/projectile/beam/beam_rifle/Bump(atom/target)
 	if(check_pierce(target))
-		permutated += target
+		impacted += target
 		trajectory_ignore_forcemove = TRUE
 		forceMove(target.loc)
 		trajectory_ignore_forcemove = FALSE

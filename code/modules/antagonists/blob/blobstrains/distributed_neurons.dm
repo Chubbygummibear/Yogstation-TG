@@ -1,3 +1,4 @@
+//kills unconscious targets and turns them into blob zombies, produces fragile spores when killed.  Spore produced by factories are sentient.
 /datum/blobstrain/reagent/distributed_neurons
 	name = "Distributed Neurons"
 	description = "will do very low toxin damage and turns unconscious targets into blob zombies."
@@ -11,28 +12,28 @@
 	reagent = /datum/reagent/blob/distributed_neurons
 
 /datum/blobstrain/reagent/distributed_neurons/damage_reaction(obj/structure/blob/B, damage, damage_type, damage_flag)
-	if((damage_flag == MELEE || damage_flag == BULLET || damage_flag == LASER) && damage <= 20 && B.atom_integrity - damage <= 0 && prob(15)) //if the cause isn't fire or a bomb, the damage is less than 21, we're going to die from that damage, 15% chance of a shitty spore.
+	if((damage_flag == MELEE || damage_flag == BULLET || damage_flag == LASER) && damage <= 20 && B.get_integrity() - damage <= 0 && prob(15)) //if the cause isn't fire or a bomb, the damage is less than 21, we're going to die from that damage, 15% chance of a shitty spore.
 		B.visible_message("<span class='warning'><b>A spore floats free of the blob!</b></span>")
-		var/mob/living/simple_animal/hostile/blob/blobspore/weak/BS = new/mob/living/simple_animal/hostile/blob/blobspore/weak(B.loc)
-		BS.overmind = B.overmind
-		BS.update_icons()
-		B.overmind.blob_mobs.Add(BS)
+		var/mob/living/simple_animal/hostile/blob/blobspore/weak/spore = new/mob/living/simple_animal/hostile/blob/blobspore/weak(B.loc)
+		spore.overmind = B.overmind
+		spore.update_icons()
+		B.overmind.blob_mobs.Add(spore)
 	return ..()
 
 /datum/reagent/blob/distributed_neurons
 	name = "Distributed Neurons"
 	color = "#E88D5D"
 
-/datum/reagent/blob/distributed_neurons/reaction_mob(mob/living/M, method=TOUCH, reac_volume, show_message, touch_protection, mob/camera/blob/O)
+/datum/reagent/blob/distributed_neurons/reaction_mob(mob/living/exposed_mob, method=TOUCH, reac_volume, show_message, touch_protection, mob/camera/blob/overmind)
 	reac_volume = ..()
-	M.apply_damage(0.6*reac_volume, TOX)
-	if(O && ishuman(M) && M.stat == UNCONSCIOUS)
-		M.death() //sleeping in a fight? bad plan.
+	exposed_mob.apply_damage(0.6*reac_volume, TOX)
+	if(overmind && ishuman(exposed_mob) && M.stat == UNCONSCIOUS)
+		exposed_mob.death() //sleeping in a fight? bad plan.
 		var/points = rand(5, 10)
-		var/mob/living/simple_animal/hostile/blob/blobspore/BS = new/mob/living/simple_animal/hostile/blob/blobspore/weak(get_turf(M))
-		BS.overmind = O
-		BS.update_icons()
-		O.blob_mobs.Add(BS)
-		BS.Zombify(M)
-		O.add_points(points)
-		to_chat(O, "<span class='notice'>Gained [points] resources from the zombification of [M].</span>")
+		var/mob/living/simple_animal/hostile/blob/blobspore/spore = new/mob/living/simple_animal/hostile/blob/blobspore/weak(get_turf(M))
+		spore.overmind = overmind
+		spore.update_icons()
+		overmind.blob_mobs.Add(spore)
+		spore.Zombify(exposed_mob)
+		overmind.add_points(points)
+		to_chat(overmind, "<span class='notice'>Gained [points] resources from the zombification of [exposed_mob].</span>")

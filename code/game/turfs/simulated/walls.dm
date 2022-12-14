@@ -120,24 +120,6 @@
 	else
 		add_dent(WALL_DENT_HIT)
 
-/turf/closed/wall/mech_melee_attack(obj/mecha/M, mob/living/user)
-	M.do_attack_animation(src)
-	switch(M.damtype)
-		if(BRUTE)
-			playsound(src, 'sound/weapons/punch4.ogg', 50, 1)
-		if(BURN)
-			playsound(src, 'sound/items/welder.ogg', 100, 1)
-		if(TOX)
-			playsound(src, 'sound/effects/spray2.ogg', 100, 1)
-	M.visible_message(span_danger("[M.name] hits [src]!"), span_danger("You hit [src]!"), null, COMBAT_MESSAGE_RANGE)
-	if(prob(hardness + M.force) && M.force > 20)
-		dismantle_wall(1)
-		playsound(src, 'sound/effects/meteorimpact.ogg', 100, 1)
-	else
-		add_dent(WALL_DENT_HIT)
-	..()
-	return 100 //this is an arbitrary "damage" number since the actual damage is rng dismantle
-
 /turf/closed/wall/attack_paw(mob/living/user)
 	user.changeNext_move(CLICK_CD_MELEE)
 	return attack_hand(user)

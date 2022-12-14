@@ -95,6 +95,10 @@
 			Immobilize(effect * hit_percent)
 		if(EFFECT_UNCONSCIOUS)
 			Unconscious(effect * hit_percent)
+		if(EFFECT_EYE_BLUR)
+			blur_eyes(effect * hit_percent)
+		if(EFFECT_DROWSY)
+			drowsyness = max(drowsyness,(effect * hit_percent))
 		if(EFFECT_IRRADIATE)
 			if(!HAS_TRAIT(src, TRAIT_RADIMMUNE)&& !(status_flags & GODMODE))
 				radiation += max(effect * hit_percent, 0)
@@ -103,23 +107,31 @@
 		if(EFFECT_STUTTER)
 			if((status_flags & CANSTUN) && !HAS_TRAIT(src, TRAIT_STUNIMMUNE)) // stun is usually associated with stutter
 				stuttering = max(stuttering,(effect * hit_percent))
-		if(EFFECT_EYE_BLUR)
-			blur_eyes(effect * hit_percent)
-		if(EFFECT_DROWSY)
-			drowsyness = max(drowsyness,(effect * hit_percent))
 		if(EFFECT_JITTER)
 			if((status_flags & CANSTUN) && !HAS_TRAIT(src, TRAIT_STUNIMMUNE))
 				jitteriness = max(jitteriness,(effect * hit_percent))
-		if(EFFECT_PARALYZE)
-			Paralyze(effect * hit_percent)
-		if(EFFECT_IMMOBILIZE)
-			Immobilize(effect * hit_percent)
 	return TRUE
 
 
-/mob/living/proc/apply_effects(stun = 0, knockdown = 0, unconscious = 0, irradiate = 0, slur = 0, stutter = 0, eyeblur = 0, drowsy = 0, blocked = 0, stamina = 0, jitter = 0, paralyze = 0, immobilize = 0)
+/mob/living/proc/apply_effects(
+		stun = 0, 
+		knockdown = 0, 
+		unconscious = 0, 
+		slur = 0 SECONDS, // Speech impediment, not technically an effect
+		stutter = 0 SECONDS, // Ditto
+		eyeblur = 0, 
+		drowsy = 0, 
+		blocked = 0, // This one's not an effect, don't be confused - it's block chance
+		stamina = 0, // This one's a damage type, and not an effect
+		jitter = 0 SECONDS, 
+		paralyze = 0, 
+		immobilize = 0,
+		irradiate = 0, //yog specific
+	)
+
 	if(blocked >= 100)
 		return FALSE
+
 	if(stun)
 		apply_effect(stun, EFFECT_STUN, blocked)
 	if(knockdown)
@@ -130,20 +142,23 @@
 		apply_effect(paralyze, EFFECT_PARALYZE, blocked)
 	if(immobilize)
 		apply_effect(immobilize, EFFECT_IMMOBILIZE, blocked)
-	if(irradiate)
-		apply_effect(irradiate, EFFECT_IRRADIATE, src.getarmor(null, RAD))
-	if(slur)
-		apply_effect(slur, EFFECT_SLUR, blocked)
-	if(stutter)
-		apply_effect(stutter, EFFECT_STUTTER, blocked)
 	if(eyeblur)
 		apply_effect(eyeblur, EFFECT_EYE_BLUR, blocked)
 	if(drowsy)
 		apply_effect(drowsy, EFFECT_DROWSY, blocked)
+
 	if(stamina)
 		apply_damage(stamina, STAMINA, null, blocked)
-	if(jitter)
-		apply_effect(jitter, EFFECT_JITTER, blocked)
+
+	if(jitter && (status_flags & CANSTUN) && !HAS_TRAIT(src, TRAIT_STUNIMMUNE))
+		adjust_jitter(jitter)
+	if(slur)
+		adjust_slurring(slur)
+	if(stutter)
+		adjust_stutter(stutter)
+
+	if(irradiate) //yog specific
+		apply_effect(irradiate, EFFECT_IRRADIATE, src.getarmor(null, RAD))
 	return TRUE
 
 
