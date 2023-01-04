@@ -94,7 +94,7 @@
 
 /obj/machinery/griddle/process(delta_time)
 	..()
-	listclearnulls(griddled_objects)
+	list_clear_nulls(griddled_objects)
 	for(var/i in griddled_objects)
 		var/obj/item/griddled_item = i
 		if(QDELETED(griddled_item))

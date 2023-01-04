@@ -326,7 +326,7 @@
 
 	return atom_storage
 
-/atom/proc/handle_ricochet(obj/item/projectile/ricocheting_projectile)
+/atom/proc/handle_ricochet(obj/projectile/ricocheting_projectile)
 	var/turf/p_turf = get_turf(ricocheting_projectile)
 	var/face_direction = get_dir(src, p_turf)
 	var/face_angle = dir2angle(face_direction)
@@ -550,7 +550,7 @@
   *
   * Default behaviour is to send the COMSIG_ATOM_BULLET_ACT and then call on_hit() on the projectile
   */
-/atom/proc/bullet_act(obj/item/projectile/hitting_projectile, def_zone)
+/atom/proc/bullet_act(obj/projectile/hitting_projectile, def_zone)
 	SEND_SIGNAL(src, COMSIG_ATOM_BULLET_ACT, hitting_projectile, def_zone)
 	// This armor check only matters for the visuals and messages in on_hit(), it's not actually used to reduce damage since
 	// only living mobs use armor to reduce damage, but on_hit() is going to need the value no matter what is shot.

@@ -86,7 +86,7 @@ GLOBAL_LIST_EMPTY(chosen_station_templates)
 		if(!template_names.len)
 			stack_trace("Station room spawner (type: [type]) has run out of ruins, unique will be ignored")
 			template_names = current_templates
-	var/chosen_template = pickweight(template_names)
+	var/chosen_template = pick_weight(template_names)
 	if(unique && chosen_template == EMPTY_SPAWN)
 		template_names -= EMPTY_SPAWN
 		if(!template_names.len)

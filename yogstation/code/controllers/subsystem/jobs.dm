@@ -8,4 +8,4 @@
 			minutes = 600 // Prevents fresh new guys from causing undefined errors or being 1000x less likely to get a role, when using log scale
 		pickweightfood[candidate] = log(10,minutes/60) // Log base 10 of the hours
 		//Yes, doing the log of the hours instead of the minutes does affect things.
-	return pickweight(pickweightfood)
+	return pick_weight(pickweightfood)

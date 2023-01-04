@@ -205,7 +205,7 @@
 	if(!user.bee_friendly())
 		//Time to get stung!
 		var/bee_mad = FALSE
-		listclearnulls(bees)
+		list_clear_nulls(bees)
 		for(var/b in bees) //everyone who's ever lived here now instantly hates you, suck it assistant!
 			var/mob/living/simple_animal/hostile/poison/bees/B = b
 			if(B.isqueen)

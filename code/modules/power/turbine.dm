@@ -272,7 +272,7 @@
 
 	var/t = "<TT><B>Gas Turbine Generator</B><HR><PRE>"
 
-	t += "Generated power : [DisplayPower(lastgen)]<BR><BR>"
+	t += "Generated power : [display_power(lastgen)]<BR><BR>"
 
 	t += "Turbine: [round(compressor.rpm)] RPM<BR>"
 
@@ -344,7 +344,7 @@
 	data["turbine_broke"] = (!compressor || !compressor.turbine || (compressor.turbine.stat & BROKEN)) ? TRUE : FALSE
 	data["online"] = compressor?.starter
 
-	data["power"] = DisplayPower(compressor?.turbine?.lastgen)
+	data["power"] = display_power(compressor?.turbine?.lastgen)
 	data["rpm"] = compressor?.rpm
 	data["temp"] = compressor?.gas_contained.return_temperature()
 

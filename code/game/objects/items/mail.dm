@@ -176,7 +176,7 @@
 		return FALSE 
 
 	for(var/iterator in 1 to goodie_count)
-		var/target_good = pickweight(goodies)
+		var/target_good = pick_weight(goodies)
 		var/atom/movable/target_atom = new target_good(src)
 		body.log_message("[key_name(body)] received [target_atom.name] in the mail ([target_good])", LOG_GAME)
 

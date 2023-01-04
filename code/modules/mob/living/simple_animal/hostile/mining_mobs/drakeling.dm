@@ -204,7 +204,7 @@
 		if(!check)
 			break
 		T = check
-	return (getline(src, T) - get_turf(src))
+	return (get_line(src, T) - get_turf(src))
 
 ///actual bit that shoots fire for the fire breath attack
 /obj/effect/proc_holder/drakeling/proc/drakeling_fire_line(var/source, var/list/turfs, var/damage, var/list/protected)
@@ -233,7 +233,7 @@
 	cooldown = 2 SECONDS
 	prepare_message = span_notice("You prepare %YOUR wings.")
 	unprepare_message = span_notice("You stop the flapping.")
-	var/shootie = /obj/item/projectile/wing
+	var/shootie = /obj/projectile/wing
 
 /obj/effect/proc_holder/drakeling/wing_flap/InterceptClickOn(mob/living/L, params, atom/A)
 	if(..())
@@ -248,11 +248,11 @@
 		shooties += new shootie(get_step(drake, NORTH))
 		shooties += new shootie(get_step(drake, SOUTH))
 	for(var/S in shooties)
-		var/obj/item/projectile/wing/shooted = S
+		var/obj/projectile/wing/shooted = S
 		shooted.firer = L
 		shooted.fire(dir2angle(drake.dir))
 
-/obj/item/projectile/wing
+/obj/projectile/wing
 	name = "wing blast"
 	damage = 0
 	range = 5
@@ -260,7 +260,7 @@
 	icon_state = "energy2"
 	var/mine_range = 5 //same as an advanced cutter but there's three of them
 
-/obj/item/projectile/wing/on_hit(atom/target)
+/obj/projectile/wing/on_hit(atom/target)
 	. = ..()
 	if(isliving(target))
 		var/mob/living/L = target

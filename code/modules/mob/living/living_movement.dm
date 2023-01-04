@@ -10,8 +10,8 @@
 	. = ..()
 	if((mover.pass_flags & PASSMOB))
 		return TRUE
-	if(istype(mover, /obj/item/projectile))
-		var/obj/item/projectile/P = mover
+	if(istype(mover, /obj/projectile))
+		var/obj/projectile/P = mover
 		return !P.can_hit_target(src, P.impacted, src == P.original, TRUE)
 	if(mover.throwing)
 		return (!density || !(mobility_flags & MOBILITY_STAND) || (mover.throwing.thrower == src && !ismob(mover)))

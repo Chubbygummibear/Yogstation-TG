@@ -135,7 +135,7 @@
   * Fixes any issues caused by late Generate() calls or exchanging clients
   */
 /datum/reality_smash_tracker/proc/ReworkNetwork()
-	listclearnulls(smashes)
+	list_clear_nulls(smashes)
 	for(var/mind in targets)
 		if(isnull(mind))
 			stack_trace("A null somehow landed in the reality smash tracker's list of minds")

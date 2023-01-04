@@ -67,14 +67,14 @@
 //#################//
 
 /obj/item/ammo_casing/energy/polarstar
-	projectile_type = /obj/item/projectile/bullet/polarstar
+	projectile_type = /obj/projectile/bullet/polarstar
 	select_name = "polar star lens"
 	e_cost = 100
 	fire_sound = null
 	harmful = TRUE
 
 
-/obj/item/projectile/bullet/polarstar
+/obj/projectile/bullet/polarstar
 	name = "polar star bullet"
 	range = 20
 	damage = 20
@@ -83,7 +83,7 @@
 	icon_state = "spur_high"
 	var/skip = FALSE //this is the hackiest thing ive ever done but i dont know any other solution other than deparent the spur projectile
 
-/obj/item/projectile/bullet/polarstar/fire(angle, atom/direct_target)
+/obj/projectile/bullet/polarstar/fire(angle, atom/direct_target)
 	if(!fired_from || !istype(fired_from,/obj/item/gun/energy) || skip)
 		return ..()
 
@@ -105,7 +105,7 @@
 		range = 7
 	..()
 
-/obj/item/projectile/bullet/polarstar/on_range()
+/obj/projectile/bullet/polarstar/on_range()
 	if(!loc)
 		return
 	var/turf/T = loc
@@ -117,7 +117,7 @@
 	qdel(impact)
 	..()
 
-/obj/item/projectile/bullet/polarstar/on_hit(atom/target, blocked)
+/obj/projectile/bullet/polarstar/on_hit(atom/target, blocked)
 	. = ..()
 	var/impact_icon = null
 	var/impact_sound = null
@@ -140,11 +140,11 @@
 	..()
 
 /obj/item/ammo_casing/energy/polarstar/spur
-	projectile_type = /obj/item/projectile/bullet/polarstar/spur
+	projectile_type = /obj/projectile/bullet/polarstar/spur
 	select_name = "spur lens"
 
 
-/obj/item/projectile/bullet/polarstar/spur
+/obj/projectile/bullet/polarstar/spur
 	name = "spur bullet"
 	range = 20
 	damage = 40
@@ -153,7 +153,7 @@
 	icon_state = "spur_high"
 	skip = TRUE
 
-/obj/item/projectile/bullet/polarstar/spur/fire(angle, atom/direct_target)
+/obj/projectile/bullet/polarstar/spur/fire(angle, atom/direct_target)
 	if(!fired_from || !istype(fired_from,/obj/item/gun/energy))
 		return ..()
 

@@ -22,7 +22,7 @@
 	//Damage type for the weapon
 	var/dam_type = BRUTE
 	//If it's sharp or not
-	var/attack_sharpness = SHARP_NONE
+	var/attack_sharpness = NONE
 	//Damage the weapon will do. Note this is ADDED to the base mecha attack damage (usually)
 	var/weapon_damage = 0
 	//If we have both cleave and precise attacks, the precise may have more damage

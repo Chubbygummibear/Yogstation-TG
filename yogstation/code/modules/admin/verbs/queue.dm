@@ -6,7 +6,7 @@
 	if(!check_rights(R_ADMIN))
 		return
 	
-	listclearnulls(SSticker.queued_players)
+	list_clear_nulls(SSticker.queued_players)
 	to_chat(usr,span_notice("<b>List of queued players:</b>"), confidential=TRUE)
 	for(var/mob/dead/new_player/guy in SSticker.queued_players)
 		to_chat(usr,"\t[guy]", confidential=TRUE)
@@ -19,7 +19,7 @@
 	if(!check_rights(R_SERVER))
 		return
 	
-	listclearnulls(SSticker.queued_players)
+	list_clear_nulls(SSticker.queued_players)
 	var/list/queue = SSticker.queued_players
 	
 	if(!queue.len)

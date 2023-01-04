@@ -249,11 +249,6 @@
 /obj/structure/window/proc/check_state_and_anchored(checked_state, checked_anchored)
 	return check_state(checked_state) && check_anchored(checked_anchored)
 
-/obj/structure/window/mech_melee_attack(obj/mecha/M, mob/living/user)
-	if(!can_be_reached())
-		return
-	..()
-
 /obj/structure/window/proc/can_be_reached(mob/user)
 	if(!fulltile)
 		if(get_dir(user,src) & dir)
@@ -506,7 +501,7 @@
 
 /obj/structure/window/plasma/CanAllowThrough(atom/movable/mover, turf/target)
 	. = ..()
-	if(istype(mover, /obj/item/projectile/energy/nuclear_particle))
+	if(istype(mover, /obj/projectile/energy/nuclear_particle))
 		return FALSE
 
 /obj/structure/window/plasma/spawnDebris(location)
@@ -770,7 +765,7 @@
 
 /obj/structure/window/plastitanium/CanAllowThrough(atom/movable/mover, turf/target)
 	. = ..()
-	if(istype(mover, /obj/item/projectile/energy/nuclear_particle))
+	if(istype(mover, /obj/projectile/energy/nuclear_particle))
 		return FALSE
 
 /obj/structure/window/plastitanium/unanchored

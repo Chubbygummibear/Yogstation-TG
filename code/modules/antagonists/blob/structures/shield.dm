@@ -45,7 +45,7 @@
 	max_integrity = BLOB_REFLECTOR_MAX_HP
 	health_regen = BLOB_REFLECTOR_HP_REGEN
 
-/obj/structure/blob/shield/reflective/handle_ricochet(obj/item/projectile/P)
+/obj/structure/blob/shield/reflective/handle_ricochet(obj/projectile/P)
 	var/turf/p_turf = get_turf(P)
 	var/face_direction = get_dir(src, p_turf)
 	var/face_angle = dir2angle(face_direction)

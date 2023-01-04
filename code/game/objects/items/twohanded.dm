@@ -983,7 +983,7 @@
 	throwforce = 18
 	attack_verb = list("attacked", "hit", "struck", "bludgeoned", "bashed", "smashed")
 	block_chance = 30 //Only works in melee, but I bet your ass you could raise its handle to deflect a sword
-	sharpness = SHARP_NONE //Blunt, breaks bones
+	sharpness = NONE //Blunt, breaks bones
 	wound_bonus = -10
 	bare_wound_bonus = 15
 	max_integrity = 200
@@ -1156,7 +1156,7 @@
 	bare_wound_bonus = 40
 	throwforce = 0
 	attack_verb = list("beat", "smacked")
-	sharpness = SHARP_NONE
+	sharpness = NONE
 	w_class = WEIGHT_CLASS_HUGE
 	var/homerun_ready = 0
 	var/homerun_able = 0

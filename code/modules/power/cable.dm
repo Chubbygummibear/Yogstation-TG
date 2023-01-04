@@ -164,7 +164,7 @@ By design, d1 is the smallest direction and d2 is the highest
 	else if(W.tool_behaviour == TOOL_MULTITOOL)
 		var/list/combined_msg = list()
 		if(powernet && (powernet.avail > 0))		// is it powered?
-			combined_msg += span_danger("Total power: [DisplayPower(powernet.avail)]\nLoad: [DisplayPower(powernet.load)]\nExcess power: [DisplayPower(surplus())]")
+			combined_msg += span_danger("Total power: [display_power(powernet.avail)]\nLoad: [display_power(powernet.load)]\nExcess power: [display_power(surplus())]")
 		else
 			combined_msg += span_danger("The cable is not powered.")
 		shock(user, 5, 0.2)

@@ -33,7 +33,7 @@
 	var/locked = FALSE
 	var/allow_switch_interact = TRUE
 
-	var/projectile_type = /obj/item/projectile/beam/emitter
+	var/projectile_type = /obj/projectile/beam/emitter
 	var/projectile_sound = 'sound/weapons/emitter.ogg'
 	var/datum/effect_system/spark_spread/sparks
 
@@ -215,7 +215,7 @@
 	var/obj/item/K = new projectile_type(get_turf(src))
 
 	/// If it isn't a projectile, throw it
-	if(!istype(K, /obj/item/projectile))
+	if(!istype(K, /obj/projectile))
 		if(istype(K, /obj/item/grenade))
 			var/obj/item/grenade/I = K
 			I.preprime()
@@ -225,7 +225,7 @@
 			sparks.start()
 		return K
 
-	var/obj/item/projectile/P = K
+	var/obj/projectile/P = K
 	playsound(get_turf(src), projectile_sound, 50, TRUE)
 	if(prob(35))
 		sparks.start()

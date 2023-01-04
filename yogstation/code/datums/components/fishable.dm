@@ -22,7 +22,7 @@
 		FISHING_LOOT_RARE = min(fishing_power / 20,25)
 		)
 
-	var/chosen_rank = pickweight(chance)
+	var/chosen_rank = pick_weight(chance)
 	switch(chosen_rank)
 		if(FISHING_LOOT_JUNK)
 			return pick(loot.junk_loot)

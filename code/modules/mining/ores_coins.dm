@@ -252,7 +252,7 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	else
 		..()
 
-/obj/item/twohanded/required/gibtonite/bullet_act(obj/item/projectile/P)
+/obj/item/twohanded/required/gibtonite/bullet_act(obj/projectile/P)
 	GibtoniteReaction(P.firer)
 	. = ..()
 
@@ -528,8 +528,8 @@ GLOBAL_LIST_INIT(sand_recipes, list(\
 	. = ..()
 	transform = initial(transform)
 
-/obj/item/coin/bullet_act(obj/item/projectile/P)
-	if(P.flag != LASER && P.flag != ENERGY && !istype(P, /obj/item/projectile/bullet/c38)) //only energy projectiles get deflected (also det revolver because damn thats cool)
+/obj/item/coin/bullet_act(obj/projectile/P)
+	if(P.flag != LASER && P.flag != ENERGY && !istype(P, /obj/projectile/bullet/c38)) //only energy projectiles get deflected (also det revolver because damn thats cool)
 		return ..()
 		
 	if(cooldown >= world.time)//we ricochet the projectile

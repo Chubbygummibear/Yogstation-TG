@@ -234,7 +234,7 @@
 					ears = headset_to_add
 					to_chat(usr, span_notice("You fit the headset onto [src]."))
 
-					clearlist(available_channels)
+					LAZYCLEARLIST(available_channels)
 					for(var/ch in headset_to_add.channels)
 						switch(ch)
 							if(RADIO_CHANNEL_ENGINEERING)
@@ -332,7 +332,7 @@
 	return
 
 //Bullets
-/mob/living/simple_animal/parrot/bullet_act(obj/item/projectile/Proj)
+/mob/living/simple_animal/parrot/bullet_act(obj/projectile/Proj)
 	. = ..()
 	if(!stat && !client)
 		if(parrot_state == PARROT_PERCH)

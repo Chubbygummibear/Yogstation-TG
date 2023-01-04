@@ -158,7 +158,7 @@
 /obj/effect/proc_holder/spell/targeted/projectile/dumbfire/rust_wave
 	name = "Patron's Reach"
 	desc = "Fire a rust spreading projectile in front of you, dealing toxin damage to whatever it hits."
-	proj_type = /obj/item/projectile/magic/spell/rust_wave
+	proj_type = /obj/projectile/magic/spell/rust_wave
 	charge_max = 350
 	clothes_req = FALSE
 	action_icon = 'icons/mob/actions/actions_ecult.dmi'
@@ -167,7 +167,7 @@
 	invocation = "FACE INEVITABILITY"
 	invocation_type = "whisper"
 
-/obj/item/projectile/magic/spell/rust_wave
+/obj/projectile/magic/spell/rust_wave
 	name = "Patron's Reach"
 	icon_state = "eldritch_projectile"
 	alpha = 180
@@ -179,7 +179,7 @@
 	range = 15
 	speed = 1
 
-/obj/item/projectile/magic/spell/rust_wave/Moved(atom/OldLoc, Dir)
+/obj/projectile/magic/spell/rust_wave/Moved(atom/OldLoc, Dir)
 	. = ..()
 	playsound(src, 'sound/items/welder.ogg', 75, TRUE)
 	var/list/turflist = list()
@@ -199,9 +199,9 @@
 
 /obj/effect/proc_holder/spell/targeted/projectile/dumbfire/rust_wave/short
 	name = "Small Patron's Reach"
-	proj_type = /obj/item/projectile/magic/spell/rust_wave/short
+	proj_type = /obj/projectile/magic/spell/rust_wave/short
 
-/obj/item/projectile/magic/spell/rust_wave/short
+/obj/projectile/magic/spell/rust_wave/short
 	range = 7
 	speed = 2
 
@@ -332,7 +332,7 @@
 		if(!check)
 			break
 		T = check
-	return (getline(user, T) - get_turf(user))
+	return (get_line(user, T) - get_turf(user))
 
 /obj/effect/proc_holder/spell/pointed/ash_final/proc/fire_line(atom/source, list/turfs)
 	var/list/hit_list = list()

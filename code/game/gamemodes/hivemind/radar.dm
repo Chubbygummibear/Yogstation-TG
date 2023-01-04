@@ -46,7 +46,7 @@
 				targets[C] = ((HIVEMIND_RADAR_MAX_DISTANCE ** 2) - (distance ** 2)) * multiplier
 
 	if(targets.len)
-		scan_target = pickweight(targets) //Point at a 'random' target, biasing heavily towards closer ones.
+		scan_target = pick_weight(targets) //Point at a 'random' target, biasing heavily towards closer ones.
 	else
 		scan_target = null
 	if(!trackable_targets_exist)

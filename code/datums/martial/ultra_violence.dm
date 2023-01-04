@@ -198,14 +198,14 @@
 	ammo_type = /obj/item/ammo_casing/shotgun/buckshot/martial
 
 /obj/item/ammo_casing/shotgun/buckshot/martial
-	projectile_type = /obj/item/projectile/bullet/pellet/shotgun_buckshot/martial
+	projectile_type = /obj/projectile/bullet/pellet/shotgun_buckshot/martial
 	pellets = 6
 	variance = 15
 
-/obj/item/projectile/bullet/pellet/shotgun_buckshot/martial
+/obj/projectile/bullet/pellet/shotgun_buckshot/martial
 	wound_falloff_tile = -1.5 // more wounds
 
-/obj/item/projectile/bullet/pellet/shotgun_buckshot/martial/on_hit(atom/target, blocked)//the real reason i made a whole new ammo type
+/obj/projectile/bullet/pellet/shotgun_buckshot/martial/on_hit(atom/target, blocked)//the real reason i made a whole new ammo type
 	. = ..()
 	if(ishuman(target) && !blocked)
 		var/mob/living/carbon/human/H = target

@@ -1,4 +1,4 @@
-/obj/item/projectile/magic/spell
+/obj/projectile/magic/spell
 	name = "custom spell projectile"
 	var/list/ignored_factions //Do not hit these
 	var/check_holy = FALSE
@@ -12,19 +12,19 @@
 	var/trail_icon_state = "trail"
 
 //todo unify this and magic/aoe under common path
-/obj/item/projectile/magic/spell/Range()
+/obj/projectile/magic/spell/Range()
 	if(trigger_range > 1)
 		for(var/mob/living/L in range(trigger_range, get_turf(src)))
 			if(can_hit_target(L, ignore_loc = TRUE))
 				return Bump(L)
 	. = ..()
 
-/obj/item/projectile/magic/spell/Moved(atom/OldLoc, Dir)
+/obj/projectile/magic/spell/Moved(atom/OldLoc, Dir)
 	. = ..()
 	if(trail)
 		create_trail()
 
-/obj/item/projectile/magic/spell/proc/create_trail()
+/obj/projectile/magic/spell/proc/create_trail()
 	if(!trajectory)
 		return
 	var/datum/point/vector/previous = trajectory.return_vector_after_increments(1,-1)
@@ -38,7 +38,7 @@
 	trail.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	QDEL_IN(trail, trail_lifespan)
 
-/obj/item/projectile/magic/spell/can_hit_target(atom/target, list/passthrough, direct_target = FALSE, ignore_loc = FALSE)
+/obj/projectile/magic/spell/can_hit_target(atom/target, list/passthrough, direct_target = FALSE, ignore_loc = FALSE)
 	. = ..()
 	if(linger && target != original)
 		return FALSE
@@ -49,7 +49,7 @@
 		if(ignored_factions && ignored_factions.len && faction_check(M.faction,ignored_factions))
 			return FALSE
 
-/obj/item/projectile/magic/spell/on_hit(mob/living/carbon/target)
+/obj/projectile/magic/spell/on_hit(mob/living/carbon/target)
 	.=..()
 	if(target.anti_magic_check())
 		target.visible_message(span_warning("[src] vanishes on contact with [target]!"))
@@ -64,7 +64,7 @@
 
 
 
-	var/proj_type =  /obj/item/projectile/magic/spell //IMPORTANT use only subtypes of this
+	var/proj_type =  /obj/projectile/magic/spell //IMPORTANT use only subtypes of this
 
 
 	var/update_projectile = FALSE //So you want to admin abuse magic bullets ? This is for you
@@ -87,7 +87,7 @@
 	var/check_holy = FALSE
 
 /obj/effect/proc_holder/spell/targeted/projectile/proc/fire_projectile(atom/target, mob/user)
-	var/obj/item/projectile/magic/spell/projectile = new proj_type()
+	var/obj/projectile/magic/spell/projectile = new proj_type()
 
 	if(update_projectile)
 		//Generally these should already be set on the projectile, this is mostly here for varedited spells.

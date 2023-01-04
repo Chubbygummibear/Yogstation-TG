@@ -1,4 +1,4 @@
-/obj/item/projectile/bullet/reusable/dart
+/obj/projectile/bullet/reusable/dart
 	name = "dart"
 	icon_state = "cbbolt"
 	damage = 6
@@ -6,10 +6,10 @@
 	var/piercing = FALSE
 
 
-/obj/item/projectile/bullet/reusable/dart/Initialize()
+/obj/projectile/bullet/reusable/dart/Initialize()
 	. = ..()
 
-/obj/item/projectile/bullet/reusable/dart/on_hit(atom/target, blocked = FALSE)
+/obj/projectile/bullet/reusable/dart/on_hit(atom/target, blocked = FALSE)
 	if(iscarbon(target) && (blocked < 100))
 		var/mob/living/carbon/C = target
 
@@ -26,17 +26,17 @@
 	..(target, blocked)
 	return BULLET_ACT_HIT
 
-/obj/item/projectile/bullet/reusable/dart/handle_drop()
+/obj/projectile/bullet/reusable/dart/handle_drop()
 	if(!dropped)
 		container.forceMove(get_turf(src))
 		dropped = TRUE
 
-/obj/item/projectile/bullet/reusable/dart/proc/add_dart(obj/item/reagent_containers/new_dart, syrpierce)
+/obj/projectile/bullet/reusable/dart/proc/add_dart(obj/item/reagent_containers/new_dart, syrpierce)
 	piercing = syrpierce
 	container = new_dart
 	new_dart.forceMove(src)
 	name = new_dart.name
 
-/obj/item/projectile/bullet/reusable/dart/syringe
+/obj/projectile/bullet/reusable/dart/syringe
 	name = "syringe"
 	icon_state = "syringeproj"

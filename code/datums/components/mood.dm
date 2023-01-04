@@ -126,7 +126,7 @@
 	for(var/i in mood_events) //adds overlays and sees which special icons need to vie for which one gets the icon_state
 		var/datum/mood_event/event = mood_events[i]
 		if(!event)
-			listclearnulls(mood_events)
+			list_clear_nulls(mood_events)
 			continue
 		if(!event.special_screen_obj)
 			continue

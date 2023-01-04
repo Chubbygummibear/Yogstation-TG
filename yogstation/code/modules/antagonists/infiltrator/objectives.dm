@@ -70,7 +70,7 @@ GLOBAL_LIST_INIT(infiltrator_kidnap_areas, typecacheof(list(/area/shuttle/yogs/s
 /datum/objective/infiltrator/power/update_explanation_text()
 	..()
 	if(target_amount)
-		explanation_text = "Drain [DisplayPower(target_amount)] from [station_name()]'s powernet with a special transmitter powersink. You do not need to bring the powersink back once the objective is complete."
+		explanation_text = "Drain [display_power(target_amount)] from [station_name()]'s powernet with a special transmitter powersink. You do not need to bring the powersink back once the objective is complete."
 	else
 		explanation_text = "Free Objective"
 
@@ -100,7 +100,7 @@ GLOBAL_LIST_INIT(infiltrator_kidnap_areas, typecacheof(list(/area/shuttle/yogs/s
 	return LAZYLEN(potential_targets())
 
 /datum/objective/infiltrator/kidnap/find_target(dupe_search_range, blacklist)
-	target = pickweight(potential_targets())
+	target = pick_weight(potential_targets())
 	update_explanation_text()
 	return target
 

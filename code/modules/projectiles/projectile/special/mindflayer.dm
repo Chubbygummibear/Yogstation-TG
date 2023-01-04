@@ -1,4 +1,4 @@
-/obj/item/projectile/beam/mindflayer
+/obj/projectile/beam/mindflayer
 	name = "flayer ray"
 	icon_state = "flayerlaser"
 	damage = 8
@@ -9,7 +9,7 @@
 	light_color = LIGHT_COLOR_LAVENDER
 	eyeblur = 0
 
-/obj/item/projectile/beam/mindflayer/on_hit(atom/target, blocked = FALSE)
+/obj/projectile/beam/mindflayer/on_hit(atom/target, blocked = FALSE)
 	. = ..()
 	if(ishuman(target))
 		var/mob/living/carbon/human/M = target

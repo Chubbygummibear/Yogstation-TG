@@ -7,7 +7,7 @@
 	invocation_type = "shout"
 	range = 20
 	cooldown_min = 20 //10 deciseconds reduction per rank
-	projectile_type = /obj/item/projectile/magic/animate
+	projectile_type = /obj/projectile/magic/animate
 	base_icon_state = "staffofanimation"
 	action_icon_state = "staffofanimation"
 	sound = 'sound/magic/staff_animation.ogg'

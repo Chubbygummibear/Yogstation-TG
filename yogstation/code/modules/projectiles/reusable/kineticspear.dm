@@ -1,4 +1,4 @@
-/obj/item/projectile/bullet/reusable/kineticspear
+/obj/projectile/bullet/reusable/kineticspear
 	name = "kinetic spear"
 	desc = "A spear rigged to deliver a kinetic blast with some effect to fauna"
 	damage = 5
@@ -9,7 +9,7 @@
 	ammo_type = /obj/item/ammo_casing/caseless/kineticspear
 	hitsound = 'sound/weapons/bladeslice.ogg'
 
-/obj/item/projectile/bullet/reusable/kineticspear/on_hit(atom/target, blocked = FALSE)
+/obj/projectile/bullet/reusable/kineticspear/on_hit(atom/target, blocked = FALSE)
 	. = ..()
 	if(isliving(target))
 		var/mob/living/L = target

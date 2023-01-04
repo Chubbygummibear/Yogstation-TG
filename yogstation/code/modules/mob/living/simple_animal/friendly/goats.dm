@@ -182,9 +182,9 @@
 	AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/conjure/radiation_anomaly)
 	ADD_TRAIT(src, TRAIT_RADIMMUNE, GENETIC_MUTATION)
 
-/mob/living/simple_animal/hostile/retaliate/goat/radioactive/on_hit(obj/item/projectile/P)
+/mob/living/simple_animal/hostile/retaliate/goat/radioactive/on_hit(obj/projectile/P)
 	. = ..()
-	if(istype(P, /obj/item/projectile/energy/nuclear_particle))
+	if(istype(P, /obj/projectile/energy/nuclear_particle))
 		// abosrbs nuclear particle to heal
 		P.damage = 0
 		adjustBruteLoss(-10)

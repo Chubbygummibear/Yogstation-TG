@@ -37,7 +37,7 @@
 	clothes_req = FALSE
 	antimagic_allowed = TRUE
 	range = 3
-	projectile_type = /obj/item/projectile/temp/cryo
+	projectile_type = /obj/projectile/temp/cryo
 	base_icon_state = "icebeam"
 	action_icon_state = "icebeam"
 	active_msg = "You focus your cryokinesis!"

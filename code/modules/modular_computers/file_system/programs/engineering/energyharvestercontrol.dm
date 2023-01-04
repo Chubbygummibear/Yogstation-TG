@@ -61,7 +61,7 @@
 		data["y"] = T.y
 		data["area"] = get_area_name(T)
 		data["dist"] = get_dist_euclidian(curr, T)
-		data["rotation"] = Get_Angle(curr, T)
+		data["rotation"] = get_Angle(curr, T)
 		data["power"] = moneysink.accumulated_power
 		data["power_setting"] = moneysink.manual_power_setting
 		data["input"] = moneysink.input_energy

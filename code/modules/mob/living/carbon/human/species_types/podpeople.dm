@@ -68,9 +68,9 @@ DISREGUARD THIS FILE IF YOU'RE INTENDING TO CHANGE ASPECTS OF PLAYER CONTROLLED 
 		return TRUE
 	return ..()
 
-/datum/species/pod/on_hit(obj/item/projectile/P, mob/living/carbon/human/H)
+/datum/species/pod/on_hit(obj/projectile/P, mob/living/carbon/human/H)
 	switch(P.type)
-		if(/obj/item/projectile/energy/floramut)
+		if(/obj/projectile/energy/floramut)
 			if(prob(15))
 				H.rad_act(rand(30,80))
 				H.Paralyze(100)
@@ -84,5 +84,5 @@ DISREGUARD THIS FILE IF YOU'RE INTENDING TO CHANGE ASPECTS OF PLAYER CONTROLLED 
 			else
 				H.adjustFireLoss(rand(5,15))
 				H.show_message(span_userdanger("The radiation beam singes you!"))
-		if(/obj/item/projectile/energy/florayield)
+		if(/obj/projectile/energy/florayield)
 			H.set_nutrition(min(H.nutrition+30, NUTRITION_LEVEL_FULL))

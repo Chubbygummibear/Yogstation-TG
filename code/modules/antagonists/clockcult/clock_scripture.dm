@@ -94,7 +94,7 @@ GLOBAL_LIST_INIT(scripture_states,scripture_states_init_value()) //list of clock
 	if(!GLOB.ratvar_awakens && !slab.no_cost)
 		checked_penalty = check_offstation_penalty()
 		if(!get_clockwork_power(power_cost))
-			to_chat(invoker, span_warning("There isn't enough power to recite this scripture! ([DisplayEnergy(get_clockwork_power())]/[DisplayEnergy(power_cost)])"))
+			to_chat(invoker, span_warning("There isn't enough power to recite this scripture! ([display_energy(get_clockwork_power())]/[display_energy(power_cost)])"))
 			return
 	if(multiple_invokers_used && !multiple_invokers_optional && !GLOB.ratvar_awakens && !slab.no_cost)
 		var/nearby_servants = 0

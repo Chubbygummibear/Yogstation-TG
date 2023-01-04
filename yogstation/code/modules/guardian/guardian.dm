@@ -107,13 +107,13 @@ GLOBAL_LIST_INIT(guardian_projectile_damage, list(
 	var/sz = summoner.current.z
 	if (sx - range - 1 < 1 || sx + range + 1 > world.maxx || sy - range - 1 < 1 || sy + range + 1 > world.maxy)
 		return
-	for (var/turf/T in getline(locate(sx - range, sy + range + 1, sz), locate(sx + range, sy + range + 1, sz)))
+	for (var/turf/T in get_line(locate(sx - range, sy + range + 1, sz), locate(sx + range, sy + range + 1, sz)))
 		barrier_images += image('yogstation/icons/effects/effects.dmi', T, "barrier", ABOVE_LIGHTING_LAYER, SOUTH)
-	for (var/turf/T in getline(locate(sx - range, sy - range - 1, sz), locate(sx + range, sy - range - 1, sz)))
+	for (var/turf/T in get_line(locate(sx - range, sy - range - 1, sz), locate(sx + range, sy - range - 1, sz)))
 		barrier_images += image('yogstation/icons/effects/effects.dmi', T, "barrier", ABOVE_LIGHTING_LAYER, NORTH)
-	for (var/turf/T in getline(locate(sx - range - 1, sy - range, sz), locate(sx - range - 1, sy + range, sz)))
+	for (var/turf/T in get_line(locate(sx - range - 1, sy - range, sz), locate(sx - range - 1, sy + range, sz)))
 		barrier_images += image('yogstation/icons/effects/effects.dmi', T, "barrier", ABOVE_LIGHTING_LAYER, EAST)
-	for (var/turf/T in getline(locate(sx + range + 1, sy - range, sz), locate(sx + range + 1, sy + range, sz)))
+	for (var/turf/T in get_line(locate(sx + range + 1, sy - range, sz), locate(sx + range + 1, sy + range, sz)))
 		barrier_images += image('yogstation/icons/effects/effects.dmi', T, "barrier", ABOVE_LIGHTING_LAYER, WEST)
 	barrier_images += image('yogstation/icons/effects/effects.dmi', locate(sx - range - 1 , sy + range + 1, sz), "barrier", ABOVE_LIGHTING_LAYER, SOUTHEAST)
 	barrier_images += image('yogstation/icons/effects/effects.dmi', locate(sx + range + 1, sy + range + 1, sz), "barrier", ABOVE_LIGHTING_LAYER, SOUTHWEST)
@@ -348,7 +348,7 @@ GLOBAL_LIST_INIT(guardian_projectile_damage, list(
 	if (QDELETED(targeted_atom) || targeted_atom == targets_from.loc || targeted_atom == targets_from)
 		return
 	var/turf/startloc = get_turf(targets_from)
-	var/obj/item/projectile/guardian/emerald_splash = new(startloc)
+	var/obj/projectile/guardian/emerald_splash = new(startloc)
 	playsound(src, projectilesound, 100, 1)
 	if (namedatum)
 		emerald_splash.color = namedatum.color
@@ -733,7 +733,7 @@ GLOBAL_LIST_INIT(guardian_projectile_damage, list(
 						jojo.reset(TRUE, "host mind transfer")
 				to_chat(jojo, span_notice("You manifest into existence, as your master's soul appears in a new body!"))
 
-/obj/item/projectile/guardian
+/obj/projectile/guardian
 	name = "crystal bolt"
 	icon_state = "greyscale_bolt"
 	damage = 10
@@ -741,7 +741,7 @@ GLOBAL_LIST_INIT(guardian_projectile_damage, list(
 	armour_penetration = 100 // no one can just deflect the emerald splash!
 	var/datum/mind/guardian_master
 
-/obj/item/projectile/guardian/on_hit(atom/target, blocked)
+/obj/projectile/guardian/on_hit(atom/target, blocked)
 	if (guardian_master?.current)
 		var/list/safe = list(guardian_master.current)
 		safe += guardian_master.current.hasparasites()

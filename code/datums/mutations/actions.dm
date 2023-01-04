@@ -122,7 +122,7 @@
 	clothes_req = FALSE
 	antimagic_allowed = TRUE
 	range = 20
-	projectile_type = /obj/item/projectile/magic/aoe/fireball/firebreath
+	projectile_type = /obj/projectile/magic/aoe/fireball/firebreath
 	base_icon_state = "fireball"
 	action_icon_state = "fireball0"
 	sound = 'sound/magic/demon_dies.ogg' //horrifying lizard noises
@@ -141,17 +141,17 @@
 			to_chat(C,span_warning("Something in front of your mouth caught fire!"))
 			return FALSE
 
-/obj/effect/proc_holder/spell/aimed/firebreath/ready_projectile(obj/item/projectile/P, atom/target, mob/user, iteration)
-	if(!istype(P, /obj/item/projectile/magic/aoe/fireball))
+/obj/effect/proc_holder/spell/aimed/firebreath/ready_projectile(obj/projectile/P, atom/target, mob/user, iteration)
+	if(!istype(P, /obj/projectile/magic/aoe/fireball))
 		return
-	var/obj/item/projectile/magic/aoe/fireball/F = P
+	var/obj/projectile/magic/aoe/fireball/F = P
 	F.exp_fire += (strength - 1) * 4	// +0, +2 if empowered
 
 obj/effect/proc_holder/spell/aimed/firebreath/fire_projectile(mob/user)
 	. = ..()
 	message_admins("[ADMIN_LOOKUPFLW(user)] has shot firebreath at [ADMIN_VERBOSEJMP(user)]")
 
-/obj/item/projectile/magic/aoe/fireball/firebreath
+/obj/projectile/magic/aoe/fireball/firebreath
 	name = "fire breath"
 	exp_heavy = 0
 	exp_light = 0

@@ -170,23 +170,23 @@
 	to_chat(user, span_warning("You fire a blood bolt!"))
 	user.changeNext_move(CLICK_CD_RANGE)
 	user.newtonian_move(get_dir(target_atom, user))
-	var/obj/item/projectile/magic/arcane_barrage/bloodsucker/magic_9ball = new(user.loc)
+	var/obj/projectile/magic/arcane_barrage/bloodsucker/magic_9ball = new(user.loc)
 	magic_9ball.bloodsucker_power = src
 	magic_9ball.firer = user
 	magic_9ball.def_zone = ran_zone(user.zone_selected)
 	magic_9ball.preparePixelProjectile(target_atom, user)
-	INVOKE_ASYNC(magic_9ball, /obj/item/projectile.proc/fire)
+	INVOKE_ASYNC(magic_9ball, /obj/projectile.proc/fire)
 	playsound(user, 'sound/magic/wand_teleport.ogg', 60, TRUE)
 	PowerActivatedSuccessfully()
 
-/obj/item/projectile/magic/arcane_barrage/bloodsucker
+/obj/projectile/magic/arcane_barrage/bloodsucker
 	name = "blood bolt"
 	icon_state = "bloodbolt"
 	damage_type = BURN
 	damage = 30
 	var/datum/action/bloodsucker/targeted/bloodbolt/bloodsucker_power
 
-/obj/item/projectile/magic/arcane_barrage/bloodsucker/on_hit(target)
+/obj/projectile/magic/arcane_barrage/bloodsucker/on_hit(target)
 	if(ismob(target))
 		qdel(src)
 		if(iscarbon(target))

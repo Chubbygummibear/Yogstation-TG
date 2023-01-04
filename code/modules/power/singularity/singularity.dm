@@ -142,7 +142,7 @@
 		return
 
 
-/obj/singularity/bullet_act(obj/item/projectile/P)
+/obj/singularity/bullet_act(obj/projectile/P)
 	qdel(P)
 	return BULLET_ACT_HIT //Will there be an impact? Who knows.  Will we see it? No.
 
@@ -400,7 +400,7 @@
 								objs += 5
 				interest += CEILING(objs / SINGULARITY_INTEREST_OBJECT, 0.5)
 			sections[section_loc] = interest
-	var/turf/section = pickweight(sections)
+	var/turf/section = pick_weight(sections)
 	if (section && istype(section))
 		random_target = section
 

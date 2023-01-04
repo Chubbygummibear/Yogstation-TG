@@ -4,7 +4,7 @@
 	icon_state = "ratvarian_hammer"
 	force = 15
 	throwforce = 15
-	sharpness = SHARP_NONE
+	sharpness = NONE
 	attack_verb = list("bashed", "smitted", "hammered", "attacked")
 	clockwork_desc = "A powerful hammer of Ratvarian making. Enemies hit with it would be flung back."
 

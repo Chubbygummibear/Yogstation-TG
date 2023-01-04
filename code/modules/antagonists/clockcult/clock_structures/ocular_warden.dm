@@ -162,7 +162,7 @@
 		return 2
 	. = 1
 	if(target)
-		for(var/turf/T in getline(src, target))
+		for(var/turf/T in get_line(src, target))
 			if(T.density)
 				. -= 0.1
 				continue

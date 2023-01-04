@@ -360,7 +360,7 @@
 				target_candidates[player.mind] = 1
 
 	if(target_candidates.len != 0)
-		return pickweight(target_candidates)
+		return pick_weight(target_candidates)
 	else
 		return null
 

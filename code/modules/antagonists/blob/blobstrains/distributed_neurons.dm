@@ -27,10 +27,10 @@
 /datum/reagent/blob/distributed_neurons/reaction_mob(mob/living/exposed_mob, method=TOUCH, reac_volume, show_message, touch_protection, mob/camera/blob/overmind)
 	reac_volume = ..()
 	exposed_mob.apply_damage(0.6*reac_volume, TOX)
-	if(overmind && ishuman(exposed_mob) && M.stat == UNCONSCIOUS)
+	if(overmind && ishuman(exposed_mob) && exposed_mob.stat == UNCONSCIOUS)
 		exposed_mob.death() //sleeping in a fight? bad plan.
 		var/points = rand(5, 10)
-		var/mob/living/simple_animal/hostile/blob/blobspore/spore = new/mob/living/simple_animal/hostile/blob/blobspore/weak(get_turf(M))
+		var/mob/living/simple_animal/hostile/blob/blobspore/spore = new/mob/living/simple_animal/hostile/blob/blobspore/weak(get_turf(exposed_mob))
 		spore.overmind = overmind
 		spore.update_icons()
 		overmind.blob_mobs.Add(spore)
