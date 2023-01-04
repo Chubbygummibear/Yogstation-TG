@@ -38,7 +38,7 @@
 	if(prob(probability))
 		zone = check_zone(zone)
 	else
-		zone = pickweight(weighted_list ? weighted_list : list(BODY_ZONE_HEAD = 1, BODY_ZONE_CHEST = 1, BODY_ZONE_L_ARM = 4, BODY_ZONE_R_ARM = 4, BODY_ZONE_L_LEG = 4, BODY_ZONE_R_LEG = 4))
+		zone = pick_weight(weighted_list ? weighted_list : list(BODY_ZONE_HEAD = 1, BODY_ZONE_CHEST = 1, BODY_ZONE_L_ARM = 4, BODY_ZONE_R_ARM = 4, BODY_ZONE_L_LEG = 4, BODY_ZONE_R_LEG = 4))
 	return zone
 
 /**
@@ -81,7 +81,7 @@
 		chest_blacklisted = TRUE
 		if(bypass_warning && !limbs.len)
 			CRASH("limbs is empty and the chest is blacklisted. this may not be intended!")
-	return (((chest_blacklisted && !base_zone) || even_weights) ? pickweight(limbs) : ran_zone(base_zone, base_probability, limbs))
+	return (((chest_blacklisted && !base_zone) || even_weights) ? pick_weight(limbs) : ran_zone(base_zone, base_probability, limbs))
 
 ///Would this zone be above the neck
 /proc/above_neck(zone)
@@ -277,7 +277,7 @@
 
 ///Shake the camera of the person viewing the mob SO REAL!
 /proc/shake_camera(mob/M, duration, strength=1)
-	if(!M || !M.client || duration < 1)
+	if(!M || !M?.client || duration < 1)
 		return
 	var/client/C = M.client
 	var/oldx = C.pixel_x
