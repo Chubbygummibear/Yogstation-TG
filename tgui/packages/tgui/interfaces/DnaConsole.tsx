@@ -2,10 +2,11 @@ import { filter, uniqBy } from 'common/collections';
 import { flow } from 'common/fp';
 import { classes } from 'common/react';
 import { capitalize } from 'common/string';
+import { BooleanLike } from '../../common/react';
 import { Fragment } from 'inferno';
 import { resolveAsset } from '../assets';
-import { useBackend } from '../backend';
-import { Box, Button, Collapsible, Dimmer, Divider, Dropdown, Flex, Icon, LabeledList, NumberInput, ProgressBar, Section } from '../components';
+import { useBackend, useLocalState } from '../backend';
+import { Box, Button, Collapsible, Dimmer, Divider, Dropdown, Flex, Icon, LabeledList, Input, NumberInput, DraggableControl, Knob, Slider, ProgressBar, Section } from '../components';
 import { Window } from '../layouts';
 
 const SUBJECT_CONCIOUS = 0;
@@ -27,6 +28,8 @@ const CONSOLE_MODE_STORAGE = 'storage';
 const CONSOLE_MODE_SEQUENCER = 'sequencer';
 const CONSOLE_MODE_ENZYMES = 'enzymes';
 const CONSOLE_MODE_INJECTORS = 'injectors';
+
+const CONSOLE_MODE_BUILDER = "builder";
 
 const STORAGE_MODE_CONSOLE = 'console';
 const STORAGE_MODE_DISK = 'disk';
@@ -58,6 +61,88 @@ const MUT_COLORS = {
 const RADIATION_STRENGTH_MAX = 15;
 const RADIATION_DURATION_MAX = 30;
 
+type Data = {
+  view: string;
+
+  isPulsingRads: BooleanLike;
+  radPulseSeconds: number;
+
+  consoleMode: string;
+
+  storage: string[];
+  storageMode: string;
+  storageConsSubMode: string;
+
+  hasDelayedAction: BooleanLike;
+  isViableSubject: BooleanLike;
+  isScannerConnected: BooleanLike;
+  isScrambleReady: BooleanLike;
+  scannerOpen: BooleanLike;
+  scannerLocked: BooleanLike;
+  scrambleSeconds: number;
+
+  hasDisk: BooleanLike;
+  dataDisk: DataDisk;
+
+  isInjectorReady: BooleanLike;
+  injectorSeconds: number;
+
+  stdDevAcc: number;
+  stdDevStr: number;
+
+  occupant: Subject;
+
+  radStrength: number;
+  radDuration: number;
+
+  isJokerReady: BooleanLike;
+  jokerSeconds: number;
+
+  sequencerMutation: string;
+
+  customMode: string;
+
+};
+
+type Subject = {
+  isMonkey: BooleanLike;
+  name: string;
+	status: string;
+	health: number;
+	rads: number;
+	enzymes: string;
+  uni: string;
+};
+
+type Mutation = {
+  alias: string;
+  sequence: string;
+  defaultSeq: string;
+  discovered: BooleanLike;
+  source: string;
+
+  name: string;
+	description: string;
+	instability: number;
+	quality: string;
+};
+
+// type DNA = {
+//   unique_enzymes: string;
+// 	uni_identity: string;
+// 	blood_type: string;
+// 	species: string;
+// 	features: string[];
+// };
+
+type DataDisk = {
+  hasMakeup: BooleanLike;
+  makeupBuffer: string[];
+  // dna: DNA;
+  mutations: string[];
+  subMode: string;
+};
+
 /**
  * The following predicate tests if two mutations are functionally
  * the same on the basis of their metadata. Useful if your intent is
@@ -69,19 +154,15 @@ const isSameMutation = (a, b) => {
 };
 
 export const DnaConsole = (props, context) => {
-  const { data, act } = useBackend(context);
-  const {
-    isPulsingRads,
-    radPulseSeconds,
-  } = data;
-  const { consoleMode } = data.view;
+  const { act, data } = useBackend<Data>(context);
+
   return (
     <Window
       title="DNA Console"
       width={539}
       height={710}
       resizable>
-      {!!isPulsingRads && (
+      {!!data.isPulsingRads && (
         <Dimmer
           fontSize="14px"
           textAlign="center">
@@ -91,20 +172,23 @@ export const DnaConsole = (props, context) => {
             spin />
           Radiation pulse in progress...
           <Box mt={1} />
-          {radPulseSeconds}s
+          {data.radPulseSeconds}s
         </Dimmer>
       )}
       <Window.Content scrollable>
         <DnaScanner />
         <DnaConsoleCommands />
-        {consoleMode === CONSOLE_MODE_STORAGE && (
+        {data.consoleMode === CONSOLE_MODE_STORAGE && (
           <DnaConsoleStorage />
         )}
-        {consoleMode === CONSOLE_MODE_SEQUENCER && (
+        {data.consoleMode === CONSOLE_MODE_SEQUENCER && (
           <DnaConsoleSequencer />
         )}
-        {consoleMode === CONSOLE_MODE_ENZYMES && (
+        {data.consoleMode === CONSOLE_MODE_ENZYMES && (
           <DnaConsoleEnzymes />
+        )}
+        {data.consoleMode === CONSOLE_MODE_BUILDER && (
+          <DnaConsoleBuilder />
         )}
       </Window.Content>
     </Window>
@@ -124,17 +208,17 @@ const DnaScanner = (props, context) => {
 };
 
 const DnaScannerButtons = (props, context) => {
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
-    hasDelayedAction,
-    isPulsingRads,
     isScannerConnected,
-    isScrambleReady,
-    isViableSubject,
     scannerLocked,
     scannerOpen,
+    isScrambleReady,
+    isViableSubject,
+    isPulsingRads,
     scrambleSeconds,
-  } = data;
+    hasDelayedAction } = data;
+
   if (!isScannerConnected) {
     return (
       <Button
@@ -208,15 +292,9 @@ const SubjectStatus = (props, context) => {
 };
 
 const DnaScannerContent = (props, context) => {
-  const { data, act } = useBackend(context);
-  const {
-    subjectName,
-    isScannerConnected,
-    isViableSubject,
-    subjectHealth,
-    subjectRads,
-    subjectStatus,
-  } = data;
+  const { act, data } = useBackend<Data>(context);
+  const { occupant, isScannerConnected, isViableSubject } = data;
+
   if (!isScannerConnected) {
     return (
       <Box color="bad">
@@ -234,16 +312,16 @@ const DnaScannerContent = (props, context) => {
   return (
     <LabeledList>
       <LabeledList.Item label="Status">
-        {subjectName}
+        {occupant.name}
         <Icon
           mx={1}
           color="label"
           name="long-arrow-alt-right" />
-        <SubjectStatus status={subjectStatus} />
+        <SubjectStatus status={occupant.status} />
       </LabeledList.Item>
       <LabeledList.Item label="Health">
         <ProgressBar
-          value={subjectHealth}
+          value={occupant.health}
           minValue={0}
           maxValue={100}
           ranges={{
@@ -252,12 +330,12 @@ const DnaScannerContent = (props, context) => {
             average: [30, 70],
             bad: [-Infinity, 30],
           }}>
-          {subjectHealth}%
+          {occupant.health}%
         </ProgressBar>
       </LabeledList.Item>
       <LabeledList.Item label="Radiation">
         <ProgressBar
-          value={subjectRads}
+          value={occupant.rads}
           minValue={0}
           maxValue={100}
           ranges={{
@@ -266,7 +344,7 @@ const DnaScannerContent = (props, context) => {
             good: [0, 30],
             olive: [-Infinity, 0],
           }}>
-          {subjectRads}%
+          {occupant.rads}%
         </ProgressBar>
       </LabeledList.Item>
     </LabeledList>
@@ -274,9 +352,9 @@ const DnaScannerContent = (props, context) => {
 };
 
 export const DnaConsoleCommands = (props, context) => {
-  const { data, act } = useBackend(context);
-  const { hasDisk, isInjectorReady, injectorSeconds } = data;
-  const { consoleMode } = data.view;
+  const { act, data } = useBackend<Data>(context);
+  const { hasDisk, isInjectorReady, injectorSeconds, consoleMode, storageMode } = data;
+
   return (
     <Section
       title="DNA Console"
@@ -308,6 +386,12 @@ export const DnaConsoleCommands = (props, context) => {
             onClick={() => act('set_view', {
               consoleMode: CONSOLE_MODE_ENZYMES,
             })} />
+          <Button
+            content="Body-Builder"
+            selected={consoleMode === CONSOLE_MODE_BUILDER}
+            onClick={() => act('set_view', {
+              consoleMode: CONSOLE_MODE_BUILDER,
+            })} />
         </LabeledList.Item>
         {!!hasDisk && (
           <LabeledList.Item label="Disk">
@@ -328,9 +412,9 @@ export const DnaConsoleCommands = (props, context) => {
 };
 
 const StorageButtons = (props, context) => {
-  const { data, act } = useBackend(context);
-  const { hasDisk } = data;
-  const { storageMode, storageConsSubMode, storageDiskSubMode } = data.view;
+  const { act, data } = useBackend<Data>(context);
+  const { storageMode, storageConsSubMode, dataDisk, hasDisk } = data;
+
   return (
     <Fragment>
       {storageMode === STORAGE_MODE_CONSOLE && (
@@ -352,13 +436,13 @@ const StorageButtons = (props, context) => {
       {storageMode === STORAGE_MODE_DISK && (
         <Fragment>
           <Button
-            selected={storageDiskSubMode === STORAGE_CONS_SUBMODE_MUTATIONS}
+            selected={dataDisk.subMode === STORAGE_CONS_SUBMODE_MUTATIONS}
             content="Mutations"
             onClick={() => act('set_view', {
               storageDiskSubMode: STORAGE_CONS_SUBMODE_MUTATIONS,
             })} />
           <Button
-            selected={storageDiskSubMode === STORAGE_DISK_SUBMODE_ENZYMES}
+            selected={dataDisk.subMode === STORAGE_DISK_SUBMODE_ENZYMES}
             content="Enzymes"
             onClick={() => act('set_view', {
               storageDiskSubMode: STORAGE_DISK_SUBMODE_ENZYMES,
@@ -381,7 +465,7 @@ const StorageButtons = (props, context) => {
         onClick={() => act('set_view', {
           storageMode: STORAGE_MODE_DISK,
           storageDiskSubMode: STORAGE_DISK_SUBMODE_MUTATIONS
-            ?? storageDiskSubMode,
+            ?? dataDisk.subMode,
         })} />
       <Button
         content="Adv. Injector"
@@ -394,10 +478,9 @@ const StorageButtons = (props, context) => {
 };
 
 const DnaConsoleStorage = (props, context) => {
-  const { data, act } = useBackend(context);
-  const { storageMode, storageConsSubMode, storageDiskSubMode } = data.view;
-  const { diskMakeupBuffer, diskHasMakeup } = data;
-  const mutations = data.storage[storageMode];
+  const { act, data } = useBackend<Data>(context);
+  const { storageMode, storageConsSubMode, storage, dataDisk } = data;
+  const mutations = storage[storageMode];
   return (
     <Section
       title="Storage"
@@ -413,17 +496,17 @@ const DnaConsoleStorage = (props, context) => {
         <StorageChromosomes />
       )}
       {storageMode === STORAGE_MODE_DISK
-        && storageDiskSubMode === STORAGE_DISK_SUBMODE_MUTATIONS && (
+        && dataDisk.subMode === STORAGE_DISK_SUBMODE_MUTATIONS && (
         <StorageMutations mutations={mutations} />
       )}
       {storageMode === STORAGE_MODE_DISK
-        && storageDiskSubMode === STORAGE_DISK_SUBMODE_ENZYMES && (
+        && dataDisk.subMode === STORAGE_DISK_SUBMODE_ENZYMES && (
         <Fragment>
-          <GeneticMakeupInfo makeup={diskMakeupBuffer} />
+          <GeneticMakeupInfo makeup={dataDisk.makeupBuffer} />
           <Button
             icon="times"
             color="red"
-            disabled={!diskHasMakeup}
+            disabled={!dataDisk.hasMakeup}
             content={'Delete'}
             onClick={() => act('del_makeup_disk')} />
         </Fragment>
@@ -435,11 +518,15 @@ const DnaConsoleStorage = (props, context) => {
   );
 };
 
-const StorageMutations = (props, context) => {
-  const {
-    customMode = '',
-  } = props;
-  const { data, act } = useBackend(context);
+const StorageMutations = (
+  props:{
+    mutations: string[];
+    customMode: string;
+  },
+  context) => {
+  const { act, data } = useBackend<Data>(context);
+  const { customMode = '' } = props.customMode;
+  const { view, storageMode } = data;
   const mutations = props.mutations || [];
   const mode = data.view.storageMode + customMode;
 
@@ -490,7 +577,7 @@ const StorageMutations = (props, context) => {
 };
 
 const StorageChromosomes = (props, context) => {
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const chromos = data.chromoStorage ?? [];
   const uniqueChromos = uniqBy(chromo => chromo.Name)(chromos);
   const chromoName = data.view.storageChromoName;
@@ -558,7 +645,7 @@ const StorageChromosomes = (props, context) => {
 
 const MutationInfo = (props, context) => {
   const { mutation } = props;
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
     diskCapacity,
     diskReadOnly,
@@ -709,7 +796,7 @@ const MutationInfo = (props, context) => {
 
 const ChromosomeInfo = (props, context) => {
   const { mutation, disabled } = props;
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   if (mutation.CanChromo === CHROMOSOME_NEVER) {
     return (
       <Box color="label">
@@ -755,13 +842,12 @@ const ChromosomeInfo = (props, context) => {
 };
 
 const DnaConsoleSequencer = (props, context) => {
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const mutations = data.storage?.occupant ?? [];
   const {
     isJokerReady,
-    isMonkey,
+    occupant,
     jokerSeconds,
-    subjectStatus,
   } = data;
   const { sequencerMutation, jokerActive } = data.view;
   const mutation = mutations.find(mutation => (
@@ -914,7 +1000,7 @@ const GeneCycler = (props, context) => {
 
 const GenomeSequencer = (props, context) => {
   const { mutation } = props;
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const { jokerActive } = data.view;
   if (!mutation) {
     return (
@@ -1028,13 +1114,9 @@ const GenomeSequencer = (props, context) => {
 };
 
 const DnaConsoleEnzymes = (props, context) => {
-  const { data, act } = useBackend(context);
-  const {
-    isScannerConnected,
-    stdDevAcc,
-    stdDevStr,
-  } = data;
-  if (!isScannerConnected) {
+  const { act, data } = useBackend<Data>(context);
+
+  if (!data.isScannerConnected) {
     return (
       <Section color="bad">
         DNA Scanner is not connected.
@@ -1060,7 +1142,7 @@ const DnaConsoleEnzymes = (props, context) => {
 };
 
 const RadiationEmitterSettings = (props, context) => {
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
     radStrength,
     radDuration,
@@ -1100,7 +1182,7 @@ const RadiationEmitterSettings = (props, context) => {
 };
 
 const RadiationEmitterProbs = (props, context) => {
-  const { data } = useBackend(context);
+  const { data } = useBackend<Data>(context);
   const {
     stdDevAcc,
     stdDevStr,
@@ -1131,7 +1213,7 @@ const RadiationEmitterProbs = (props, context) => {
 };
 
 const RadiationEmitterPulseBoard = (props, context) => {
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
     subjectUNI = [],
   } = data;
@@ -1177,9 +1259,9 @@ const RadiationEmitterPulseBoard = (props, context) => {
 };
 
 const GeneticMakeupBuffers = (props, context) => {
-  const { data, act } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
-    diskHasMakeup,
+    hasMakeup,
     hasDisk,
     isViableSubject,
     makeupCapacity = 3,
@@ -1195,10 +1277,10 @@ const GeneticMakeupBuffers = (props, context) => {
           : `Slot ${i}`}
         buttons={
           <Fragment>
-            {!!(hasDisk && diskHasMakeup) && (
+            {!!(hasDisk && hasMakeup) && (
               <Button
                 mr={1}
-                disabled={!hasDisk || !diskHasMakeup}
+                disabled={!hasDisk || !hasMakeup}
                 content="Import from disk"
                 onClick={() => act('load_makeup_disk', {
                   index: i,
@@ -1235,7 +1317,7 @@ const GeneticMakeupBuffers = (props, context) => {
 };
 
 const GeneticMakeupInfo = (props, context) => {
-  const { makeup } = props;
+  const { DNA } = props;
 
   return (
     <Section title="Enzyme Information">
@@ -1259,7 +1341,7 @@ const GeneticMakeupInfo = (props, context) => {
 
 const GeneticMakeupBufferInfo = (props, context) => {
   const { index, makeup } = props;
-  const { act, data } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
     isViableSubject,
     hasDisk,
@@ -1357,7 +1439,7 @@ const GeneticMakeupBufferInfo = (props, context) => {
 };
 
 const DnaConsoleAdvancedInjectors = (props, context) => {
-  const { act, data } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
   const {
     maxAdvInjectors,
     isInjectorReady,
@@ -1411,7 +1493,7 @@ const MutationCombiner = (props, context) => {
     mutations = [],
     source,
   } = props;
-  const { act, data } = useBackend(context);
+  const { act, data } = useBackend<Data>(context);
 
   const brefFromName = name => {
     return mutations.find(mutation => mutation.Name === name)?.ByondRef;
@@ -1428,5 +1510,125 @@ const MutationCombiner = (props, context) => {
         firstref: brefFromName(value),
         secondref: source.ByondRef,
       })} />
+  );
+};
+
+const DnaConsoleBuilder = (props, context) => {
+  const { act, data } = useBackend<Data>(context);
+
+  const [
+    number,
+    setNumber,
+  ] = useLocalState(context, 'number', 0);
+
+  const [
+    text,
+    setText,
+  ] = useLocalState(context, 'text', "Sample text");
+
+  const {
+    isScannerConnected,
+    stdDevAcc,
+    stdDevStr,
+  } = data;
+  if (!isScannerConnected) {
+    return (
+      <Section color="bad">
+        DNA Scanner is not connected.
+      </Section>
+    );
+  }
+  return (
+    <Fragment>
+      <LabeledList>
+        <LabeledList.Item label="Input (onChange)">
+          <Input
+            value={"Name"}
+            onChange={(e, value) => setText(value)} />
+        </LabeledList.Item>
+        <LabeledList.Item label="Input (onInput)">
+          <Input
+            value={"Name"}
+            onInput={(e, value) => setText(value)} />
+        </LabeledList.Item>
+        <LabeledList.Item label="NumberInput (onChange)">
+          <NumberInput
+            animated
+            width="30px"
+            step={1}
+            stepPixelSize={5}
+            value={number}
+            minValue={-100}
+            maxValue={100}
+            onChange={(e, value) => setNumber(value)} />
+        </LabeledList.Item>
+        <LabeledList.Item label="NumberInput (onDrag)">
+          <NumberInput
+            animated
+            width="30px"
+            step={1}
+            stepPixelSize={5}
+            value={number}
+            minValue={-100}
+            maxValue={100}
+            onDrag={(e, value) => setNumber(value)} />
+        </LabeledList.Item>
+        <LabeledList.Item label="Slider (onDrag)">
+          <Slider
+            step={1}
+            stepPixelSize={5}
+            value={number}
+            minValue={-100}
+            maxValue={100}
+            onDrag={(e, value) => setNumber(value)} />
+        </LabeledList.Item>
+        <LabeledList.Item label="Knob (onDrag)">
+          <Knob
+            inline
+            size={1}
+            step={1}
+            stepPixelSize={2}
+            value={number}
+            minValue={-100}
+            maxValue={100}
+            onDrag={(e, value) => setNumber(value)} />
+          <Knob
+            ml={1}
+            inline
+            bipolar
+            size={1}
+            step={1}
+            stepPixelSize={2}
+            value={number}
+            minValue={-100}
+            maxValue={100}
+            onDrag={(e, value) => setNumber(value)} />
+        </LabeledList.Item>
+        <LabeledList.Item label="Rotating Icon">
+          <Box inline position="relative">
+            <DraggableControl
+              value={number}
+              minValue={-100}
+              maxValue={100}
+              dragMatrix={[0, -1]}
+              step={1}
+              stepPixelSize={5}
+              onDrag={(e, value) => setNumber(value)}>
+              {control => (
+                <Box onMouseDown={control.handleDragStart}>
+                  <Icon
+                    size={4}
+                    color="yellow"
+                    name="times"
+                    rotation={control.displayValue * 4} />
+                  {control.inputElement}
+                </Box>
+              )}
+            </DraggableControl>
+          </Box>
+        </LabeledList.Item>
+      </LabeledList>
+      <GeneticMakeupBuffers />
+    </Fragment>
   );
 };
