@@ -235,6 +235,19 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 		spans |= SPAN_ITALICS
 
 	send_speech(message, message_range, src, bubble_type, spans, language, message_mods)
+	if(client)
+		var/regex/letter = regex("\[a-z\]", "g")
+		var/regex/non_letter_char = regex("\[^a-z^\\s]", "g")
+		message_admins("regex part")
+		for(var/char = 1, char <= length(message), char++)
+			message_admins("message loop char: [lowertext(message[char])]")
+			spawn(char)	
+				if(findtext_char(lowertext(message[char]),letter))
+					message_admins("letter playing")
+					playsound(src, "yogstation/sound/voice/spokenletters/[lowertext(message[char])].wav", 60, TRUE, frequency = 2)
+				else if(findtext_char(lowertext(message[char]),non_letter_char))
+					message_admins("beeps playing")
+					playsound(src, 'yogstation/sound/voice/spokenletters/bebebese.wav', 60, TRUE, frequency = 1)
 
 	
 	return on_say_success(message,message_range,succumbed, spans, language, message_mods)//Yogs
