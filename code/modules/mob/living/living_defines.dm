@@ -133,3 +133,5 @@
 
 	//Last item/projectile that damaged this mob, not including surgery
 	var/last_damage = ""
+
+	var/voice_pitch = 1

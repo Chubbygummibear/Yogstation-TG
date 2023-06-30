@@ -88,3 +88,4 @@
 	update_body()
 	update_hair()
 	update_body_parts()
+	voice_pitch = 0.6

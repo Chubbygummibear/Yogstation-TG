@@ -5,7 +5,7 @@ GLOBAL_LIST_INIT(alt_sound_overrides, list(
 	'sound/items/pshoom_2.ogg' = 'sound/items/pshoom.ogg',
 ))
 
-/proc/playsound(atom/source, soundin, vol as num, vary, extrarange as num, falloff, frequency = null, channel = 0, pressure_affected = TRUE, ignore_walls = TRUE)
+/proc/playsound(atom/source, soundin, vol as num, vary, extrarange as num, falloff, frequency = null, channel = 0, pressure_affected = TRUE, ignore_walls = TRUE, distance_multiplier = 1, pitch = null)
 	if(isarea(source))
 		CRASH("playsound(): source is an area")
 
@@ -27,13 +27,13 @@ GLOBAL_LIST_INIT(alt_sound_overrides, list(
 	for(var/P in listeners)
 		var/mob/M = P
 		if(get_dist(M, turf_source) <= maxdistance)
-			M.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, channel, pressure_affected, S)
+			M.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, channel, pressure_affected, S, distance_multiplier, pitch)
 	for(var/P in SSmobs.dead_players_by_zlevel[z])
 		var/mob/M = P
 		if(get_dist(M, turf_source) <= maxdistance)
-			M.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, channel, pressure_affected, S)
+			M.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, channel, pressure_affected, S, distance_multiplier, pitch)
 
-/mob/proc/playsound_local(turf/turf_source, soundin, vol as num, vary, frequency, falloff, channel = 0, pressure_affected = TRUE, sound/S, distance_multiplier = 1)
+/mob/proc/playsound_local(turf/turf_source, soundin, vol as num, vary, frequency, falloff, channel = 0, pressure_affected = TRUE, sound/S, distance_multiplier = 1, pitch = null)
 	if(!client || !can_hear())
 		return
 
@@ -52,6 +52,10 @@ GLOBAL_LIST_INIT(alt_sound_overrides, list(
 			S.frequency = frequency
 		else
 			S.frequency = get_rand_frequency()
+	
+	if(pitch && frequency)
+		S.frequency = S.frequency*pitch
+		//S.pitch = pitch
 
 	if(isturf(turf_source))
 		var/turf/T = get_turf(src)
@@ -96,13 +100,13 @@ GLOBAL_LIST_INIT(alt_sound_overrides, list(
 
 	SEND_SOUND(src, S)
 
-/proc/sound_to_playing_players(soundin, volume = 100, vary = FALSE, frequency = 0, falloff = FALSE, channel = 0, pressure_affected = FALSE, sound/S)
+/proc/sound_to_playing_players(soundin, volume = 100, vary = FALSE, frequency = 0, falloff = FALSE, channel = 0, pressure_affected = FALSE, sound/S, distance_multiplier = 1, pitch = null)
 	if(!S)
 		S = sound(get_sfx(soundin))
 	for(var/m in GLOB.player_list)
 		if(ismob(m) && !isnewplayer(m))
 			var/mob/M = m
-			M.playsound_local(M, null, volume, vary, frequency, falloff, channel, pressure_affected, S)
+			M.playsound_local(M, null, volume, vary, frequency, falloff, channel, pressure_affected, S, distance_multiplier, pitch)
 
 /mob/proc/stop_sound_channel(chan)
 	SEND_SOUND(src, sound(null, repeat = 0, wait = 0, channel = chan))

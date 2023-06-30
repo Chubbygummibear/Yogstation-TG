@@ -238,16 +238,19 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 	if(client)
 		var/regex/letter = regex("\[a-z\]", "g")
 		var/regex/non_letter_char = regex("\[^a-z^\\s]", "g")
-		message_admins("regex part")
+		var/list/beep_noises = list('yogstation/sound/voice/spokenletters/bebebese.wav','yogstation/sound/voice/spokenletters/bebebese_slow.wav','yogstation/sound/voice/spokenletters/451.wav')
+		//message_admins("regex part")
 		for(var/char = 1, char <= length(message), char++)
-			message_admins("message loop char: [lowertext(message[char])]")
-			spawn(char)	
+			//message_admins("message loop char: [lowertext(message[char])]")
+			//at 2x speed we need a .05 second delay
+			//at .1x speed we need a .1 second delay 
+			spawn(char * 0.5)	
 				if(findtext_char(lowertext(message[char]),letter))
-					message_admins("letter playing")
-					playsound(src, "yogstation/sound/voice/spokenletters/[lowertext(message[char])].wav", 60, TRUE, frequency = 2)
+					//message_admins("letter playing")
+					playsound(src, "yogstation/sound/voice/spokenletters/[lowertext(message[char])].wav", 60, TRUE, frequency = 2, pitch = voice_pitch)
 				else if(findtext_char(lowertext(message[char]),non_letter_char))
-					message_admins("beeps playing")
-					playsound(src, 'yogstation/sound/voice/spokenletters/bebebese.wav', 60, TRUE, frequency = 1)
+					//message_admins("beeps playing")
+					playsound(src, pick(beep_noises), 60, TRUE, frequency = 1, pitch = voice_pitch)
 
 	
 	return on_say_success(message,message_range,succumbed, spans, language, message_mods)//Yogs
