@@ -5,6 +5,8 @@
 	lighting_corner_SW?.vis_update()
 	lighting_corner_NW?.vis_update()
 
+	SSdemo.mark_turf(src)
+
 /turf/proc/lighting_clear_overlay()
 	if (lighting_object)
 		qdel(lighting_object, force=TRUE)

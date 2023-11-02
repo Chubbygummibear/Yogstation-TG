@@ -223,6 +223,7 @@
 				corners[T.lighting_corner_SW] = 0
 				corners[T.lighting_corner_NW] = 0
 			turfs += T
+			SSdemo.mark_turf(T)
 		source_turf.luminosity = oldlum
 
 	var/list/datum/lighting_corner/new_corners = (corners - effect_str)

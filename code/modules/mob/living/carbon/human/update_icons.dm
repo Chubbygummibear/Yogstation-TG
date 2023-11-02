@@ -55,6 +55,7 @@ There are several things that need to be remembered:
 //used when putting/removing clothes that hide certain mutant body parts to just update those and not update the whole body.
 /mob/living/carbon/human/proc/update_mutant_bodyparts()
 	dna.species.handle_mutant_bodyparts(src)
+	update_body_parts()
 
 
 /mob/living/carbon/human/update_body()
@@ -138,9 +139,8 @@ There are several things that need to be remembered:
 			uniform_overlay.pixel_x += dna.species.offset_features[OFFSET_UNIFORM][1]
 			uniform_overlay.pixel_y += dna.species.offset_features[OFFSET_UNIFORM][2]
 		overlays_standing[UNIFORM_LAYER] = uniform_overlay
-
-	apply_overlay(UNIFORM_LAYER)
-	update_mutant_bodyparts()
+		update_mutant_bodyparts()
+		apply_overlay(UNIFORM_LAYER)
 
 
 /mob/living/carbon/human/update_inv_wear_id()
@@ -332,17 +332,17 @@ There are several things that need to be remembered:
 
 /mob/living/carbon/human/update_inv_head()
 	..()
-	update_mutant_bodyparts()
+	remove_overlay(HEAD_LAYER)
 	if(head)
 		update_hud_head(head)
 		overlays_standing[HEAD_LAYER] = head.build_worn_icon(default_layer = HEAD_LAYER, default_icon_file = 'icons/mob/clothing/head/head.dmi')
 	var/mutable_appearance/head_overlay = overlays_standing[HEAD_LAYER]
 	if(head_overlay)
-		remove_overlay(HEAD_LAYER)
 		if(OFFSET_HEAD in dna.species.offset_features)
 			head_overlay.pixel_x += dna.species.offset_features[OFFSET_HEAD][1]
 			head_overlay.pixel_y += dna.species.offset_features[OFFSET_HEAD][2]
 			overlays_standing[HEAD_LAYER] = head_overlay
+	update_mutant_bodyparts()
 	apply_overlay(HEAD_LAYER)
 
 /mob/living/carbon/human/update_inv_belt()
@@ -421,7 +421,7 @@ There are several things that need to be remembered:
 
 /mob/living/carbon/human/update_inv_wear_mask()
 	remove_overlay(FACEMASK_LAYER)
-
+	update_mutant_bodyparts() //e.g. upgate needed because mask now hides lizard snout
 	if(!get_bodypart(BODY_ZONE_HEAD)) //Decapitated
 		return
 
@@ -447,7 +447,6 @@ There are several things that need to be remembered:
 					mask_overlay.pixel_y += dna.species.offset_features[OFFSET_FACEMASK][2]
 					overlays_standing[FACEMASK_LAYER] = mask_overlay
 			apply_overlay(FACEMASK_LAYER)
-	update_mutant_bodyparts() //e.g. upgate needed because mask now hides lizard snout
 
 /mob/living/carbon/human/update_inv_back()
 	remove_overlay(BACK_LAYER)

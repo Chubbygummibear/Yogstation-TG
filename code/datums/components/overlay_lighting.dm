@@ -30,6 +30,8 @@
 	var/lumcount_range = 0
 	///How much this light affects the dynamic_lumcount of turfs.
 	var/lum_power = 0.5
+	///Transparency value.
+	var/set_alpha = 0
 	///For light sources that can be turned on and off.
 	var/overlay_lighting_flags = NONE
 
@@ -50,6 +52,7 @@
 
 	///Overlay effect to cut into the darkness and provide light.
 	var/obj/effect/overlay/light_visible/visible_mask
+	//var/image/visible_mask
 	///Lazy list to track the turfs being affected by our light, to determine their visibility.
 	var/list/turf/affected_turfs
 	///Movable atom currently holding the light. Parent might be a flashlight, for example, but that might be held by a mob or something else.
@@ -62,6 +65,7 @@
 	var/beam = FALSE
 	///A cone overlay for directional light, it's alpha and color are dependant on the light
 	var/obj/effect/overlay/light_visible/cone/cone
+	//var/image/cone
 	///Current tracked direction for the directional cast behaviour
 	var/current_direction
 	///Tracks current directional x offset so we dont update unecessarily
@@ -81,9 +85,17 @@
 
 	. = ..()
 	visible_mask = new(src)
+	// visible_mask = image('icons/effects/light_overlays/light_32.dmi', icon_state = "light", layer = O_LIGHTING_VISUAL_LAYER)
+	// visible_mask.plane = O_LIGHTING_VISUAL_PLANE
+	// visible_mask.appearance_flags = RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
+	// visible_mask.alpha = 0
 	if(is_directional)
 		directional = TRUE
 		cone = new(src)
+		// cone = image('icons/effects/light_overlays/light_cone.dmi', icon_state = "light", layer = O_LIGHTING_VISUAL_LAYER)
+		// cone.plane = O_LIGHTING_VISUAL_PLANE
+		// cone.appearance_flags = RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
+		// cone.alpha = 110
 		cone.transform = cone.transform.Translate(-32, -32)
 		set_direction(movable_parent.dir)
 	if(is_beam)
@@ -158,6 +170,7 @@
 /datum/component/overlay_lighting/proc/clean_old_turfs()
 	for(var/turf/lit_turf as anything in affected_turfs)
 		lit_turf.dynamic_lumcount -= lum_power
+		SSdemo.mark_turf(lit_turf)
 	affected_turfs = null
 
 
@@ -169,6 +182,7 @@
 	for(var/turf/lit_turf in view(lumcount_range, get_turf(current_holder)))
 		lit_turf.dynamic_lumcount += lum_power
 		. += lit_turf
+		SSdemo.mark_turf(lit_turf)
 	if(length(.))
 		affected_turfs = .
 

@@ -242,6 +242,7 @@
 		BP.original_owner = src
 
 /mob/living/carbon/update_body()
+	dna?.species.handle_body(src) //This calls `handle_mutant_bodyparts` which calls `update_mutant_bodyparts()`. Don't double call!
 	update_body_parts()
 
 /mob/living/carbon/proc/update_body_parts()
