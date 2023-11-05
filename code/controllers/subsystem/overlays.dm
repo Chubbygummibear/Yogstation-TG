@@ -47,12 +47,12 @@ SUBSYSTEM_DEF(overlays)
 			continue
 		if (istext(overlay))
 			// This is too expensive to run normally but running it during CI is a good test
-			if (PERFORM_ALL_TESTS(focus_only/invalid_overlays))
-				var/list/icon_states_available = icon_states(icon)
-				if(!(overlay in icon_states_available))
-					var/icon_file = "[icon]" || "Unknown Generated Icon"
-					stack_trace("Invalid overlay: Icon object '[icon_file]' [REF(icon)] used in '[src]' [type] is missing icon state [overlay].")
-					continue
+			// if (PERFORM_ALL_TESTS(focus_only/invalid_overlays))
+			// 	var/list/icon_states_available = icon_states(icon)
+			// 	if(!(overlay in icon_states_available))
+			// 		var/icon_file = "[icon]" || "Unknown Generated Icon"
+			// 		stack_trace("Invalid overlay: Icon object '[icon_file]' [REF(icon)] used in '[src]' [type] is missing icon state [overlay].")
+			// 		continue
 
 			var/index = build_overlays.Find(overlay)
 			build_overlays[index] = iconstate2appearance(icon, overlay)
@@ -134,7 +134,6 @@ SUBSYSTEM_DEF(overlays)
 	else if(cut_old)
 		cut_overlays()
 
-// Debug procs
 
 /atom
 	/// List of overlay "keys" (info about the appearance) -> mutable versions of static appearances

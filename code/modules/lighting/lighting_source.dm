@@ -136,6 +136,10 @@
 	for (var/datum/lighting_corner/corner as anything in effect_str)
 		REMOVE_CORNER(corner)
 		LAZYREMOVE(corner.affecting, src)
+		SSdemo.mark_turf(corner.master_NE)
+		SSdemo.mark_turf(corner.master_SE)
+		SSdemo.mark_turf(corner.master_SW)
+		SSdemo.mark_turf(corner.master_NW)
 
 /datum/light_source/proc/recalc_corner(datum/lighting_corner/corner)
 	LAZYINITLIST(effect_str)
