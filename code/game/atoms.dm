@@ -581,6 +581,11 @@
 		. |= update_desc(updates)
 	if(updates & UPDATE_ICON)
 		. |= update_icon(updates)
+	if(.)
+		if(isturf(src))
+			SSdemo.mark_turf(src)
+		else
+			SSdemo.mark_dirty(src)
 
 /// Updates the name of the atom
 /atom/proc/update_name(updates=ALL)

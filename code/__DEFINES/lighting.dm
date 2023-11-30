@@ -4,9 +4,19 @@
 #define STATIC_LIGHT 1
 ///Light made by masking the lighting darkness plane.
 #define MOVABLE_LIGHT 2
+/// Light made by masking the lighting darkness plane, and is directional.
+#define MOVABLE_LIGHT_DIRECTIONAL 3
+///Light made by masking the lighting darkness plane, and is a directionally focused beam.
+#define MOVABLE_LIGHT_BEAM 4
+/// Nonesensical value for light color, used for null checks.
+#define NONSENSICAL_VALUE -99999
 
-///Is a movable light source attached to another movable (its loc), meaning that the lighting component should go one level deeper.
+/// Is a movable light source attached to another movable (its loc), meaning that the lighting component should go one level deeper.
 #define LIGHT_ATTACHED (1<<0)
+/// Freezes a light in its current state, blocking any attempts at modification
+#define LIGHT_FROZEN (1<<1)
+/// Does this light ignore inherent offsets? (Pixels, transforms, etc)
+#define LIGHT_IGNORE_OFFSET (1<<2)
 
 ///This light doesn't affect turf's lumcount calculations. Set to 1<<15 to ignore conflicts
 #define LIGHT_NO_LUMCOUNT (1<<15)
@@ -84,6 +94,28 @@
 #define EMISSIVE_BLOCK_GENERIC 1
 /// Uses a dedicated render_target object to copy the entire appearance in real time to the blocking layer. For things that can change in appearance a lot from the base state, like humans.
 #define EMISSIVE_BLOCK_UNIQUE 2
+/// Don't block any emissives. Useful for things like, pieces of paper?
+#define EMISSIVE_BLOCK_NONE 2
+
+#define _EMISSIVE_COLOR(val) list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1, val,val,val,0)
+/// The color matrix applied to all emissive overlays. Should be solely dependent on alpha and not have RGB overlap with [EM_BLOCK_COLOR].
+#define EMISSIVE_COLOR _EMISSIVE_COLOR(1)
+/// A globaly cached version of [EMISSIVE_COLOR] for quick access.
+GLOBAL_LIST_INIT(emissive_color, EMISSIVE_COLOR)
+
+#define _EM_BLOCK_COLOR(val) list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,val, 0,0,0,0)
+/// The color matrix applied to all emissive blockers. Should be solely dependent on alpha and not have RGB overlap with [EMISSIVE_COLOR].
+#define EM_BLOCK_COLOR _EM_BLOCK_COLOR(1)
+/// A globaly cached version of [EM_BLOCK_COLOR] for quick access.
+GLOBAL_LIST_INIT(em_block_color, EM_BLOCK_COLOR)
+
+/// A set of appearance flags applied to all emissive and emissive blocker overlays.
+/// KEEP_APART to prevent parent hooking, KEEP_TOGETHER for children, and we reset the color and alpha of our parent so nothing gets overriden
+#define EMISSIVE_APPEARANCE_FLAGS (KEEP_APART|KEEP_TOGETHER|RESET_COLOR|RESET_ALPHA)
+/// The color matrix used to mask out emissive blockers on the emissive plane. Alpha should default to zero, be solely dependent on the RGB value of [EMISSIVE_COLOR], and be independant of the RGB value of [EM_BLOCK_COLOR].
+#define EM_MASK_MATRIX list(0,0,0,1/3, 0,0,0,1/3, 0,0,0,1/3, 0,0,0,0, 1,1,1,0)
+/// A globaly cached version of [EM_MASK_MATRIX] for quick access.
+GLOBAL_LIST_INIT(em_mask_matrix, EM_MASK_MATRIX)
 
 /// Returns the red part of a #RRGGBB hex sequence as number
 #define GETREDPART(hexa) hex2num(copytext(hexa, 2, 4))

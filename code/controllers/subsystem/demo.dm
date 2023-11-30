@@ -189,8 +189,8 @@ SUBSYSTEM_DEF(demo)
 		marked_dirty.len--
 		if(M.gc_destroyed || !M)
 			continue
-		if(M.loc == M.demo_last_loc)
-			continue
+		// if(M.loc == M.demo_last_loc)
+		// 	continue
 		var/loc_string = "="
 		if(M.loc != M.demo_last_loc)
 			loc_string = "null"

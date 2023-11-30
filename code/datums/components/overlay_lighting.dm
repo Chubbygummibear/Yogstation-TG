@@ -160,14 +160,14 @@
 ///Adds the luminosity and source for the afected movable atoms to keep track of their visibility.
 /datum/component/overlay_lighting/proc/add_dynamic_lumi(atom/movable/affected_movable)
 	LAZYSET(affected_movable.affected_dynamic_lights, src, lumcount_range + 1)
-	affected_movable.vis_contents += visible_mask
+	affected_movable.underlays += visible_mask
 	affected_movable.update_dynamic_luminosity()
 
 
 ///Removes the luminosity and source for the afected movable atoms to keep track of their visibility.
 /datum/component/overlay_lighting/proc/remove_dynamic_lumi(atom/movable/affected_movable)
 	LAZYREMOVE(affected_movable.affected_dynamic_lights, src)
-	affected_movable.vis_contents -= visible_mask
+	affected_movable.underlays += visible_mask
 	affected_movable.update_dynamic_luminosity()
 
 

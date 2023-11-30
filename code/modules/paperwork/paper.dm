@@ -43,8 +43,15 @@
 	var/list/stamped
 	var/rigged = 0
 	var/spam_flag = 0
-	var/contact_poison // Reagent ID to transfer on contact
+	
+	/// Whether the icon should show little scribbly written words when the paper has some text on it.
+	var/show_written_words = TRUE
+	
+	/// Reagent to transfer to the user when they pick the paper up without proper protection.
+	var/contact_poison
+	/// Volume of contact_poison to transfer to the user when they pick the paper up without proper protection.
 	var/contact_poison_volume = 0
+
 	var/next_write_time = 0 // prevent crash exploit
 	var/timesstamped = 0 //prevent error exploit
 
@@ -85,7 +92,7 @@
 		icon_state = "paper_onfire"
 		return
 	if(info || length(written))
-		icon_state = "paper_words"
+		icon_state = "[initial(icon_state)]_words"
 		return
 	icon_state = "paper"
 
@@ -365,6 +372,12 @@
 		icon_state = "paper_onfire"
 		info = "[stars(info)]"
 
+/obj/item/paper/proc/get_total_length()
+	// var/total_length = 0
+	// for(var/datum/paper_input/entry as anything in raw_text_inputs)
+	// 	total_length += length_char(entry.raw_text)
+
+	return LAZYLEN(written)
 
 /obj/item/paper/extinguish()
 	..()
@@ -392,6 +405,7 @@
 	name = "paper scrap"
 	icon_state = "scrap"
 	slot_flags = null
+	show_written_words = FALSE
 
 /obj/item/paper/crumpled/Initialize(mapload)
 	AddElement(/datum/element/update_icon_blocker)
