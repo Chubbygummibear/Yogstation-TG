@@ -125,7 +125,7 @@ SUBSYSTEM_DEF(Yogs)
 					for(var/datum/department_goal/d in listOfGoals[account])
 						P.info += d.get_name()
 					P.info += "</ul><br>"
-				P.update_icon()
+				P.update_appearance(UPDATE_ICON)
 
 			else
 				var/obj/item/paper/P = new /obj/item/paper(C.loc)
@@ -135,7 +135,7 @@ SUBSYSTEM_DEF(Yogs)
 					if(d.account == account)
 						P.info += d.get_name()
 				P.info += "</ul>"
-				P.update_icon()
+				P.update_appearance(UPDATE_ICON)
 
 
 	for(var/path in subtypesof(/datum/corporation))
@@ -146,7 +146,7 @@ SUBSYSTEM_DEF(Yogs)
 /datum/controller/subsystem/Yogs/fire(resumed = 0)
 	//END OF SHIFT ANNOUNCER
 	if(world.time > (ROUND_END_ANNOUNCEMENT_TIME*600) && !endedshift && !(EMERGENCY_AT_LEAST_DOCKED))
-		priority_announce("Crew, your shift has come to an end.[SSshuttle.emergency.mode == SHUTTLE_IDLE ? "\nYou may call the shuttle whenever you find it appropriate." : ""]", "End of shift announcement", RANDOM_REPORT_SOUND)
+		priority_announce("Crew, your shift has come to an end.[SSshuttle.emergency.mode == SHUTTLE_IDLE ? "\nYou may call the shuttle whenever you find it appropriate." : ""]", "End of shift announcement", SSstation.announcer.get_rand_report_sound())
 		endedshift = TRUE
 
 	//UNCLAIMED TICKET BWOINKER

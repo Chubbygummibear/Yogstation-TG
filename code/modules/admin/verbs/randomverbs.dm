@@ -617,47 +617,6 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		L?.mind?.name = newname
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Offer Mob Rename") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc
 
-/client/proc/cmd_admin_create_centcom_report()
-	set category = "Admin.Round Interaction"
-	set name = "Create Command Report"
-
-	if(!check_rights(R_ADMIN))
-		return
-
-	var/input = input(usr, "Enter a Command Report. Ensure it makes sense IC.", "What?", "") as message|null
-	if(!input)
-		return
-
-	var/confirm = alert(src, "Do you want to announce the contents of the report to the crew?", "Announce", "Yes", "No", "Cancel")
-	var/announce_command_report = TRUE
-	var/senderOverride = input(src, "Please input the sender of the report", "Sender", "[command_name()] Update")
-	switch(confirm)
-		if("Yes")
-			priority_announce(input, null, RANDOM_REPORT_SOUND, sender_override = senderOverride, sanitize = FALSE)
-			announce_command_report = FALSE
-		if("Cancel")
-			return
-
-	print_command_report(input, "[announce_command_report ? "Classified " : ""][senderOverride]", announce_command_report)
-
-	log_admin("[key_name(src)] has created a command report: [input]")
-	message_admins("[key_name_admin(src)] has created a command report")
-	SSblackbox.record_feedback("tally", "admin_verb", 1, "Create Command Report") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-/client/proc/cmd_change_command_name()
-	set category = "Admin.Round Interaction"
-	set name = "Change Command Name"
-
-	if(!check_rights(R_ADMIN))
-		return
-
-	var/input = input(usr, "Please input a new name for Central Command.", "What?", "") as text|null
-	if(!input)
-		return
-	change_command_name(input)
-	message_admins("[key_name_admin(src)] has changed Central Command's name to [input]")
-	log_admin("[key_name(src)] has changed the Central Command name to: [input]")
-
 /client/proc/cmd_admin_delete(atom/A as obj|mob|turf in world)
 	set category = "Misc.Unused"
 	set name = "Delete"
@@ -762,7 +721,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	else
 		return
 
-/client/proc/cmd_admin_gib(mob/M in GLOB.mob_list)
+/client/proc/cmd_admin_gib(mob/living/M in GLOB.mob_list)
 	set category = "Admin.Player Interaction"
 	set name = "Gib"
 
@@ -797,7 +756,8 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		log_admin("[key_name(usr)] used gibself.")
 		message_admins(span_adminnotice("[key_name_admin(usr)] used gibself."))
 		SSblackbox.record_feedback("tally", "admin_verb", 1, "Gib Self") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-		mob.gib(1, 1, 1)
+		var/mob/living/user_mob = mob
+		user_mob.gib(1, 1, 1)
 
 /client/proc/cmd_admin_check_contents(mob/living/M in GLOB.mob_list)
 	set category = "Misc.Unused"
@@ -1349,7 +1309,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 					var/shots_this_limb = 0
 					for(var/t in shuffle(open_adj_turfs))
 						var/turf/iter_turf = t
-						addtimer(CALLBACK(GLOBAL_PROC, PROC_REF(firing_squad), dude, iter_turf, slice_part.body_zone, wound_bonuses[wound_bonus_rep], damage), delay_counter)
+						addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(firing_squad), dude, iter_turf, slice_part.body_zone, wound_bonuses[wound_bonus_rep], damage), delay_counter)
 						delay_counter += delay_per_shot
 						shots_this_limb++
 						if(shots_this_limb > shots_per_limb_per_rep)
@@ -1391,7 +1351,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	if(!target.get_bodypart(body_zone))
 		return
 	playsound(target, 'sound/weapons/revolver357shot.ogg', 100)
-	var/obj/item/projectile/bullet/smite/divine_wrath = new(source_turf)
+	var/obj/projectile/bullet/smite/divine_wrath = new(source_turf)
 	divine_wrath.damage = damage
 	divine_wrath.wound_bonus = wound_bonus
 	divine_wrath.original = target

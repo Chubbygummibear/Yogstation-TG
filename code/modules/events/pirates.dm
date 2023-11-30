@@ -33,7 +33,7 @@
 	beacon = new(ship_name)
 
 /datum/round_event/pirates/announce(fake)
-	priority_announce("Incoming subspace communication. Secure channel opened at all communication consoles.", "Incoming Message", RANDOM_REPORT_SOUND)
+	priority_announce("Incoming subspace communication. Secure channel opened at all communication consoles.", "Incoming Message", SSstation.announcer.get_rand_report_sound())
 	play_intro_music()
 	if(fake)
 		return
@@ -137,7 +137,7 @@
 	. = ..()
 	gps = new/obj/item/gps/internal/pirate(src)
 	gps.tracking = FALSE
-	update_icon()
+	update_appearance(UPDATE_ICON)
 
 /obj/machinery/shuttle_scrambler/process()
 	if(active)
@@ -168,7 +168,7 @@
 		if(active || !user.canUseTopic(src, BE_CLOSE))
 			return
 		toggle_on(user)
-		update_icon()
+		update_appearance(UPDATE_ICON)
 		send_notification()
 	else
 		dump_loot(user)
@@ -195,7 +195,8 @@
 	active = FALSE
 	STOP_PROCESSING(SSobj,src)
 
-/obj/machinery/shuttle_scrambler/update_icon()
+/obj/machinery/shuttle_scrambler/update_icon_state()
+	. = ..()
 	if(active)
 		icon_state = "dominator-blue"
 	else

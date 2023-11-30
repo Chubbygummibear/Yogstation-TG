@@ -36,7 +36,7 @@
 	var/weed_rate = 1 //If the chance below passes, then this many weeds sprout during growth
 	var/weed_chance = 5 //Percentage chance per tray update to grow weeds
 
-/obj/item/seeds/Initialize(mapload, loc, nogenes = 0)
+/obj/item/seeds/Initialize(mapload, nogenes = 0)
 	. = ..()
 	pixel_x = rand(-8, 8)
 	pixel_y = rand(-8, 8)
@@ -112,8 +112,8 @@
 
 
 
-/obj/item/seeds/bullet_act(obj/item/projectile/Proj) //Works with the Somatoray to modify plant variables.
-	if(istype(Proj, /obj/item/projectile/energy/florayield))
+/obj/item/seeds/bullet_act(obj/projectile/Proj) //Works with the Somatoray to modify plant variables.
+	if(istype(Proj, /obj/projectile/energy/florayield))
 		var/rating = 1
 		if(istype(loc, /obj/machinery/hydroponics))
 			var/obj/machinery/hydroponics/H = loc
@@ -437,3 +437,21 @@
 			genes += P
 		else
 			qdel(P)
+
+/*
+ * Both `/item/food/grown` and `/item/grown` implement a seed variable which tracks
+ * plant statistics, genes, traits, etc. This proc gets the seed for either grown food or
+ * grown inedibles and returns it, or returns null if it's not a plant.
+ *
+ * Returns an `/obj/item/seeds` ref for grown foods or grown inedibles.
+ *  - returned seed CAN be null in weird cases but in all applications it SHOULD NOT be.
+ * Returns null if it is not a plant.
+ */
+/obj/item/proc/get_plant_seed()
+	return null
+
+/obj/item/grown/get_plant_seed()
+	return seed
+
+/obj/item/reagent_containers/food/snacks/grown/get_plant_seed()
+	return seed

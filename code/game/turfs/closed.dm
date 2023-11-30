@@ -1,6 +1,6 @@
 /turf/closed
 	layer = CLOSED_TURF_LAYER
-	opacity = 1
+	opacity = TRUE
 	density = TRUE
 	blocks_air = TRUE
 	flags_1 = RAD_PROTECT_CONTENTS_1 | RAD_NO_CONTAMINATE_1
@@ -27,10 +27,7 @@
 	name = "wall"
 	icon = 'icons/turf/walls.dmi'
 	explosion_block = 50
-	flags_1 = NOJAUNT_1 | CAN_BE_DIRTY_1
-
-/turf/closed/indestructible/rust_heretic_act()
-	return
+	flags_1 = NOJAUNT_1 | CAN_BE_DIRTY_1 | NO_RUST
 
 /turf/closed/indestructible/TerraformTurf(path, new_baseturf, flags, defer_change = FALSE, ignore_air = FALSE)
 	return
@@ -44,6 +41,12 @@
 
 /turf/closed/indestructible/singularity_act()
 	return
+
+/turf/closed/indestructible/abductor/attackby(obj/item/attacking_item, mob/user, params)
+	if(istype(attacking_item, /obj/item/poster) && Adjacent(user))
+		return place_poster(attacking_item, user)
+
+	return ..()
 
 /turf/closed/indestructible/oldshuttle
 	name = "strange shuttle wall"
@@ -63,7 +66,7 @@
 
 /turf/closed/indestructible/splashscreen
 	name = "Space Station 13"
-	icon = 'icons/blank_title.png'
+	icon = 'icons/blanks/blank_title.png'
 	icon_state = ""
 	layer = FLY_LAYER
 	bullet_bounce_sound = null
@@ -104,7 +107,7 @@
 /turf/closed/indestructible/fakeglass
 	name = "window"
 	icon_state = "fake_window"
-	opacity = 0
+	opacity = FALSE
 	smooth = SMOOTH_TRUE
 	icon = 'icons/obj/smooth_structures/reinforced_window.dmi'
 
@@ -117,7 +120,7 @@
 /turf/closed/indestructible/opsglass
 	name = "window"
 	icon_state = "plastitanium_window"
-	opacity = 0
+	opacity = FALSE
 	smooth = SMOOTH_TRUE
 	icon = 'icons/obj/smooth_structures/plastitanium_window.dmi'
 
@@ -131,6 +134,11 @@
 	name = "CentCom Access"
 	icon = 'icons/obj/doors/airlocks/centcom/centcom.dmi'
 	icon_state = "fake_door"
+
+/turf/closed/indestructible/fakedoor/poddoor
+	name = "blast door"
+	icon = 'icons/obj/doors/blastdoor.dmi'
+	icon_state = "closed"
 
 /turf/closed/indestructible/rock
 	name = "dense rock"

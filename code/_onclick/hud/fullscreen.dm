@@ -1,7 +1,4 @@
 
-/mob
-	var/list/screens = list()
-
 /mob/proc/overlay_fullscreen(category, type, severity)
 	var/atom/movable/screen/fullscreen/screen = screens[category]
 	if (!screen || screen.type != type)
@@ -211,8 +208,18 @@
 	blend_mode = BLEND_ADD
 	show_when_dead = TRUE
 
+/atom/movable/screen/fullscreen/red_eye
+	icon_state = "red_eye"
+	plane = FULLSCREEN_PLANE
+	layer = CURSE_LAYER
+
 //Triggered by übercharge activation
 /atom/movable/screen/fullscreen/uber
 	icon_state = "uberoverlay"
+	plane = FULLSCREEN_PLANE
+	layer = CURSE_LAYER
+
+/atom/movable/screen/fullscreen/blue_eye
+	icon_state = "blue_eye"
 	plane = FULLSCREEN_PLANE
 	layer = CURSE_LAYER

@@ -108,6 +108,7 @@
 	layer = WALL_OBJ_LAYER
 	icon_state = "cobweb1"
 	resistance_flags = FLAMMABLE
+	clean_type = CLEAN_TYPE_HARD_DECAL
 
 /obj/effect/decal/cleanable/cobweb/cobweb2
 	icon_state = "cobweb2"
@@ -119,6 +120,7 @@
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "molten"
 	mergeable_decal = FALSE
+	clean_type = CLEAN_TYPE_HARD_DECAL
 
 /obj/effect/decal/cleanable/molten_object/large
 	name = "big gooey grey mass"
@@ -213,8 +215,8 @@
 /obj/effect/decal/cleanable/plasma
 	name = "stabilized plasma"
 	desc = "A puddle of stabilized plasma."
-	icon_state = "flour"
-	icon = 'icons/effects/tomatodecal.dmi'
+	icon_state = "molten"
+	icon = 'icons/effects/effects.dmi'
 	color = "#C8A5DC"
 
 /obj/effect/decal/cleanable/insectguts
@@ -231,3 +233,12 @@
 /obj/effect/decal/cleanable/insectguts/Destroy(force)
 	GLOB.vomit_spots -= src
 	. = ..()
+
+/obj/effect/decal/cleanable/dirt_siding
+	name = "dirt siding"
+	icon = 'icons/turf/decals.dmi'
+	icon_state = "dirt_side"
+
+/obj/effect/decal/cleanable/dirt_siding/corner
+	name = "dirt corner"
+	icon_state = "dirt_side_corner"

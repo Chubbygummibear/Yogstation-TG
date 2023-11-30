@@ -258,7 +258,8 @@
 
 	spare.underwear = "Nude"
 	H.dna.transfer_identity(spare, transfer_SE=1)
-	spare.dna.features["mcolor"] = pick("FFFFFF","7F7F7F", "7FFF7F", "7F7FFF", "FF7F7F", "7FFFFF", "FF7FFF", "FFFF7F")
+	spare.dna.features["mcolor"] = pick("#FFFFFF","#7F7F7F", "#7FFF7F", "#7F7FFF", "#FF7F7F", "#7FFFFF", "#FF7FFF", "#FFFF7F")
+	spare.dna.update_uf_block(DNA_MUTANT_COLOR_BLOCK)
 	spare.real_name = spare.dna.real_name
 	spare.name = spare.dna.real_name
 	spare.updateappearance(mutcolor_update=1)
@@ -326,7 +327,7 @@
 
 		var/list/L = list()
 		// HTML colors need a # prefix
-		L["htmlcolor"] = "#[body.dna.features["mcolor"]]"
+		L["htmlcolor"] = body.dna.features["mcolor"]
 		L["area"] = get_area_name(body, TRUE)
 		var/stat = "error"
 		switch(body.stat)
@@ -441,19 +442,25 @@
 	id = "lum"
 	say_mod = "says"
 	var/glow_intensity = LUMINESCENT_DEFAULT_GLOW
-	var/obj/effect/dummy/luminescent_glow/glow
 	var/obj/item/slime_extract/current_extract
 	var/datum/action/innate/integrate_extract/integrate_extract
 	var/datum/action/innate/use_extract/extract_minor
 	var/datum/action/innate/use_extract/major/extract_major
 	var/extract_cooldown = 0
 
+	/// Internal dummy used to glow (very cool)
+	var/obj/effect/dummy/lighting_obj/moblight/species/glow
+
+/datum/species/jelly/luminescent/Destroy(force, ...)
+	. = ..()
+	QDEL_NULL(glow)
+
 /datum/species/jelly/luminescent/on_species_loss(mob/living/carbon/C)
 	..()
 	if(current_extract)
 		current_extract.forceMove(C.drop_location())
 		current_extract = null
-	qdel(glow)
+	QDEL_NULL(glow)
 	if(integrate_extract)
 		integrate_extract.Remove(C)
 	if(extract_minor)
@@ -463,7 +470,7 @@
 
 /datum/species/jelly/luminescent/on_species_gain(mob/living/carbon/C, datum/species/old_species)
 	..()
-	glow = new(C)
+	glow = C.mob_light(light_type = /obj/effect/dummy/lighting_obj/moblight/species)
 	update_glow(C)
 	integrate_extract = new(src)
 	integrate_extract.Grant(C)
@@ -482,20 +489,6 @@
 	if(intensity)
 		glow_intensity = intensity
 	glow.set_light_range_power_color(glow_intensity, glow_intensity, C.dna.features["mcolor"])
-
-/obj/effect/dummy/luminescent_glow
-	name = "luminescent glow"
-	desc = "Tell a coder if you're seeing this."
-	icon_state = "nothing"
-	light_color = "#FFFFFF"
-	light_range = LUMINESCENT_DEFAULT_GLOW
-	light_system = MOVABLE_LIGHT
-	light_power = 2.5
-
-/obj/effect/dummy/luminescent_glow/Initialize(mapload)
-	. = ..()
-	if(!isliving(loc))
-		return INITIALIZE_HINT_QDEL
 
 /datum/action/innate/integrate_extract
 	name = "Integrate Extract"
@@ -596,7 +589,7 @@
 
 /datum/action/innate/use_extract/Activate()
 	var/mob/living/carbon/human/H = owner
-	if(!is_species(H, /datum/species/jelly/luminescent) || !species)
+	if(!is_species(H, /datum/species/jelly/luminescent) || !species || H.incapacitated())
 		return
 	CHECK_DNA_AND_SPECIES(H)
 
@@ -654,7 +647,7 @@
 		return FALSE
 	if(HAS_TRAIT(M, TRAIT_MINDSHIELD)) //mindshield implant, no dice
 		return FALSE
-	if(M.anti_magic_check(FALSE, FALSE, TRUE, 0))
+	if(M.can_block_magic(MAGIC_RESISTANCE_MIND, charge_cost = 0))
 		return FALSE
 	if(M in linked_mobs)
 		return FALSE
@@ -742,12 +735,12 @@
 	var/mob/living/M = input("Select who to send your message to:","Send thought to?",null) as null|mob in options
 	if(!M)
 		return
-	if(M.anti_magic_check(FALSE, FALSE, TRUE, 0))
+	if(M.can_block_magic(MAGIC_RESISTANCE_MIND, charge_cost = 0))
 		to_chat(H, span_notice("As you try to communicate with [M], you're suddenly stopped by a vision of a massive tinfoil wall that streches beyond visible range. It seems you've been foiled."))
 		return
 	var/msg = sanitize(input("Message:", "Telepathy") as text|null)
 	if(msg)
-		if(M.anti_magic_check(FALSE, FALSE, TRUE, 0))
+		if(M.can_block_magic(MAGIC_RESISTANCE_MIND, charge_cost = 0))
 			to_chat(H, span_notice("As you try to communicate with [M], you're suddenly stopped by a vision of a massive tinfoil wall that streches beyond visible range. It seems you've been foiled."))
 			return
 		log_directed_talk(H, M, msg, LOG_SAY, "slime telepathy")
