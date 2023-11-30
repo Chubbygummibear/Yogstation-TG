@@ -113,8 +113,8 @@ distance_multiplier - Can be used to multiply the distance at which the sound is
 		else
 			S.frequency = get_rand_frequency()
 	
-	if(pitch && frequency)
-		S.frequency = S.frequency*pitch
+	// if(pitch && frequency)
+	// 	S.frequency = S.frequency*pitch
 		//S.pitch = pitch
 
 	if(isturf(turf_source))

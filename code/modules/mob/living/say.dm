@@ -247,10 +247,10 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 			spawn(char * 0.5)	
 				if(findtext_char(lowertext(message[char]),letter))
 					//message_admins("letter playing")
-					playsound(src, "yogstation/sound/voice/spokenletters/[lowertext(message[char])].wav", 60, TRUE, frequency = 2, pitch = voice_pitch)
+					playsound(src, "yogstation/sound/voice/spokenletters/[lowertext(message[char])].wav", 60, TRUE, frequency = 2)
 				else if(findtext_char(lowertext(message[char]),non_letter_char))
 					//message_admins("beeps playing")
-					playsound(src, pick(beep_noises), 60, TRUE, frequency = 1, pitch = voice_pitch)
+					playsound(src, pick(beep_noises), 60, TRUE, frequency = 1)
 
 	
 	return on_say_success(message,message_range,succumbed, spans, language, message_mods)//Yogs
