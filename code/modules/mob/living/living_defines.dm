@@ -150,3 +150,4 @@
 	var/gravity_state = null
 
 	var/voice_pitch = 1
+	var/voice_frequency = 2
