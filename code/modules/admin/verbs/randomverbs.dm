@@ -703,18 +703,17 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	if(!check_rights(R_ADMIN))
 		return
 
-	var/heavy = input("Range of heavy pulse.", text("Input"))  as num|null
-	if(heavy == null)
+	var/severity = input("Severity of pulse.", text("Input"))  as num|null
+	if(!isnum(severity))
 		return
-	var/light = input("Range of light pulse.", text("Input"))  as num|null
-	if(light == null)
-		return
+	var/range = input("Range of pulse.", text("Input"))  as num|null
+	if(!isnum(range))
+		range = severity
 
-	if (heavy || light)
-
-		empulse(O, heavy, light)
-		log_admin("[key_name(usr)] created an EM Pulse ([heavy],[light]) at [AREACOORD(O)]")
-		message_admins("[key_name_admin(usr)] created an EM Pulse ([heavy],[light]) at [AREACOORD(O)]")
+	if (severity)
+		empulse(O, severity, range)
+		log_admin("[key_name(usr)] created an EM Pulse ([range] range, [severity] severity) at [AREACOORD(O)]")
+		message_admins("[key_name_admin(usr)] created an EM Pulse ([range] range, [severity] severity) at [AREACOORD(O)]")
 		SSblackbox.record_feedback("tally", "admin_verb", 1, "EM Pulse") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 		return
@@ -1170,7 +1169,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 			if(iscarbon(target))
 				var/mob/living/carbon/CM = target
 				for(var/obj/item/bodypart/bodypart in CM.bodyparts)
-					if(bodypart.body_part != HEAD && bodypart.body_part != CHEST)
+					if(!(bodypart.body_part & (HEAD|CHEST)))
 						if(bodypart.dismemberable)
 							bodypart.dismember()
 		if(ADMIN_PUNISHMENT_GIB)
@@ -1430,6 +1429,52 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	else
 		message_admins("[key_name_admin(usr)] has [newstate ? "activated" : "deactivated"] job exp exempt status on [key_name_admin(C)]")
 		log_admin("[key_name(usr)] has [newstate ? "activated" : "deactivated"] job exp exempt status on [key_name(C)]")
+
+/// Allow admin to add or remove traits of datum
+/datum/admins/proc/modify_traits(datum/D)
+	if(!D)
+		return
+
+	var/add_or_remove = input("Remove/Add?", "Trait Remove/Add") as null|anything in list("Add","Remove")
+	if(!add_or_remove)
+		return
+	var/list/available_traits = list()
+
+	switch(add_or_remove)
+		if("Add")
+			for(var/key in GLOB.admin_visible_traits)
+				if(istype(D,key))
+					available_traits += GLOB.admin_visible_traits[key]
+		if("Remove")
+			if(!GLOB.admin_trait_name_map)
+				GLOB.admin_trait_name_map = generate_admin_trait_name_map()
+			for(var/trait in D._status_traits)
+				var/name = GLOB.admin_trait_name_map[trait] || trait
+				available_traits[name] = trait
+
+	var/chosen_trait = input("Select trait to modify", "Trait") as null|anything in sort_list(available_traits)
+	if(!chosen_trait)
+		return
+	chosen_trait = available_traits[chosen_trait]
+
+	var/source = "adminabuse"
+	switch(add_or_remove)
+		if("Add") //Not doing source choosing here intentionally to make this bit faster to use, you can always vv it.
+			if(GLOB.movement_type_trait_to_flag[chosen_trait]) //include the required element.
+				D.AddElement(/datum/element/movetype_handler)
+			ADD_TRAIT(D,chosen_trait,source)
+		if("Remove")
+			var/specific = input("All or specific source ?", "Trait Remove/Add") as null|anything in list("All","Specific")
+			if(!specific)
+				return
+			switch(specific)
+				if("All")
+					source = null
+				if("Specific")
+					source = input("Source to be removed","Trait Remove/Add") as null|anything in sort_list(GET_TRAIT_SOURCES(D, chosen_trait))
+					if(!source)
+						return
+			REMOVE_TRAIT(D,chosen_trait,source)
 
 /mob/living/carbon/proc/adminpie(mob/user)
 	var/obj/item/reagent_containers/food/snacks/pie/cream/admin/p = new (get_turf(pick(oview(3,user))))
