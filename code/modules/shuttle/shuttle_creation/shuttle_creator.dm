@@ -222,7 +222,7 @@ GLOBAL_LIST_EMPTY(custom_shuttle_machines)		//Machines that require updating (He
 		var/area/cur_area = curT.loc
 		//Add the area to the shuttle <3
 		if(istype(cur_area, recorded_shuttle_area))
-			if(istype(curT, /turf/open/space))
+			if(isspaceturf(curT))
 				continue
 			if(length(curT.baseturfs) < 2)
 				continue
