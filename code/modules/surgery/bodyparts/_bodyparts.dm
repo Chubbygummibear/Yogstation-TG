@@ -19,8 +19,8 @@
 	var/body_zone //BODY_ZONE_CHEST, BODY_ZONE_L_ARM, etc , used for def_zone
 	var/aux_zone // used for hands
 	var/aux_layer
-	var/body_part = null //bitflag used to check which clothes cover this bodypart
-	var/use_digitigrade = NOT_DIGITIGRADE //Used for alternate legs, useless elsewhere
+	var/body_part = NONE //bitflag used to check which clothes cover this bodypart
+	var/use_digitigrade = FALSE //Used for alternate legs, useless elsewhere
 	var/list/embedded_objects = list()
 	var/held_index = 0 //are we a hand? if so, which one!
 	var/render_like_organic = FALSE // TRUE is for when you want a BODYPART_ROBOTIC to pretend to be a BODYPART_ORGANIC.
@@ -460,7 +460,7 @@
 	// quick re-check to see if bare_wound_bonus applies, for the benefit of log_wound(), see about getting the check from check_wounding_mods() somehow
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human_wearer = owner
-		var/list/clothing = human_wearer.clothingonpart(src)
+		var/list/clothing = human_wearer.clothingonpart(body_part)
 		for(var/i in clothing)
 			var/obj/item/clothing/clothes_check = i
 			// unlike normal armor checks, we tabluate these piece-by-piece manually so we can also pass on appropriate damage the clothing's limbs if necessary
@@ -524,7 +524,7 @@
 		if(H?.physiology?.armor?.wound)//if there is any innate wound armor (poly or genetics)
 			armor_ablation += H.physiology.armor.getRating(WOUND)
 
-		var/list/clothing = H.clothingonpart(src)
+		var/list/clothing = H.clothingonpart(body_part)
 		for(var/c in clothing)
 			var/obj/item/clothing/C = c
 			// unlike normal armor checks, we tabluate these piece-by-piece manually so we can also pass on appropriate damage the clothing's limbs if necessary
@@ -685,6 +685,8 @@
 /obj/item/bodypart/proc/set_owner(new_owner)
 	if(owner == new_owner)
 		return FALSE //`null` is a valid option, so we need to use a num var to make it clear no change was made.
+	if(owner && use_digitigrade)
+		REMOVE_TRAIT(owner, TRAIT_DIGITIGRADE, REF(src))
 	. = owner
 	owner = new_owner
 	var/needs_update_disabled = FALSE //Only really relevant if there's an owner
@@ -700,6 +702,8 @@
 				SIGNAL_ADDTRAIT(TRAIT_NOLIMBDISABLE),
 				))
 	if(owner)
+		if(use_digitigrade)
+			ADD_TRAIT(owner, TRAIT_DIGITIGRADE, REF(src))
 		if(initial(can_be_disabled))
 			if(HAS_TRAIT(owner, TRAIT_NOLIMBDISABLE))
 				set_can_be_disabled(FALSE)
@@ -732,7 +736,15 @@
 		set_disabled(FALSE)
 
 /obj/item/bodypart/proc/set_digitigrade(use_digi = FALSE)
-	return
+	if(use_digitigrade == use_digi)
+		return
+	use_digitigrade = use_digi
+	if(!owner)
+		return
+	if(use_digi)
+		ADD_TRAIT(owner, TRAIT_DIGITIGRADE, REF(src))
+	else
+		REMOVE_TRAIT(owner, TRAIT_DIGITIGRADE, REF(src))
 
 ///Called when TRAIT_PARALYSIS is added to the limb.
 /obj/item/bodypart/proc/on_paralysis_trait_gain(obj/item/bodypart/source)
@@ -824,13 +836,18 @@
 			no_update = TRUE
 		else
 			no_update = FALSE
-
 	if(HAS_TRAIT(C, TRAIT_HUSK) && is_organic_limb())
 		if(ishuman(C))
 			var/mob/living/carbon/human/S = C
 			if(isszlachta(S))
 				return
-		species_id = "husk" //overrides species_id
+		var/datum/species/id_to_species
+		var/species_type = GLOB.species_list[species_id]
+		if(species_type)
+			id_to_species = new species_type()
+		if(id_to_species && !id_to_species.generate_husk_icon)
+			species_id = "husk" //overrides species_id
+			
 		dmg_overlay_type = "" //no damage overlay shown when husked
 		should_draw_gender = FALSE
 		should_draw_greyscale = FALSE
@@ -846,19 +863,34 @@
 		var/datum/species/S = H.dna.species
 		if(!limb_override)
 			species_id = S.limbs_id
+		var/datum/species/id_to_species
+		var/species_type = GLOB.species_list[species_id]
+		if(species_type)
+			id_to_species = new species_type()
+		if(id_to_species && (body_zone in id_to_species.static_part_body_zones))
+			has_static_sprite_part = TRUE
+		else
+			has_static_sprite_part = FALSE
 		species_flags_list = S.species_traits
 
 		if(S.use_skintones)
-			skin_tone = H.skin_tone
+			if(S.forced_skintone)
+				skin_tone = S.forced_skintone
+			else
+				skin_tone = H.skin_tone
 			should_draw_greyscale = TRUE
 		else
 			skin_tone = ""
 
+
 		body_gender = H.gender
-		should_draw_gender = S.sexes
+		if(S.is_dimorphic)
+			should_draw_gender = (FEMALE in S.possible_genders)
+		limb_icon_variant = S.get_icon_variant(H)
+		limb_icon_file = S.limb_icon_file
 		use_damage_color = S.use_damage_color
 
-		if((MUTCOLORS in S.species_traits) || (DYNCOLORS in S.species_traits))
+		if((MUTCOLORS in S.species_traits) && !limb_icon_variant || (DYNCOLORS in S.species_traits))
 			if(S.fixed_mut_color)
 				species_color = S.fixed_mut_color
 			else
@@ -914,6 +946,7 @@
 				. += image('icons/mob/dam_mob.dmi', "[dmg_overlay_type]_[body_zone]_0[burnstate]", -DAMAGE_LAYER, image_dir)
 
 	var/image/limb = image(layer = -BODYPARTS_LAYER, dir = image_dir)
+	var/image/limb_static
 	var/image/aux
 	. += limb
 
@@ -930,8 +963,11 @@
 		return
 
 	var/icon_gender = (body_gender == FEMALE) ? "f" : "m" //gender of the icon, if applicable
-
-	if((body_zone != BODY_ZONE_HEAD && body_zone != BODY_ZONE_CHEST))
+	var/datum/species/id_to_species
+	var/species_type = GLOB.species_list[species_id]
+	if(species_type)
+		id_to_species = new species_type()
+	if(((body_zone != BODY_ZONE_HEAD && body_zone != BODY_ZONE_CHEST )) || (id_to_species && !id_to_species.is_dimorphic))
 		should_draw_gender = FALSE
 
 	if(status == BODYPART_ORGANIC || (status == BODYPART_ROBOTIC && render_like_organic == TRUE)) // So IPC augments can be colorful without disrupting normal BODYPART_ROBOTIC render code.
@@ -940,36 +976,41 @@
 			if(should_draw_gender)
 				limb.icon_state = "[species_id]_[body_zone]_[icon_gender]"
 			else if(use_digitigrade)
-				if("[species_id]" == "polysmorph")
-					limb.icon_state = "pdigitigrade_[use_digitigrade]_[body_zone]"
-				else if("[species_id]" == "preternis")
-					limb.icon_state = "preternis_[use_digitigrade]_[body_zone]"
+				var/squished = owner ? HAS_TRAIT(owner, TRAIT_DIGI_SQUISH) : FALSE
+				if("[species_id]" == SPECIES_POLYSMORPH)
+					limb.icon_state = "pdigitigrade_[squished]_[body_zone]"
+				else if("[species_id]" == SPECIES_PRETERNIS)
+					limb.icon_state = "preternis_[squished]_[body_zone]"
 				else
-					limb.icon_state = "digitigrade_[use_digitigrade]_[body_zone]"
+					limb.icon_state = "digitigrade_[squished]_[body_zone]"
 			else
 				limb.icon_state = "[species_id]_[body_zone]"
 		else
-			limb.icon = 'yogstation/icons/mob/human_parts.dmi' // yogs -- use yogs icon instead of tg, gorilla people
+			limb.icon = limb_icon_file || 'yogstation/icons/mob/human_parts.dmi' // yogs -- use yogs icon instead of tg, gorilla people
 			if(should_draw_gender)
 				limb.icon_state = "[species_id]_[body_zone]_[icon_gender]"
 			else
 				limb.icon_state = "[species_id]_[body_zone]"
-		if(should_draw_yogs) //yogs start
-			limb.icon = 'yogstation/icons/mob/mutant_bodyparts.dmi'
-			if(should_draw_gender)
-				limb.icon_state = "[species_id]_[body_zone]_[icon_gender]"
-			else
-				limb.icon_state = "[species_id]_[body_zone]" //yogs end
+		if(limb_icon_variant)
+			limb.icon_state += "_[limb_icon_variant]"
 		if(aux_zone)
-			aux = image(limb.icon, "[species_id]_[aux_zone]", -aux_layer, image_dir)
+			var/aux_icon_name = "[species_id]_[aux_zone]_[limb_icon_variant]"
+			if(!icon_exists(limb.icon, "[aux_icon_name]"))
+				aux_icon_name = "[species_id]_[aux_zone]"
+			aux = image(limb.icon, aux_icon_name, -aux_layer, image_dir)
 			. += aux
-
+		if(has_static_sprite_part)
+			var/limb_static_icon_name = "[species_id]_[body_zone]_static"
+			if(id_to_species && (limb_icon_variant in id_to_species.get_special_statics()))
+				limb_static_icon_name += "_[limb_icon_variant]"
+			limb_static = image(limb.icon, limb_static_icon_name, limb.layer, limb.dir)
+			. += limb_static
 	else
 		limb.icon = icon
 		if(should_draw_gender)
 			limb.icon_state = "[body_zone]_[icon_gender]"
 		else if(use_digitigrade)
-			limb.icon_state = "digitigrade_[use_digitigrade]_[body_zone]"
+			limb.icon_state = "digitigrade_[owner ? HAS_TRAIT(owner, TRAIT_DIGI_SQUISH) : FALSE]_[body_zone]"
 		else if(body_zone == BODY_ZONE_HEAD || body_zone == BODY_ZONE_CHEST)//default to male for the torso and head if the species is agendered
 			limb.icon_state = "[body_zone]_m"
 		else
@@ -979,13 +1020,35 @@
 			. += aux
 		return
 
-
+	var/draw_color
 	if(should_draw_greyscale)
-		var/draw_color = mutation_color || species_color || (skin_tone && skintone2hex(skin_tone))
-		if(draw_color)
-			limb.color = "[draw_color]"
-			if(aux_zone)
-				aux.color = "[draw_color]"
+		draw_color = mutation_color || species_color || (skin_tone && skintone2hex(skin_tone))
+
+	if(status == BODYPART_ORGANIC || (status == BODYPART_ROBOTIC && render_like_organic == TRUE))
+		if(id_to_species && id_to_species.generate_husk_icon && owner && HAS_TRAIT(owner, TRAIT_HUSK))
+			huskify_image(limb, owner, TRUE, id_to_species)
+			if(aux)
+				huskify_image(aux, owner, TRUE, id_to_species)
+			if(limb_static)
+				huskify_image(limb_static, owner, TRUE, id_to_species)
+			draw_color = id_to_species.husk_color
+
+	if(draw_color)
+		limb.color = "[draw_color]"
+		if(aux_zone)
+			aux.color = "[draw_color]"
+
+/proc/huskify_image(image/thing_to_husk, mob/living/carbon/husked_guy, draw_blood = TRUE, datum/species/passed_species)
+	var/husk_color_mod = rgb(96, 88, 80)
+	var/icon/husk_icon = new(thing_to_husk.icon)
+	husk_icon.ColorTone(husk_color_mod)
+	thing_to_husk.icon = husk_icon
+	var/icon_of_husk = husked_guy?.dna?.species?.icon_husk || passed_species?.icon_husk
+	if(draw_blood)
+		var/mutable_appearance/husk_blood = mutable_appearance(icon_of_husk || 'yogstation/icons/mob/human_parts.dmi', "overlay_[husked_guy?.dna?.species?.id || passed_species?.id]husk", appearance_flags = RESET_COLOR)
+		husk_blood.blend_mode = BLEND_INSET_OVERLAY
+		husk_blood.dir = thing_to_husk.dir
+		thing_to_husk.add_overlay(husk_blood)
 
 /obj/item/bodypart/deconstruct(disassembled = TRUE)
 	drop_organs()

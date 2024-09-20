@@ -82,7 +82,7 @@
 
 /datum/outfit/piratecorpse
 	name = "Pirate Corpse"
-	uniform = /obj/item/clothing/under/pirate
+	uniform = /obj/item/clothing/under/costume/pirate
 	shoes = /obj/item/clothing/shoes/jackboots
 	glasses = /obj/item/clothing/glasses/eyepatch
 	head = /obj/item/clothing/head/pirate/bandana
@@ -106,7 +106,7 @@
 
 /datum/outfit/russiancorpse
 	name = "Russian Corpse"
-	uniform = /obj/item/clothing/under/soviet
+	uniform = /obj/item/clothing/under/costume/soviet
 	shoes = /obj/item/clothing/shoes/jackboots
 	head = /obj/item/clothing/head/bearpelt
 	gloves = /obj/item/clothing/gloves/color/black
@@ -187,7 +187,7 @@
 /obj/effect/mob_spawn/human/corpse/cat_butcher
 	name = "The Cat Surgeon"
 	id_job = "Cat Surgeon"
-	id_access_list = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT)
+	id_access_list = list(ACCESS_RUINS_GENERAL, ACCESS_RUINS_MAINTENANCE)
 	hair_style = "Cut Hair"
 	facial_hair_style = "Watson Mustache"
 	skin_tone = "caucasian1"
@@ -195,7 +195,7 @@
 
 /datum/outfit/cat_butcher
 	name = "Cat Butcher Uniform"
-	uniform = /obj/item/clothing/under/rank/medical/green
+	uniform = /obj/item/clothing/under/rank/medical/doctor/green
 	suit = /obj/item/clothing/suit/apron/surgical
 	shoes = /obj/item/clothing/shoes/sneakers/white
 	gloves = /obj/item/clothing/gloves/color/latex/nitrile

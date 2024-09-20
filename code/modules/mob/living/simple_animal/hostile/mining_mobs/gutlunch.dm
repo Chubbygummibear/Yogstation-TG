@@ -10,7 +10,7 @@
 	speak_emote = list("warbles", "quavers")
 	emote_hear = list("trills.")
 	emote_see = list("sniffs.", "burps.")
-	weather_immunities = list(WEATHER_LAVA, WEATHER_ASH)
+	weather_immunities = ALL
 	faction = list("mining", "ashwalker")
 	density = FALSE
 	speak_chance = 1
@@ -22,7 +22,7 @@
 	response_disarm = "gently pushes aside"
 	response_harm   = "squishes"
 	friendly = "pinches"
-	a_intent = INTENT_HELP
+	combat_mode = FALSE
 	ventcrawler = VENTCRAWLER_ALWAYS
 	gold_core_spawnable = FRIENDLY_SPAWN
 	stat_attack = UNCONSCIOUS

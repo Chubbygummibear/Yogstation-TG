@@ -303,6 +303,7 @@ GLOBAL_LIST_INIT(atmos_adjacent_savings, list(0,0))
 #define LAVALAND_DEFAULT_ATMOS "o2=14;n2=23;TEMP=300"
 #define ICEMOON_DEFAULT_ATMOS "o2=14;n2=23;TEMP=180"
 #define JUNGLELAND_DEFAULT_ATMOS "o2=44;n2=164;TEMP=300" //yogs edit
+#define OCEAN_DEFAULT_ATMOS "o2=10;co2=10;TEMP=293.15"
 
 //ATMOSIA GAS MONITOR TAGS
 #define ATMOS_GAS_MONITOR_INPUT_O2 "o2_in"
@@ -475,7 +476,7 @@ DEFINE_BITFIELD(vent_movement, list(
 #define GAS_H2O "water_vapor"
 #define GAS_HYPERNOB "hypernob"
 #define GAS_NITROUS "n2o"
-#define GAS_NITRIUM "no2"
+#define GAS_NITRIUM "nitrium"
 #define GAS_TRITIUM "tritium"
 #define GAS_BZ "bz"
 #define GAS_PLUOXIUM "pluox"

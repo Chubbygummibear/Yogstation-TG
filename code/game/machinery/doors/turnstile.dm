@@ -5,7 +5,6 @@
 	icon_state = "turnstile_map"
 	power_channel = AREA_USAGE_ENVIRON
 	density = TRUE
-	obj_integrity = 250
 	max_integrity = 250
 	//Robust! It'll be tough to break...
 	armor = list(MELEE = 50, BULLET = 20, LASER = 0, ENERGY = 80, BOMB = 10, BIO = 100, RAD = 100, FIRE = 90, ACID = 50)
@@ -18,7 +17,7 @@
 /obj/machinery/turnstile/brig
 	name = "Brig turnstile"
 	//Seccies and brig phys may always pass, either way.
-	req_one_access = list(ACCESS_SEC_DOORS)
+	req_access = list(ACCESS_SEC_BASIC)
 	max_integrity = 400 /// Made of damn good steel
 	damage_deflection = 21 /// Same as airlocks!
 

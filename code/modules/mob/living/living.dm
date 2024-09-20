@@ -11,6 +11,8 @@
 	GLOB.mob_living_list += src
 	if(startDead)
 		death(FALSE)
+	if(!voice_type)
+		voice_type = pick(voice_type2sound) //yogs edit (stolen from monke)
 
 /mob/living/prepare_huds()
 	..()
@@ -42,6 +44,7 @@
 	return ..()
 
 /mob/living/proc/ZImpactDamage(turf/T, levels)
+	SEND_SIGNAL(T, COMSIG_TURF_MOB_FALL, src)
 	visible_message(span_danger("[src] crashes into [T] with a sickening noise!"))
 	adjustBruteLoss((levels * 5) ** 1.5)
 	Knockdown(levels * 50)
@@ -73,7 +76,7 @@
 	last_bumped = world.time
 
 //Called when we bump onto a mob
-/mob/living/proc/MobBump(mob/M)
+/mob/living/proc/MobBump(mob/living/M)
 	//Even if we don't push/swap places, we "touched" them, so spread fire
 	spreadFire(M)
 
@@ -119,13 +122,13 @@
 			if(!too_strong)
 				mob_swap = TRUE
 		else
-			//You can swap with the person you are dragging on grab intent, and restrained people in most cases
-			if(M.pulledby == src && a_intent == INTENT_GRAB && !too_strong)
+			//You can swap with the person you are dragging, and restrained people in most cases
+			if(M.pulledby == src && !too_strong)
 				mob_swap = TRUE
 			else if(
 				!(HAS_TRAIT(M, TRAIT_NOMOBSWAP) || HAS_TRAIT(src, TRAIT_NOMOBSWAP))&&\
-				((M.restrained() && !too_strong) || M.a_intent == INTENT_HELP) &&\
-				(restrained() || a_intent == INTENT_HELP)
+				((M.restrained() && !too_strong) || !M.combat_mode) &&\
+				(restrained() || !combat_mode)
 			)
 				mob_swap = TRUE
 		if(mob_swap)
@@ -165,17 +168,18 @@
 		var/mob/living/L = M
 		if(HAS_TRAIT(L, TRAIT_PUSHIMMUNE))
 			return TRUE
-	//If they're a human, and they're not in help intent, block pushing
-	if(ishuman(M) && (M.a_intent != INTENT_HELP))
+	//If they're a human, and they're in combat mode, block pushing
+	if(ishuman(M) && M.combat_mode)
 		return TRUE
 	//anti-riot equipment is also anti-push
 	for(var/obj/item/I in M.held_items)
-		if(!istype(M, /obj/item/clothing))
-			if(prob(I.block_chance*2))
-				return
+		var/datum/component/blocking/block_component = I.GetComponent(/datum/component/blocking)
+		if(!block_component) // can't use signals for this or it'll trip stuff like reactive armor
+			continue
+		if(block_component.blocking && block_component.can_block(M, src, 0, UNARMED_ATTACK))
+			return TRUE
 
 /mob/living/get_photo_description(obj/item/camera/camera)
-	var/list/mob_details = list()
 	var/list/holding = list()
 	var/len = length(held_items)
 	if(len)
@@ -183,12 +187,10 @@
 			if(!holding.len)
 				holding += "They are holding \a [I]"
 			else if(held_items.Find(I) == len)
-				holding += ", and \a [I]."
+				holding += ", and \a [I]"
 			else
 				holding += ", \a [I]"
-	holding += "."
-	mob_details += "You can also see [src] on the photo[health < (maxHealth * 0.75) ? ", looking a bit hurt":""][holding ? ". [holding.Join("")]":"."]."
-	return mob_details.Join("")
+	return "You can also see [src] on the photo[health < (maxHealth * 0.75) ? ", looking a bit hurt":""][holding.len ? ". [holding.Join("")].":"."]"
 
 //Called when we bump onto an obj
 /mob/living/proc/ObjBump(obj/O)
@@ -237,6 +239,8 @@
 	if(!(AM.can_be_pulled(src, state, force)))
 		return FALSE
 	if(throwing || !(mobility_flags & MOBILITY_PULL))
+		return FALSE
+	if(SEND_SIGNAL(src, COMSIG_MOB_PULL, AM, state, force) & COMPONENT_BLOCK_PULL)
 		return FALSE
 
 	AM.add_fingerprint(src)
@@ -346,7 +350,7 @@
 
 	if(istype(AM) && Adjacent(AM))
 		start_pulling(AM)
-	else
+	else if(!combat_mode)
 		stop_pulling()
 
 /mob/living/stop_pulling()
@@ -375,7 +379,7 @@
 	visible_message("<b>[src]</b> points at [A].", span_notice("You point at [A]."))
 	return TRUE
 
-/mob/living/verb/succumb(whispered as null)
+/mob/living/verb/succumb(whispered as num|null)
 	set hidden = TRUE
 	if (InCritical())
 		log_message("Has [whispered ? "whispered his final words" : "succumbed to death"] while in [InFullCritical() ? "hard":"soft"] critical with [round(health, 0.1)] points of health!", LOG_ATTACK)
@@ -629,6 +633,21 @@
 		cure_fakedeath()
 	SEND_SIGNAL(src, COMSIG_LIVING_POST_FULLY_HEAL)
 
+/mob/living/proc/do_strange_reagent_revival()
+	if(iscarbon(src))
+		var/mob/living/carbon/C = src
+		for(var/organ in C.internal_organs)
+			var/obj/item/organ/O = organ
+			O.setOrganDamage(0)
+	adjustBruteLoss(-100)
+	adjustFireLoss(-100)
+	adjustOxyLoss(-200, 0)
+	adjustToxLoss(-200, 0, TRUE)
+	updatehealth()
+	if(revive())
+		emote("gasp")
+		log_combat(src, src, "revived", src)
+
 //proc called by revive(), to check if we can actually ressuscitate the mob (we don't want to revive him and have him instantly die again)
 /mob/living/proc/can_be_revived()
 	. = 1
@@ -719,6 +738,8 @@
 	return bleed_amount
 
 /mob/living/proc/getTrail()
+	if(is_synth(src))
+		return
 	if(getBruteLoss() < 300)
 		return pick("ltrails_1", "ltrails_2")
 	else
@@ -879,11 +900,6 @@
 				if(what.doStrip(src, who))
 					log_combat(src, who, "stripped [what] off")
 
-	if(Adjacent(who)) //update inventory window
-		who.show_inv(src)
-	else
-		src << browse(null,"window=mob[REF(who)]")
-
 // The src mob is trying to place an item on someone
 // Override if a certain mob should be behave differently when placing items (can't, for example)
 /mob/living/stripPanelEquip(obj/item/what, mob/who, where)
@@ -914,11 +930,6 @@
 							what.forceMove(get_turf(who))
 					else
 						who.equip_to_slot(what, where, TRUE)
-
-		if(Adjacent(who)) //update inventory window
-			who.show_inv(src)
-		else
-			src << browse(null,"window=mob[REF(who)]")
 
 /mob/living/singularity_pull(S, current_size)
 	..()
@@ -1035,14 +1046,14 @@
 /mob/living/proc/give()
 	return
 
-/mob/living/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE)
+/mob/living/canUseTopic(atom/movable/M, be_close=FALSE, no_dexterity=FALSE, no_tk=FALSE)
 	if(incapacitated())
 		to_chat(src, span_warning("You can't do that right now!"))
 		return FALSE
 	if(be_close && !in_range(M, src))
 		to_chat(src, span_warning("You are too far away!"))
 		return FALSE
-	if(!no_dextery)
+	if(!no_dexterity)
 		to_chat(src, span_warning("You don't have the dexterity to do this!"))
 		return FALSE
 	return TRUE
@@ -1201,7 +1212,7 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 	var/datum/status_effect/fire_handler/fire_handler = has_status_effect(/datum/status_effect/fire_handler)
 	if(fire_handler)
 		fire_handler.update_overlay()
-		
+
 /**
  * Extinguish all fire on the mob
  *
@@ -1382,10 +1393,15 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 		mobility_flags |= MOBILITY_STAND
 		lying = 0
 
-	if(should_be_lying || restrained || incapacitated())
-		mobility_flags &= ~(MOBILITY_UI|MOBILITY_PULL)
+	if(restrained || incapacitated())
+		mobility_flags &= ~MOBILITY_UI
 	else
-		mobility_flags |= MOBILITY_UI|MOBILITY_PULL
+		mobility_flags |= MOBILITY_UI
+
+	if(should_be_lying || restrained || incapacitated())
+		mobility_flags &= ~MOBILITY_PULL
+	else
+		mobility_flags |= MOBILITY_PULL
 
 	SEND_SIGNAL(src, COMSIG_LIVING_SET_BODY_POSITION, mobility_flags, .) //REMOVE THIS WHEN LAYING DOWN GETS PORTED
 
@@ -1584,8 +1600,7 @@ GLOBAL_LIST_EMPTY(fire_appearances)
         /datum/antagonist/cult,
         /datum/antagonist/darkspawn,
         /datum/antagonist/rev,
-        /datum/antagonist/shadowling,
-        /datum/antagonist/veil
+        /datum/antagonist/thrall,
     )
     for(var/antagcheck in bad_antags)
         if(mind?.has_antag_datum(antagcheck))
@@ -1595,6 +1610,10 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 /// Only defined for carbons who can wear masks and helmets, we just assume other mobs have visible faces
 /mob/living/proc/is_face_visible()
 	return isturf(loc) // Yogs -- forbids making eye contact with things hidden within objects
+
+/// Sprite to show for photocopying mob butts
+/mob/living/proc/get_butt_sprite()
+	return null
 
 /mob/living/carbon/proc/set_handcuffed(new_value)
 	if(handcuffed == new_value)
@@ -1691,7 +1710,7 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 //	if(!resting)
 //		get_up()
 	set_resting(FALSE)
-	
+
 /mob/living/proc/move_to_error_room()
 	var/obj/effect/landmark/error/error_landmark = locate(/obj/effect/landmark/error) in GLOB.landmarks_list
 	if(error_landmark)
@@ -1703,3 +1722,22 @@ GLOBAL_LIST_EMPTY(fire_appearances)
 		var/ERROR_ERROR_LANDMARK_ERROR = "ERROR-ERROR: ERROR landmark missing!"
 		log_mapping(ERROR_ERROR_LANDMARK_ERROR)
 		CRASH(ERROR_ERROR_LANDMARK_ERROR)
+
+//plays a short clipping animation then send the mob into the backrooms
+/mob/living/proc/clip_into_backrooms()
+	playsound(get_turf(src), 'yogstation/sound/effects/backrooms_clipping.ogg', 80, FALSE)
+	set_resting(FALSE)
+	Immobilize(1.9 SECONDS, TRUE, TRUE)
+	var/x_diff = 4
+	var/y_diff = 1
+	var/rotation = 40
+	if(prob(50))
+		rotation *= -1
+	animate(src, pixel_x = x_diff, pixel_y = y_diff, time = 0.5, transform = matrix(rotation + x_diff, MATRIX_ROTATE), loop = 18, flags = ANIMATION_RELATIVE|ANIMATION_PARALLEL)
+	animate(pixel_x = -x_diff , pixel_y = -y_diff, transform = matrix(rotation - x_diff, MATRIX_ROTATE), time = 0.5, flags = ANIMATION_RELATIVE)
+	sleep(1.8 SECONDS)
+	pixel_x = 0
+	pixel_y = 0
+	set_resting(FALSE)
+	transform = matrix()
+	sendToBackrooms()

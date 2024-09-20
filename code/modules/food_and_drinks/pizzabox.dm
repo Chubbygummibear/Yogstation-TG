@@ -9,7 +9,7 @@
 /obj/item/pizzabox
 	name = "pizza box"
 	desc = "A box suited for pizzas."
-	icon = 'yogstation/icons/obj/food/containers.dmi'
+	icon = 'icons/obj/food/containers.dmi'
 	icon_state = "pizzabox"
 	item_state = "pizzabox"
 	lefthand_file = 'icons/mob/inhands/misc/food_lefthand.dmi'
@@ -93,8 +93,8 @@
 			tag_overlay.pixel_y = boxes.len * 3
 			. += tag_overlay
 
-/obj/item/pizzabox/worn_overlays(isinhands, icon_file)
-	. = list()
+/obj/item/pizzabox/worn_overlays(mutable_appearance/standing, isinhands = FALSE, icon_file)
+	. = ..()
 	var/current_offset = 2
 	if(isinhands)
 		for(var/V in boxes) //add EXTRA BOX per box

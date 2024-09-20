@@ -85,6 +85,36 @@
 #define ALL_NON_ROBOTIC (MOB_ORGANIC|MOB_INORGANIC|MOB_UNDEAD)
 #define ALL_BIOTYPES (MOB_ORGANIC|MOB_INORGANIC|MOB_ROBOTIC|MOB_UNDEAD)
 
+// Defines for Species IDs. Used to refer to the name of a species, for things like bodypart names or species preferences.
+#define SPECIES_ABDUCTOR "abductor"
+#define SPECIES_DULLAHAN "dullahan"
+#define SPECIES_ETHEREAL "ethereal"
+#define SPECIES_FELINE "felinid"
+#define SPECIES_FLYPERSON "fly"
+#define SPECIES_HUMAN "human"
+
+#define SPECIES_JELLYPERSON "jelly"
+#define SPECIES_SLIMEPERSON "slime"
+#define SPECIES_LUMINESCENT "lum" //for some reason it's just lum in our codebase and i don't want to break stuff by changing it
+#define SPECIES_STARGAZER "stargazer"
+#define SPECIES_LIZARD "lizard"
+#define SPECIES_LIZARD_ASH "ashlizard"
+#define SPECIES_LIZARD_ASH_SHAMAN "ashlizardshaman"
+#define SPECIES_LIZARD_DRACONID "draconid"
+
+#define SPECIES_NIGHTMARE "nightmare"
+#define SPECIES_MOTH "moth"
+#define SPECIES_MUSHROOM "mush"
+#define SPECIES_PLASMAMAN "plasmaman"
+#define SPECIES_PODPERSON "pod"
+#define SPECIES_SHADOW "shadow"
+#define SPECIES_SKELETON "skeleton"
+#define SPECIES_SNAIL "snail"
+#define SPECIES_VAMPIRE "vampire"
+#define SPECIES_ZOMBIE "zombie"
+#define SPECIES_ZOMBIE_INFECTIOUS "memezombie"
+#define SPECIES_ZOMBIE_KROKODIL "krokodil_zombie"
+
 //Organ defines for carbon mobs
 #define ORGAN_ORGANIC   1
 #define ORGAN_ROBOTIC   2
@@ -281,7 +311,10 @@
 
 #define MEGAFAUNA_DEFAULT_RECOVERY_TIME 5
 
-#define SHADOW_SPECIES_LIGHT_THRESHOLD 0.2
+#define SHADOW_SPECIES_DIM_LIGHT 0.2 //light of this intensity suppresses healing and causes very slow burn damage
+#define SHADOW_SPECIES_BRIGHT_LIGHT 0.6 //light of this intensity causes rapid burn damage (high number because movable lights are weird)
+//so the problem is that movable lights ALWAYS have a luminosity of 0.5, regardless of power or distance, so even at the edge of the overlay they still do damage
+//at 0.6 being bright they'll still do damage and disable some abilities, but it won't be weaponized
 
 // Offsets defines
 
@@ -307,12 +340,19 @@
 #define WIZARD_AGE_MIN		30	//youngest a wizard can be
 #define APPRENTICE_AGE_MIN	29	//youngest an apprentice can be
 #define SHOES_SLOWDOWN		0	//How much shoes slow you down by default. Negative values speed you up
-#define POCKET_STRIP_DELAY			40	//time taken (in deciseconds) to search somebody's pockets
+#define POCKET_STRIP_DELAY	(4 SECONDS) //time taken to search somebody's pockets
 #define DOOR_CRUSH_DAMAGE	15	//the amount of damage that airlocks deal when they crush you
 
 #define	HUNGER_FACTOR		0.1	//factor at which mob nutrition decreases
 #define	REAGENTS_METABOLISM 0.4	//How many units of reagent are consumed per tick, by default.
 #define REAGENTS_EFFECT_MULTIPLIER (REAGENTS_METABOLISM / 0.4)	// By defining the effect multiplier this way, it'll exactly adjust all effects according to how they originally were with the 0.4 metabolism
+
+// Eye protection
+#define FLASH_PROTECTION_HYPER_SENSITIVE -2
+#define FLASH_PROTECTION_SENSITIVE -1
+#define FLASH_PROTECTION_NONE 0
+#define FLASH_PROTECTION_FLASH 1
+#define FLASH_PROTECTION_WELDER 2
 
 // Roundstart trait system
 
@@ -392,3 +432,39 @@
 
 /// Possible value of [/atom/movable/buckle_lying]. If set to a different (positive-or-zero) value than this, the buckling thing will force a lying angle on the buckled.
 #define NO_BUCKLE_LYING -1
+
+/// Squashing will not occur if the mob is not lying down (bodyposition is LYING_DOWN)
+#define SQUASHED_SHOULD_BE_DOWN (1<<0)
+/// If present, outright gibs the squashed mob instead of just dealing damage
+#define SQUASHED_SHOULD_BE_GIBBED (1<<1)
+/// If squashing always passes if the mob is dead
+#define SQUASHED_ALWAYS_IF_DEAD (1<<2)
+/// Don't squash our mob if its not located in a turf
+#define SQUASHED_DONT_SQUASH_IN_CONTENTS (1<<3)
+
+// Bitflags for mob dismemberment and gibbing
+/// Mobs will drop a brain
+#define DROP_BRAIN (1<<0)
+/// Mobs will drop organs
+#define DROP_ORGANS (1<<1)
+/// Mobs will drop bodyparts (arms, legs, etc.)
+#define DROP_BODYPARTS (1<<2)
+/// Mobs will drop items
+#define DROP_ITEMS (1<<3)
+
+/// Mobs will drop everything
+#define DROP_ALL_REMAINS (DROP_BRAIN | DROP_ORGANS | DROP_BODYPARTS | DROP_ITEMS)
+
+// Sprites for photocopying butts
+#define BUTT_SPRITE_HUMAN_MALE "human_male"
+#define BUTT_SPRITE_HUMAN_FEMALE "human_female"
+#define BUTT_SPRITE_LIZARD "lizard"
+#define BUTT_SPRITE_QR_CODE "qr_code"
+#define BUTT_SPRITE_XENOMORPH "xeno"
+#define BUTT_SPRITE_DRONE "drone"
+#define BUTT_SPRITE_CAT "cat"
+#define BUTT_SPRITE_FLOWERPOT "flowerpot"
+#define BUTT_SPRITE_GREY "grey"
+#define BUTT_SPRITE_PLASMA "plasma"
+#define BUTT_SPRITE_FUZZY "fuzzy"
+#define BUTT_SPRITE_SLIME "slime"

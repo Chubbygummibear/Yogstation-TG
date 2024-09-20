@@ -14,7 +14,7 @@
 /obj/item/borg/stun/attack(mob/living/M, mob/living/user)
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		if(H.check_shields(src, 0, "[M]'s [name]", MELEE_ATTACK))
+		if(H.check_shields(src, 0, "[M]'s [name]", MELEE_ATTACK, 0, STAMINA))
 			playsound(M, 'sound/weapons/genhit.ogg', 50, 1)
 			return FALSE
 	if(iscyborg(user))
@@ -51,7 +51,7 @@
 
 	playsound(loc, 'sound/weapons/egloves.ogg', 50, 1, -1)
 
-	log_combat(user, M, "stunned", src, "(INTENT: [uppertext(user.a_intent)])")
+	log_combat(user, M, "stunned", src, "(COMBAT MODE: [user.combat_mode ? "ON" : "OFF"])")
 
 /obj/item/borg/cyborghug
 	name = "hugging module"
@@ -85,7 +85,7 @@
 		if(3)
 			to_chat(user, "ERROR: ARM ACTUATORS OVERLOADED.")
 
-/obj/item/borg/cyborghug/attack(mob/living/M, mob/living/silicon/robot/user)
+/obj/item/borg/cyborghug/attack(mob/living/M, mob/living/silicon/robot/user, params)
 	if(M == user)
 		return
 	switch(mode)
@@ -373,8 +373,7 @@
 		/obj/item/reagent_containers/food/snacks/cookie/bacon,
 		/obj/item/reagent_containers/food/snacks/cookie/cloth,
 		/obj/item/reagent_containers/food/snacks/lollipop,
-		/obj/item/reagent_containers/food/snacks/gumball,
-		/obj/item/reagent_containers/food/snacks/icecream // Becomes vanilla icecream down the line.
+		/obj/item/reagent_containers/food/snacks/gumball
 	)
 	// A list of surfaces that we are allowed to place things on.
 	var/list/allowed_surfaces = list(/obj/structure/table, /turf/open/floor)
@@ -398,10 +397,7 @@
 /obj/item/borg_snack_dispenser/attack_self(mob/user, modifiers)
 	var/list/choices = list()
 	for(var/atom/snack as anything in valid_snacks)
-		if(snack == /obj/item/reagent_containers/food/snacks/icecream)
-			choices["vanilla icecream"] = snack // Would be "ice cream cone" in the menu otherwise.
-		else
-			choices[initial(snack.name)] = snack
+		choices[initial(snack.name)] = snack
 	if(!length(choices))
 		to_chat(user, span_warning("No valid snacks in database."))
 	if(length(choices) == 1)
@@ -441,13 +437,6 @@
 	patron.put_in_hand(snack, empty_hand)
 	user.do_item_attack_animation(patron, null, snack)
 	playsound(loc, 'sound/machines/click.ogg', 10, TRUE)
-
-	// Vanilla Icecream & Setting 'snack.name' Early
-	if(istype(snack, /obj/item/reagent_containers/food/snacks/icecream))
-		var/obj/item/reagent_containers/food/snacks/icecream/icecream = snack
-		icecream.add_ice_cream("vanilla")
-		icecream.desc = "Eat the ice cream."
-		
 	to_chat(patron, span_notice("[user] dispenses a [snack.name] into your empty hand and you reflexively grasp it."))
 	to_chat(user, span_notice("You dispense a [snack.name] into the hand of [patron]."))
 
@@ -479,20 +468,12 @@
 			RegisterSignal(snack, COMSIG_MOVABLE_THROW_LANDED, PROC_REF(post_throw))
 		snack.throw_at(target, 7, 2, user, TRUE, FALSE)
 		playsound(loc, 'sound/machines/click.ogg', 10, TRUE)
-		if(istype(snack, /obj/item/reagent_containers/food/snacks/icecream))
-			var/obj/item/reagent_containers/food/snacks/icecream/icecream = snack
-			icecream.add_ice_cream("vanilla")
-			icecream.desc = "Eat the ice cream."
 		user.visible_message(span_notice("[src] launches a [snack.name] at [target]!"))
 		user.newtonian_move(get_dir(target, user)) // For no gravity.
 	else if(user.Adjacent(target) && is_allowed(target, user))
 		COOLDOWN_START(src, last_snack_disp, cooldown)
 		snack = new selected_snack(get_turf(target))
 		playsound(loc, 'sound/machines/click.ogg', 10, TRUE)
-		if(istype(snack, /obj/item/reagent_containers/food/snacks/icecream))
-			var/obj/item/reagent_containers/food/snacks/icecream/icecream = snack
-			icecream.add_ice_cream("vanilla")
-			icecream.desc = "Eat the ice cream."
 		user.visible_message(span_notice("[user] dispenses a [snack.name]."))
 
 	if(snack && user.emagged && istype(snack, /obj/item/reagent_containers/food/snacks/cookie))
@@ -517,7 +498,7 @@
 /obj/item/borg_snack_dispenser/medical
 	name = "\improper Treat Borg Snack Dispenser" // Not calling this "Medical Borg Snack Dispenser" since Service & Clown Cyborgs use this too.
 	desc = "A dispenser that dispenses treats such as lollipops and gumballs!"
-	valid_snacks = list(/obj/item/reagent_containers/food/snacks/lollipop, /obj/item/reagent_containers/food/snacks/gumball, /obj/item/reagent_containers/food/snacks/icecream)
+	valid_snacks = list(/obj/item/reagent_containers/food/snacks/lollipop, /obj/item/reagent_containers/food/snacks/gumball)
 
 #define PKBORG_DAMPEN_CYCLE_DELAY 20
 
@@ -977,3 +958,147 @@
 		/obj/item/kitchen/knife/ritual
 	)
 
+#define NO_TOOL "deactivated"
+
+// Bare minimum omni-toolset for modularity.
+/obj/item/borg/cyborg_omnitool
+	name = "cyborg omni-toolset"
+	desc = "You shouldn't see this in-game normally."
+	icon = 'icons/mob/robot_items.dmi'
+	icon_state = "toolkit_medborg"
+	toolspeed = 1
+	/// Items that can be selected.
+	var/list/radial_menu_options = list()
+	/// Currently selected item.
+	var/obj/item/reference
+	/// Is the toolset upgraded or not?
+	var/upgraded = FALSE
+	/// Can it initiate surgeries?
+	var/can_initiate_surgery = FALSE
+
+/obj/item/borg/cyborg_omnitool/Initialize(mapload)
+	. = ..()
+	radial_menu_options = list(
+		NO_TOOL = image(icon = 'icons/mob/robot_items.dmi', icon_state = initial(icon_state)),
+		TOOL_SCALPEL = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_SCALPEL]"),
+	)
+
+/obj/item/borg/cyborg_omnitool/attack(mob/living/M, mob/user)
+	if(!can_initiate_surgery || !attempt_initiate_surgery(src, M, user))
+		..()
+
+/obj/item/borg/cyborg_omnitool/attack_self(mob/user)
+	var/new_tool_behaviour = show_radial_menu(user, src, radial_menu_options, require_near = TRUE, tooltips = TRUE)
+
+	if(isnull(new_tool_behaviour) || new_tool_behaviour == tool_behaviour)
+		return
+	if(new_tool_behaviour == NO_TOOL)
+		tool_behaviour = null
+	else
+		tool_behaviour = new_tool_behaviour
+
+	reference_item_for_parameters()
+	update_tool_parameters(reference)
+	update_appearance(UPDATE_ICON_STATE)
+	playsound(src, 'sound/items/change_jaws.ogg', 50, TRUE)
+
+/// Used to get reference item for the tools
+/obj/item/borg/cyborg_omnitool/proc/reference_item_for_parameters()
+	switch(tool_behaviour)
+		if(TOOL_SCALPEL)
+			reference = /obj/item/scalpel
+
+/// Used to update sounds and tool parameters during switching
+/obj/item/borg/cyborg_omnitool/proc/update_tool_parameters(/obj/item/reference)
+	if(isnull(reference))
+		sharpness = NONE
+		force = initial(force)
+		wound_bonus = initial(wound_bonus)
+		bare_wound_bonus = initial(bare_wound_bonus)
+		demolition_mod = initial(demolition_mod)
+		hitsound = initial(hitsound)
+		usesound = initial(usesound)
+	else
+		force = initial(reference.force)
+		sharpness = initial(reference.sharpness)
+		wound_bonus = initial(reference.wound_bonus)
+		bare_wound_bonus = initial(reference.bare_wound_bonus)
+		demolition_mod = initial(reference.demolition_mod)
+		hitsound = initial(reference.hitsound)
+		usesound = initial(reference.usesound)
+
+/obj/item/borg/cyborg_omnitool/update_icon_state()
+	icon_state = initial(icon_state)
+
+	if(tool_behaviour)
+		icon_state += "_[sanitize_css_class_name(tool_behaviour)]"
+
+	if(tool_behaviour)
+		item_state = initial(item_state) + "_deactivated"
+	else
+		item_state = initial(item_state)
+
+	return ..()
+
+/obj/item/borg/cyborg_omnitool/proc/upgrade_omnitool()
+	name = "advanced [name]"
+	desc += "\nIt seems that this one has been upgraded to perform tasks faster."
+	toolspeed = 0.7
+	upgraded = TRUE
+	tool_behaviour = null
+	reference_item_for_parameters()
+	update_tool_parameters(reference)
+	update_appearance(UPDATE_ICON_STATE)
+	playsound(src, 'sound/items/change_jaws.ogg', 50, TRUE)
+
+/obj/item/borg/cyborg_omnitool/proc/downgrade_omnitool()
+	name = initial(name)
+	desc = initial(desc)
+	toolspeed = initial(toolspeed)
+	upgraded = FALSE
+	tool_behaviour = null
+	reference_item_for_parameters()
+	update_tool_parameters(reference)
+	update_appearance(UPDATE_ICON_STATE)
+	playsound(src, 'sound/items/change_jaws.ogg', 50, TRUE)
+
+/obj/item/borg/cyborg_omnitool/medical
+	name = "surgical omni-toolset"
+	desc = "A set of surgical tools used by cyborgs to perform various surgical operations."
+
+/obj/item/borg/cyborg_omnitool/medical/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/butchering, 80 * toolspeed, 100, 0)
+
+	radial_menu_options = list(
+		TOOL_SCALPEL = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_SCALPEL]"),
+		TOOL_HEMOSTAT = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_HEMOSTAT]"),
+		TOOL_RETRACTOR = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_RETRACTOR]"),
+		TOOL_SAW = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_SAW]"),
+		TOOL_DRILL = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_DRILL]"),
+		TOOL_CAUTERY = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_CAUTERY]"),
+		TOOL_BONESET = image(icon = 'icons/obj/surgery.dmi', icon_state = "[TOOL_BONESET]")
+	)
+
+/obj/item/borg/cyborg_omnitool/medical/reference_item_for_parameters()
+	var/datum/component/butchering/butchering = src.GetComponent(/datum/component/butchering)
+	butchering.butchering_enabled = (tool_behaviour == TOOL_SCALPEL || tool_behaviour == TOOL_SAW)
+	can_initiate_surgery = TRUE // Given that all of listed items here can initiate surgery by themselves, it makes sense to do the same here.
+	item_flags = SURGICAL_TOOL
+	switch(tool_behaviour)
+		if(TOOL_SCALPEL)
+			reference = /obj/item/scalpel
+		if(TOOL_DRILL)
+			reference = /obj/item/surgicaldrill
+		if(TOOL_HEMOSTAT)
+			reference = /obj/item/hemostat
+		if(TOOL_RETRACTOR)
+			reference = /obj/item/retractor
+		if(TOOL_CAUTERY)
+			reference = /obj/item/cautery
+		if(TOOL_SAW)
+			reference = /obj/item/circular_saw
+		if(TOOL_BONESET)
+			reference = /obj/item/bonesetter
+
+#undef NO_TOOL

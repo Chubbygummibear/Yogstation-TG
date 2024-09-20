@@ -93,8 +93,9 @@
 /turf/open/floor/plating/ashplanet/wateryrock
 	gender = PLURAL
 	name = "wet rocky ground"
-	icon_state = "watery_rock"
-	base_icon_state = "watery_rock"
+	icon = 'icons/turf/mining.dmi'
+	icon_state = "wateryrock"
+	base_icon_state = null
 	smoothing_flags = NONE
 	slowdown = 2
 	footstep = FOOTSTEP_FLOOR
@@ -103,7 +104,7 @@
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
 
 /turf/open/floor/plating/ashplanet/wateryrock/Initialize(mapload)
-	icon_state = "[base_icon_state][rand(1, 9)]"
+	icon_state = "[icon_state][rand(1, 9)]"
 	return ..()
 
 /turf/open/floor/plating/beach
@@ -224,7 +225,8 @@
 
 /turf/open/floor/plating/ice/icemoon/top_layer
 	light_range = 2
-	light_power = 0.1
+	light_power = NIGHT_TURF_BRIGHTNESS
+	light_color = COLOR_STARLIGHT
 
 /turf/open/floor/plating/snowed
 	name = "snowed-over plating"

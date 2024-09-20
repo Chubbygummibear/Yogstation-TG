@@ -349,7 +349,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 					addtimer(CALLBACK(target, TYPE_PROC_REF(/mob, playsound_local), source, 'sound/weapons/effects/searwall.ogg', 25, 1), rand(5,10))
 				sleep(rand(CLICK_CD_RANGE, CLICK_CD_RANGE + 6))
 				if(hits >= 4 && prob(70))
-					target.playsound_local(source, get_sfx("bodyfall"), 25, 1)
+					target.playsound_local(source, get_sfx(SFX_BODYFALL), 25, 1)
 					break
 		if("disabler")
 			var/hits = 0
@@ -362,14 +362,14 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 					addtimer(CALLBACK(target, TYPE_PROC_REF(/mob, playsound_local), source, 'sound/weapons/effects/searwall.ogg', 25, 1), rand(5,10))
 				sleep(rand(CLICK_CD_RANGE, CLICK_CD_RANGE + 6))
 				if(hits >= 3 && prob(70))
-					target.playsound_local(source, get_sfx("bodyfall"), 25, 1)
+					target.playsound_local(source, get_sfx(SFX_BODYFALL), 25, 1)
 					break
 		if("esword")
 			target.playsound_local(source, 'sound/weapons/saberon.ogg',15, 1)
 			for(var/i in 1 to rand(4, 8))
 				target.playsound_local(source, 'sound/weapons/blade1.ogg', 50, 1)
 				if(i == 4)
-					target.playsound_local(source, get_sfx("bodyfall"), 25, 1)
+					target.playsound_local(source, get_sfx(SFX_BODYFALL), 25, 1)
 				sleep(rand(CLICK_CD_MELEE, CLICK_CD_MELEE + 6))
 			target.playsound_local(source, 'sound/weapons/saberoff.ogg', 15, 1)
 		if("gun")
@@ -383,16 +383,16 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 					addtimer(CALLBACK(target, TYPE_PROC_REF(/mob, playsound_local), source, "ricochet", 25, 1), rand(5,10))
 				sleep(rand(CLICK_CD_RANGE, CLICK_CD_RANGE + 6))
 				if(hits >= 2 && prob(80))
-					target.playsound_local(source, get_sfx("bodyfall"), 25, 1)
+					target.playsound_local(source, get_sfx(SFX_BODYFALL), 25, 1)
 					break
 		if("stunprod") //Stunprod + cablecuff
 			target.playsound_local(source, 'sound/weapons/egloves.ogg', 40, 1)
-			target.playsound_local(source, get_sfx("bodyfall"), 25, 1)
+			target.playsound_local(source, get_sfx(SFX_BODYFALL), 25, 1)
 			sleep(2 SECONDS)
 			target.playsound_local(source, 'sound/weapons/cablecuff.ogg', 15, 1)
 		if("harmbaton") //zap n slap
 			target.playsound_local(source, 'sound/weapons/egloves.ogg', 40, 1)
-			target.playsound_local(source, get_sfx("bodyfall"), 25, 1)
+			target.playsound_local(source, get_sfx(SFX_BODYFALL), 25, 1)
 			sleep(2 SECONDS)
 			for(var/i in 1 to rand(5, 12))
 				target.playsound_local(source, "swing_hit", 50, 1)
@@ -1104,13 +1104,19 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 /obj/effect/hallucination/danger/lava
 	name = "lava"
 
+/obj/effect/hallucination/danger/lava/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 /obj/effect/hallucination/danger/lava/show_icon()
 	image = image('icons/turf/floors/lava.dmi',src,"smooth",TURF_LAYER)
 	if(target.client)
 		target.client.images += image
 
-/obj/effect/hallucination/danger/lava/Crossed(atom/movable/AM)
-	. = ..()
+/obj/effect/hallucination/danger/lava/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(AM == target)
 		target.adjustStaminaLoss(20)
 		new /datum/hallucination/fire(target)
@@ -1118,13 +1124,19 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 /obj/effect/hallucination/danger/chasm
 	name = "chasm"
 
+/obj/effect/hallucination/danger/chasm/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 /obj/effect/hallucination/danger/chasm/show_icon()
 	image = image('icons/turf/floors/chasms.dmi',src,"smooth",TURF_LAYER)
 	if(target.client)
 		target.client.images += image
 
-/obj/effect/hallucination/danger/chasm/Crossed(atom/movable/AM)
-	. = ..()
+/obj/effect/hallucination/danger/chasm/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(AM == target)
 		if(istype(target, /obj/effect/dummy/phased_mob) || istype(target, /obj/effect/dummy/crawling))
 			return
@@ -1139,6 +1151,10 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 /obj/effect/hallucination/danger/anomaly/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 /obj/effect/hallucination/danger/anomaly/process(delta_time)
 	if(DT_PROB(45, delta_time))
@@ -1153,8 +1169,7 @@ GLOBAL_LIST_INIT(hallucination_list, list(
 	if(target.client)
 		target.client.images += image
 
-/obj/effect/hallucination/danger/anomaly/Crossed(atom/movable/AM)
-	. = ..()
+/obj/effect/hallucination/danger/anomaly/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(AM == target)
 		new /datum/hallucination/shock(target)
 

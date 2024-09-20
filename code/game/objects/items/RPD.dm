@@ -57,7 +57,10 @@ GLOBAL_LIST_INIT(disposal_pipe_recipes, list(
 		new /datum/pipe_info/disposal("Junction",		/obj/structure/disposalpipe/junction, PIPE_TRIN_M),
 		new /datum/pipe_info/disposal("Y-Junction",		/obj/structure/disposalpipe/junction/yjunction),
 		new /datum/pipe_info/disposal("Sort Junction",	/obj/structure/disposalpipe/sorting/mail, PIPE_TRIN_M),
+		new /datum/pipe_info/disposal("Rotator", 		/obj/structure/disposalpipe/rotator, PIPE_ONEDIR_FLIPPABLE),
 		new /datum/pipe_info/disposal("Trunk",			/obj/structure/disposalpipe/trunk),
+		new /datum/pipe_info/disposal("Deck Up",		/obj/structure/disposalpipe/trunk/multiz),
+		new /datum/pipe_info/disposal("Deck Down",		/obj/structure/disposalpipe/trunk/multiz/down),
 		new /datum/pipe_info/disposal("Bin",			/obj/machinery/disposal/bin, PIPE_ONEDIR),
 		new /datum/pipe_info/disposal("Outlet",			/obj/structure/disposaloutlet),
 		new /datum/pipe_info/disposal("Chute",			/obj/machinery/disposal/deliveryChute),
@@ -134,6 +137,8 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 		if(PIPE_UNARY_FLIPPABLE)
 			dirs = list("[NORTH]" = "North", "[NORTHEAST]" = "North Flipped", "[EAST]" = "East", "[SOUTHEAST]" = "East Flipped",
 						"[SOUTH]" = "South", "[SOUTHWEST]" = "South Flipped", "[WEST]" = "West", "[NORTHWEST]" = "West Flipped")
+		if(PIPE_ONEDIR_FLIPPABLE)
+			dirs = list("[SOUTH]" = name, "[SOUTHEAST]" = "[name] Flipped")
 
 
 	var/list/rows = list()
@@ -141,7 +146,7 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 	var/i = 0
 	for(var/dir in dirs)
 		var/numdir = text2num(dir)
-		var/flipped = ((dirtype == PIPE_TRIN_M) || (dirtype == PIPE_UNARY_FLIPPABLE)) && (numdir in GLOB.diagonals)
+		var/flipped = ((dirtype == PIPE_TRIN_M) || (dirtype == PIPE_UNARY_FLIPPABLE) || (dirtype == PIPE_ONEDIR_FLIPPABLE)) && (ISDIAGONALDIR(numdir))
 		row["previews"] += list(list("selected" = (numdir == selected_dir), "dir" = dir2text(numdir), "dir_name" = dirs[dir], "icon_state" = icon_state, "flipped" = flipped))
 		if(i++ || dirtype == PIPE_ONEDIR)
 			rows += list(row)
@@ -241,6 +246,8 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 	var/static/datum/pipe_info/first_plumbing
 	var/mode = BUILD_MODE | PAINT_MODE | DESTROY_MODE | WRENCH_MODE
 	var/locked = FALSE //wheter we can change categories. Useful for the plumber
+	/// The owner of this RCD. It can be a mech or a player.
+	var/owner
 
 /obj/item/pipe_dispenser/Initialize(mapload)
 	. = ..()
@@ -287,6 +294,9 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 		get_asset_datum(/datum/asset/spritesheet/pipes),
 	)
 
+/obj/item/pipe_dispenser/ui_host(mob/user)
+	return owner || ..()
+
 /obj/item/pipe_dispenser/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
@@ -306,7 +316,7 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 		"selected_color" = paint_color,
 		"paint_colors" = GLOB.pipe_paint_colors,
 		"mode" = mode,
-		"locked" = locked
+		"locked" = locked,
 	)
 
 	var/list/recipes
@@ -330,10 +340,10 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 	return data
 
 /obj/item/pipe_dispenser/ui_act(action, params)
-	if(..())
+	. = ..()
+	if(.)
 		return
-	if(!usr.canUseTopic(src, BE_CLOSE))
-		return
+
 	var/playeffect = TRUE
 	switch(action)
 		if("color")
@@ -394,7 +404,7 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 		make_pipe_whitelist = typecacheof(list(/obj/structure/lattice, /obj/structure/girder, /obj/item/pipe, /obj/structure/window, /obj/structure/grille, /obj/machinery/atmospherics/pipe))
 	var/can_make_pipe = (isturf(A) || is_type_in_typecache(A, make_pipe_whitelist))
 
-	. = FALSE
+	. = TRUE
 
 	if((mode & DESTROY_MODE) && istype(A, /obj/item/pipe) || istype(A, /obj/structure/disposalconstruct) || istype(A, /obj/structure/c_transit_tube) || istype(A, /obj/structure/c_transit_tube_pod) || istype(A, /obj/item/pipe_meter))
 	// yogs start - disposable check
@@ -567,6 +577,24 @@ GLOBAL_LIST_INIT(fluid_duct_recipes, list(
 	else
 		return
 	to_chat(source, span_notice("You set the layer to [piping_layer]."))
+
+/obj/item/pipe_dispenser/exosuit
+	name = "mounted pipe dispenser"
+	desc = "You shouldn't be seeing this!"
+	item_flags = NO_MAT_REDEMPTION | DROPDEL | NOBLUDGEON
+	resistance_flags = INDESTRUCTIBLE | FIRE_PROOF | ACID_PROOF | UNACIDABLE // would be weird if it could somehow be destroyed inside the equipment item
+
+/obj/item/pipe_dispenser/exosuit/ui_state(mob/user)
+	return GLOB.pilot_state
+
+// don't allow using this thing unless you're piloting the mech it's attached to
+/obj/item/pipe_dispenser/exosuit/can_interact(mob/user)
+	if(!(owner && ismecha(owner)))
+		return FALSE
+	var/obj/mecha/gundam = owner
+	if(user == gundam.occupant && !gundam.equipment_disabled && gundam.selected == loc)
+		return TRUE
+	return FALSE
 
 /obj/item/pipe_dispenser/plumbing
 	name = "Plumberinator"

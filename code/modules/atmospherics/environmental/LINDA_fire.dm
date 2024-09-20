@@ -6,7 +6,7 @@
 
 /turf/open/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(prob(flammability * 100))
-		IgniteTurf(rand(IGNITE_TURF_LOW_POWER,IGNITE_TURF_HIGH_POWER))
+		ignite_turf(rand(IGNITE_TURF_LOW_POWER,IGNITE_TURF_HIGH_POWER))
 	return ..()
 
 /turf/proc/hotspot_expose(exposed_temperature, exposed_volume, soh = 0)
@@ -16,6 +16,9 @@
 /turf/open/hotspot_expose(exposed_temperature, exposed_volume, soh)
 	if(!air)
 		return
+
+	if(liquids && liquids.liquid_group && !liquids.fire_state)
+		liquids.liquid_group.ignite_turf(src)
 
 	if (air.get_moles(GAS_O2) < 0.5 || air.get_moles(GAS_HYPERNOB) > REACTION_OPPRESSION_THRESHOLD)
 		return
@@ -67,6 +70,9 @@
 /obj/effect/hotspot/proc/perform_exposure()
 	var/turf/open/location = loc
 	if(!istype(location) || !(location.air))
+		return FALSE
+	
+	if(SEND_SIGNAL(location, COMSIG_TURF_HOTSPOT_EXPOSE) & SUPPRESS_FIRE)
 		return FALSE
 
 	if(location.active_hotspot != src)
@@ -174,7 +180,9 @@
 		qdel(src)
 		return
 
-	perform_exposure()
+	if(!perform_exposure())
+		qdel(src)
+		return
 
 	if(bypassing)
 		icon_state = "3"

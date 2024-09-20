@@ -13,9 +13,12 @@
 	obj_flags = UNIQUE_RENAME | UNIQUE_REDESC
 	drop_sound = 'sound/items/handling/drinkglass_drop.ogg'
 	pickup_sound =  'sound/items/handling/drinkglass_pickup.ogg'
+	var/flipped = FALSE //are we upside down?
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/on_reagent_change(changetype)
 	cut_overlays()
+	if(flipped)
+		flipped = FALSE //just to make sure..
 	if(reagents.reagent_list.len)
 		var/datum/reagent/R = reagents.get_master_reagent()
 		if(!renamedByPlayer)
@@ -24,13 +27,32 @@
 		if(R.glass_icon_state)
 			icon_state = R.glass_icon_state
 		else
-			var/mutable_appearance/reagent_overlay = mutable_appearance(icon, "glassoverlay")
+			var/mutable_appearance/reagent_overlay = mutable_appearance('icons/obj/reagentfillings.dmi', "drinking_glass0")
 			icon_state = "glass_empty"
 			reagent_overlay.color = mix_color_from_reagents(reagents.reagent_list)
 			add_overlay(reagent_overlay)
 	else
 		icon_state = "glass_empty"
 		renamedByPlayer = FALSE //so new drinks can rename the glass
+
+/obj/item/reagent_containers/food/drinks/drinkingglass/AltClick(mob/user)
+	if(!istype(user) || !user.canUseTopic(src, BE_CLOSE))
+		return
+	..()
+	if(length(reagents.reagent_list) && !flipped)
+		to_chat(user, span_danger("You probably shouldn't flip this over with something in it!"))
+		return
+	flipped = !flipped
+	playsound(src, drop_sound, DROP_SOUND_VOLUME, vary = sound_vary, ignore_walls = FALSE)
+	if(flipped)
+		icon_state = initial(icon_state) + "_flipped"
+		DISABLE_BITFIELD(reagents.flags, OPENCONTAINER)
+	else
+		icon_state = initial(icon_state)
+		ENABLE_BITFIELD(reagents.flags, OPENCONTAINER)
+	user.visible_message(span_notice("[user] [flipped ? "flips" : "unflips"] [src]."), \
+	span_notice("You [flipped ? "flip" : "unflip"] [src]."))
+	
 
 //Shot glasses!//
 //  This lets us add shots in here instead of lumping them in with drinks because >logic  //
@@ -67,7 +89,7 @@
 			icon_state = largest_reagent.shot_glass_icon_state
 		else
 			icon_state = "shotglassclear"
-			var/mutable_appearance/shot_overlay = mutable_appearance(icon, "shotglassoverlay")
+			var/mutable_appearance/shot_overlay = mutable_appearance('icons/obj/reagentfillings.dmi', "shot_glass0")
 			shot_overlay.color = mix_color_from_reagents(reagents.reagent_list)
 			add_overlay(shot_overlay)
 
@@ -92,7 +114,7 @@
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/filled/nuka_cola
 	name = "Nuka Cola"
-	list_reagents = list(/datum/reagent/consumable/nuka_cola = 50)
+	list_reagents = list(/datum/reagent/consumable/energy_drink/nuka_cola = 50)
 
 /obj/item/reagent_containers/food/drinks/drinkingglass/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/reagent_containers/food/snacks/egg)) //breaking eggs
@@ -108,22 +130,22 @@
 	else
 		..()
 
-/obj/item/reagent_containers/food/drinks/drinkingglass/attack(obj/target, mob/user)
-	if(user.a_intent == INTENT_HARM && ismob(target) && target.reagents && reagents.total_volume)
+/obj/item/reagent_containers/food/drinks/drinkingglass/attack(obj/target, mob/living/user)
+	if(user.combat_mode && ismob(target) && target.reagents && reagents.total_volume)
 		target.visible_message(span_danger("[user] splashes the contents of [src] onto [target]!"), \
 						span_userdanger("[user] splashes the contents of [src] onto [target]!"))
 		log_combat(user, target, "splashed", src)
 		reagents.reaction(target, TOUCH)
 		reagents.clear_reagents()
 		return
-	..()
+	return ..()
 
-/obj/item/reagent_containers/food/drinks/drinkingglass/afterattack(obj/target, mob/user, proximity)
+/obj/item/reagent_containers/food/drinks/drinkingglass/afterattack(obj/target, mob/living/user, proximity)
 	. = ..()
 	if((!proximity) || !check_allowed_items(target,target_self=1))
 		return
 
-	else if(reagents.total_volume && user.a_intent == INTENT_HARM)
+	else if(reagents.total_volume && user.combat_mode)
 		user.visible_message(span_danger("[user] splashes the contents of [src] onto [target]!"), \
 							span_notice("You splash the contents of [src] onto [target]."))
 		reagents.reaction(target, TOUCH)

@@ -102,8 +102,10 @@
 	name = "adminordrazine pill"
 	desc = "It's magic. We don't have to explain it."
 	icon_state = "pill16"
-	volume = 50
-	list_reagents = list(/datum/reagent/medicine/adminordrazine = 50)
+	volume = 5
+	grind_results = null
+	dissolvable = FALSE
+	list_reagents = list(/datum/reagent/medicine/adminordrazine = 5)
 
 /obj/item/reagent_containers/pill/morphine
 	name = "morphine pill"
@@ -118,7 +120,7 @@
 	desc = "Often taken by overworked employees, athletes, and the inebriated. You'll snap to attention immediately!"
 	icon_state = "pill19"
 	volume = 50
-	list_reagents = list(/datum/reagent/medicine/ephedrine = 10, /datum/reagent/medicine/antihol = 10, /datum/reagent/consumable/coffee = 30)
+	list_reagents = list(/datum/reagent/medicine/ephedrine = 10, /datum/reagent/medicine/antihol = 10, /datum/reagent/consumable/coffee/hot = 30)
 
 /obj/item/reagent_containers/pill/salbutamol
 	name = "salbutamol pill"

@@ -8,7 +8,7 @@
 
 /datum/blood_type/New()
 	. = ..()
-	compatible_types |= /datum/blood_type/universal
+	compatible_types |= typesof(/datum/blood_type/universal)
 
 /datum/blood_type/universal
 	name = "U"
@@ -30,7 +30,7 @@
 
 /datum/blood_type/b_minus
 	name = "B-"
-	compatible_types = list(/datum/blood_type/b_minus, /datum/blood_type/o_minus, /datum/blood_type/universal)
+	compatible_types = list(/datum/blood_type/b_minus, /datum/blood_type/o_minus)
 
 /datum/blood_type/b_plus
 	name = "B+"
@@ -42,7 +42,7 @@
 
 /datum/blood_type/ab_plus
 	name = "AB+"
-	compatible_types = list(/datum/blood_type/b_minus, /datum/blood_type/a_minus, /datum/blood_type/ab_minus, /datum/blood_type/o_minus)
+	compatible_types = list(/datum/blood_type/b_minus, /datum/blood_type/a_minus, /datum/blood_type/ab_minus, /datum/blood_type/o_minus, /datum/blood_type/b_plus, /datum/blood_type/a_plus, /datum/blood_type/ab_plus, /datum/blood_type/o_plus)
 
 /datum/blood_type/o_minus
 	name = "O-"
@@ -57,7 +57,7 @@
 ////////////////////////////////////////////////////////////////
 /datum/blood_type/lizard
 	name = "L"
-	color = LIGHT_COLOR_BLUEGREEN
+	color = "#f24b2e"
 	compatible_types = list(/datum/blood_type/lizard)
 
 
@@ -71,13 +71,18 @@
 */
 /datum/blood_type/xenomorph //for xenomorph gib dna and polysmorph bloodsplats
 	name = "X"
-	color = "#00FF32"
+	color = "#96bb00"
 	compatible_types = list(/datum/blood_type/xenomorph)
 
 /datum/blood_type/electricity
 	name = "E"
 	color = "#cbee63" //slightly more yellowy than regular liquid electricity because of the grey scale image used
 	compatible_types = list(/datum/blood_type/electricity)
+
+/datum/blood_type/jelly
+	name = "J"
+	color = COLOR_DARK_MODERATE_LIME_GREEN
+	compatible_types = list(/datum/blood_type/jelly)
 
 ////////////////////////////////////////////////////////////////
 //-----------------Wonky simplemob(?) bloodtypes--------------//

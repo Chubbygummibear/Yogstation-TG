@@ -37,10 +37,11 @@
 		return "r"
 	return "l"
 
-/mob/proc/held_index_to_body_zone(i)
+/// Returns HAND_LEFT or HAND_RIGHT based on whether the left or right hand is selected
+/mob/proc/held_index_to_hand(i)
 	if(!(i % 2))
-		return BODY_ZONE_R_ARM
-	return BODY_ZONE_L_ARM
+		return HAND_RIGHT
+	return HAND_LEFT
 
 //Check we have an organ for this hand slot (Dismemberment), Only relevant for humans
 /mob/proc/has_hand_for_held_index(i)
@@ -127,20 +128,14 @@
 
 //Checks if we're holding a tool that has given quality
 //Returns the tool that has the best version of this quality
-/mob/proc/is_holding_tool_quality(quality)
+/mob/proc/is_holding_tool_quality(expected_tool_type)
 	var/obj/item/best_item
 	var/best_quality = INFINITY
 
 	for(var/obj/item/I in held_items)
-		if(I.tool_behaviour == quality && I.toolspeed < best_quality)
+		if(I.tool_behaviour == expected_tool_type && I.toolspeed < best_quality)
 			best_item = I
 			best_quality = I.toolspeed
-//yogs start -- fucking stupid but modular holotool patch
-	if(quality == TOOL_MULTITOOL)
-		if(istype(best_item,/obj/item/holotool))
-			var/obj/item/holotool/H = best_item
-			return H.internal_multitool
-//yogs end
 	return best_item
 
 
@@ -271,10 +266,10 @@
 	I.dropped(src)
 	return FALSE
 
-/mob/proc/drop_all_held_items()
+/mob/proc/drop_all_held_items(force = FALSE)
 	. = FALSE
 	for(var/obj/item/I in held_items)
-		. |= dropItemToGround(I)
+		. |= dropItemToGround(I, force)
 
 //Here lie drop_from_inventory and before_item_take, already forgotten and not missed.
 
@@ -335,7 +330,7 @@
 
 	if(HAS_TRAIT(I, TRAIT_NODROP) && !force)
 		return FALSE
-	
+
 	if((SEND_SIGNAL(I, COMSIG_ITEM_PRE_UNEQUIP, force, newloc, no_move, invdrop, silent) & COMPONENT_ITEM_BLOCK_UNEQUIP) && !force)
 		return FALSE
 
@@ -403,23 +398,22 @@
 			items += s_store
 	return items
 
-/mob/living/proc/unequip_everything()
+/mob/living/proc/unequip_everything(force = FALSE)
 	var/list/items = list()
 	items |= get_equipped_items(TRUE)
 	for(var/I in items)
-		dropItemToGround(I)
-	drop_all_held_items()
+		dropItemToGround(I, force)
+	drop_all_held_items(force)
 
 
 /mob/living/carbon/proc/check_obscured_slots(transparent_protection)
-	var/list/obscured = list()
+	var/obscured = NONE
 	var/hidden_slots = NONE
 
-	for(var/obj/item/I in get_equipped_items())
-		hidden_slots |= I.flags_inv
-		hidden_slots |= I.flags_prot
+	for(var/obj/item/equipped_item in get_equipped_items())
+		hidden_slots |= equipped_item.flags_inv
 		if(transparent_protection)
-			hidden_slots |= I.transparent_protection
+			hidden_slots |= equipped_item.transparent_protection
 
 	if(hidden_slots & HIDENECK)
 		obscured |= ITEM_SLOT_NECK
@@ -467,7 +461,7 @@
 	to_chat(M, span_warning("You are unable to equip that!"))
 	return FALSE
 
- 
+
 /mob/verb/quick_equip()
 	set name = "quick-equip"
 	set hidden = TRUE

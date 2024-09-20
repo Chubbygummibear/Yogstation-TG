@@ -605,6 +605,11 @@ so as to remain in compliance with the most up-to-date laws."
 	desc = "Mech integrity is low."
 	icon_state = "low_mech_integrity"
 
+/atom/movable/screen/alert/overheating
+	name = "Mech Overheating"
+	desc = "Mech internal temperature is high."
+	icon_state = "overheat"
+
 
 //GHOSTS
 //TODO: expand this system to replace the pollCandidates/CheckAntagonist/"choose quickly"/etc Yes/No messages
@@ -744,3 +749,8 @@ so as to remain in compliance with the most up-to-date laws."
 	master_ref = null
 	mob_viewer = null
 	screen_loc = ""
+
+/atom/movable/screen/alert/psiblock
+	name = "Psiblock"
+	desc = "You have pushed your psionic powers beyond your capabilities and need time to recover."
+	icon_state = "shadow_mend"

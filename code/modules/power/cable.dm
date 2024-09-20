@@ -27,6 +27,8 @@ By design, d1 is the smallest direction and d2 is the highest
 	desc = "A flexible, superconducting insulated cable for heavy-duty power transfer."
 	icon = 'icons/obj/power_cond/cables.dmi'
 	icon_state = "0-1"
+	///Yogs, Biome wanted cables above pipes
+	//plane = FLOOR_PLANE
 	layer = WIRE_LAYER //Above hidden pipes, GAS_PIPE_HIDDEN_LAYER
 	anchored = TRUE
 	obj_flags = CAN_BE_HIT | ON_BLUEPRINTS
@@ -89,7 +91,11 @@ By design, d1 is the smallest direction and d2 is the highest
 	cable_color = param_color || cable_color || pick(cable_colors)
 	if(cable_colors[cable_color])
 		cable_color = cable_colors[cable_color]
+	return INITIALIZE_HINT_LATELOAD
+
+/obj/structure/cable/LateInitialize()
 	update_appearance(UPDATE_ICON)
+	//is_fully_initialized = TRUE
 
 /obj/structure/cable/Destroy()					// called when a cable is deleted
 	if(powernet)
@@ -456,7 +462,7 @@ By design, d1 is the smallest direction and d2 is the highest
 	name = "cable coil"
 	custom_price = 15
 	gender = NEUTER //That's a cable coil sounds better than that's some cable coils
-	icon = 'icons/obj/power.dmi'
+	icon = 'icons/obj/stack_objects.dmi'
 	icon_state = "coil"
 	item_state = "coil"
 	lefthand_file = 'icons/mob/inhands/equipment/tools_lefthand.dmi'
@@ -520,7 +526,8 @@ By design, d1 is the smallest direction and d2 is the highest
 	restraints_icon.color = color
 
 	var/list/radial_menu = list(
-	"Cable restraints" = restraints_icon
+		"Multi-deck power adapter" = image(icon = 'icons/obj/power.dmi', icon_state = "cablerelay-broken-cable"),
+		"Cable restraints" = restraints_icon
 	)
 
 	var/layer_result = show_radial_menu(user, src, radial_menu, custom_check = CALLBACK(src, PROC_REF(check_menu), user), require_near = TRUE, tooltips = TRUE)
@@ -532,6 +539,13 @@ By design, d1 is the smallest direction and d2 is the highest
 				if(use(CABLE_RESTRAINTS_COST))
 					var/obj/item/restraints/handcuffs/cable/restraints = new(null, cable_color)
 					user.put_in_hands(restraints)
+		if("Multi-deck power adapter")
+			if(locate(/obj/machinery/power/deck_relay) in user.loc)
+				to_chat(user, span_danger("You can't place another relay here!"))
+				return
+			if(use(1))
+				new /obj/machinery/power/deck_relay(user.loc)
+				user.visible_message("[user] constructs a deck relay.")
 	update_appearance()
 
 ///////////////////////////////////
@@ -605,7 +619,7 @@ By design, d1 is the smallest direction and d2 is the highest
 		return
 
 	if(!isturf(T) || T.underfloor_accessibility < UNDERFLOOR_INTERACTABLE || !T.can_have_cabling())
-		to_chat(user, span_warning("You can only lay cables on catwalks and plating!"))
+		to_chat(user, span_warning("You can only lay cables on top of exterior catwalks and plating!"))
 		return
 
 	if(get_amount() < 1) // Out of cable
@@ -624,6 +638,7 @@ By design, d1 is the smallest direction and d2 is the highest
 			dirn = get_dir(T, user)
 	else
 		dirn = dirnew
+
 
 	for(var/obj/structure/cable/LC in T)
 		if(LC.d2 == dirn && LC.d1 == 0)
@@ -667,9 +682,9 @@ By design, d1 is the smallest direction and d2 is the highest
 	var/turf/T = C.loc
 
 	if(!isturf(T) || T.underfloor_accessibility < UNDERFLOOR_INTERACTABLE || !T.can_have_cabling())
-		to_chat(user, span_warning("You can only lay cables on catwalks and plating!"))
+		to_chat(user, span_warning("You can only lay cables on top of exterior catwalks and plating!"))
 		return
-	
+
 	if(get_amount() < 1) // Out of cable
 		to_chat(user, span_warning("There is no cable left!"))
 		return

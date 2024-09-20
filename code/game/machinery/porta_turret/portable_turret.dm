@@ -17,7 +17,7 @@
 	use_power = IDLE_POWER_USE				//this turret uses and requires power
 	idle_power_usage = 50		//when inactive, this turret takes up constant 50 Equipment power
 	active_power_usage = 300	//when active, this turret takes up constant 300 Equipment power
-	req_access = list(ACCESS_SEC_DOORS)
+	req_access = list(ACCESS_SEC_BASIC)
 	power_channel = AREA_USAGE_EQUIP	//drains power from the EQUIPMENT channel
 
 	var/scan_range = 7
@@ -271,8 +271,7 @@
 	else if(I.tool_behaviour == TOOL_MULTITOOL && !locked)
 		if(!multitool_check_buffer(user, I))
 			return
-		var/obj/item/multitool/M = I
-		M.buffer = src
+		multitool_set_buffer(user, I, src)
 		to_chat(user, span_notice("You add [src] to multitool buffer."))
 	else
 		return ..()
@@ -315,7 +314,7 @@
 
 /obj/machinery/porta_turret/take_damage(ddamage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = TRUE, attack_dir, armour_penetration = 0)
 	. = ..()
-	if(. && obj_integrity > 0) //damage received
+	if(. && atom_integrity > 0) //damage received
 		if(prob(30))
 			spark_system.start()
 		if(on && !attacked && !(obj_flags & EMAGGED))
@@ -328,7 +327,7 @@
 /obj/machinery/porta_turret/deconstruct(disassembled = TRUE)
 	qdel(src)
 
-/obj/machinery/porta_turret/obj_break(damage_flag)
+/obj/machinery/porta_turret/atom_break(damage_flag)
 	. = ..()
 	if(.)
 		power_change()
@@ -800,7 +799,7 @@
 	var/locked = TRUE
 	var/control_area = null //can be area name, path or nothing.
 	var/ailock = 0 // AI cannot use this
-	req_access = list(ACCESS_AI_UPLOAD)
+	req_access = list(ACCESS_AI_MASTER)
 	var/list/obj/machinery/porta_turret/turrets = list()
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 
@@ -847,10 +846,10 @@
 	if(I.tool_behaviour == TOOL_MULTITOOL)
 		if(!multitool_check_buffer(user, I))
 			return
-		var/obj/item/multitool/M = I
-		if(M.buffer && istype(M.buffer, /obj/machinery/porta_turret))
-			turrets |= M.buffer
-			to_chat(user, "You link \the [M.buffer] with \the [src]")
+		var/atom/buffer_atom = multitool_get_buffer(user, I)
+		if(buffer_atom && istype(buffer_atom, /obj/machinery/porta_turret))
+			turrets |= buffer_atom
+			to_chat(user, "You link \the [buffer_atom] with \the [src]")
 			return
 
 	if (issilicon(user))
@@ -955,6 +954,10 @@
 		icon_state = "control_kill"
 	else
 		icon_state = "control_stun"
+	
+/obj/machinery/turretid/syndicate // Please use this when making syndicate bases so we don't have to keep varediting it
+	icon_state = "control_kill"
+	req_access = list(ACCESS_SYNDICATE)
 
 /obj/item/wallframe/turret_control
 	name = "turret control frame"

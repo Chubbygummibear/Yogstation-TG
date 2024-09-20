@@ -10,13 +10,17 @@
 
 /obj/projectile/bullet/a84mm
 	name ="\improper HEDP rocket"
-	desc = "USE A WEEL GUN"
+	desc = "USE A WEEL GUN."
 	icon_state= "84mm-hedp"
 	armor_flag = BOMB
 	damage = 80
 	demolition_mod = 4
 	armour_penetration = 100
 	dismemberment = 100
+
+/obj/projectile/bullet/a84mm/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_SHIELDBUSTER, INNATE_TRAIT) // you can't block a fucking missile, MQIIB!!!!!!!!
 
 /obj/projectile/bullet/a84mm/on_hit(atom/target, blocked = FALSE)
 	..()
@@ -50,7 +54,8 @@
 	/turf/closed,
 	/obj/mecha,
 	/obj/machinery/door/,
-	/obj/machinery/door/poddoor/shutters
+	/obj/machinery/door/poddoor/shutters,
+	/obj/structure/window
 	)
 
 /obj/item/broken_missile
@@ -73,9 +78,13 @@
 /obj/projectile/bullet/cball
 	name = "cannonball"
 	icon_state = "cannonball"
-	desc = "Not for bowling purposes"
+	desc = "Not for bowling purposes."
 	damage = 30
 	demolition_mod = 20 // YARRR
+
+/obj/projectile/bullet/cball/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_SHIELDBUSTER, INNATE_TRAIT) // YO HO HO AND A BOTTLE OF BLACK POWDER
 
 /obj/projectile/bullet/cball/on_hit(atom/target, blocked=0)
 	var/atom/throw_target = get_edge_target_turf(target, firer.dir)
@@ -90,6 +99,20 @@
 
 /obj/projectile/bullet/bolt
 	name = "bolt"
-	icon_state = "bolt"
-	desc = "smaller and faster rod"
+	desc = "A smaller and faster rod."
+	icon_state = "ka_tracer"
+	color = COLOR_ASSISTANT_GRAY
 	damage = 25
+
+/obj/projectile/bullet/cartridge
+	name = "cartridge"
+	desc = "A small metal ball fired from a musket."
+	damage = 25
+	armour_penetration = -30 //Cheap ammo means poor AP
+	spread = 40
+	demolition_mod = 0.25
+
+/obj/projectile/bullet/cartridge/black_powder
+	damage = 30
+	armour_penetration = 0
+	spread = 20

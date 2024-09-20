@@ -76,7 +76,7 @@
 	opacity = FALSE
 	anchored = FALSE
 	pressure_resistance = 2*ONE_ATMOSPHERE
-	req_access = list(ACCESS_ENGINE)
+	req_access = list(ACCESS_ENGINEERING)
 	max_integrity = 100
 	var/active = FALSE
 	var/list/deployed_shields
@@ -117,7 +117,7 @@
 
 
 /obj/machinery/shieldgen/deconstruct(disassembled = TRUE)
-	obj_break()
+	atom_break()
 	locked = pick(0,1)
 
 /obj/machinery/shieldgen/interact(mob/user)
@@ -164,7 +164,7 @@
 			if(coil.get_amount() < 1)
 				return
 			coil.use(1)
-			obj_integrity = max_integrity
+			update_integrity(max_integrity)
 			stat &= ~BROKEN
 			to_chat(user, span_notice("You repair \the [src]."))
 			update_appearance(UPDATE_ICON)

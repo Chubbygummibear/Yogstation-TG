@@ -6,7 +6,7 @@
 	randomize_by_default = FALSE
 
 /datum/preference/choiced/species/deserialize(input, datum/preferences/preferences)
-	return GLOB.species_list[sanitize_inlist(input, get_choices_serialized(), "human")]
+	return GLOB.species_list[sanitize_inlist(input, get_choices_serialized(), SPECIES_HUMAN)]
 
 /datum/preference/choiced/species/serialize(input)
 	var/datum/species/species = input
@@ -42,7 +42,7 @@
 		data[species_id]["lore"] = species.get_species_lore()
 		data[species_id]["icon"] = sanitize_css_class_name(species.name)
 		data[species_id]["use_skintones"] = species.use_skintones
-		data[species_id]["sexes"] = species.sexes && !((FGENDER in species.species_traits) || (MGENDER in species.species_traits) || (AGENDER in species.species_traits))
+		data[species_id]["possible_genders"] = species.possible_genders
 		data[species_id]["enabled_features"] = species.get_features()
 		data[species_id]["perks"] = species.get_species_perks()
 		data[species_id]["diet"] =  species.get_species_diet()

@@ -179,6 +179,16 @@
 	maxstack = MAXCOIL
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SCIENCE
 
+/datum/design/ethernet_coil
+	name = "Ethernet Coil"
+	id = "ethernet_coil"
+	build_type = AUTOLATHE
+	materials = list(/datum/material/iron = 10, /datum/material/glass = 5)
+	build_path = /obj/item/stack/ethernet_coil
+	category = list("initial","Tools","Tool Designs")
+	maxstack = MAXCOIL
+	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SCIENCE
+
 /datum/design/toolbox
 	name = "Toolbox"
 	id = "tool_box"
@@ -1151,7 +1161,7 @@
 	id = "conveyor_belt"
 	build_type = AUTOLATHE | MECHFAB | PROTOLATHE
 	materials = list(/datum/material/iron = 1000)
-	build_path = /obj/item/stack/conveyor/thirty
+	build_path = /obj/item/stack/conveyor
 	category = list("initial", "Construction", "Misc", "Assemblies")
 	maxstack = 30
 	departmental_flags = DEPARTMENTAL_FLAG_ENGINEERING | DEPARTMENTAL_FLAG_SCIENCE | DEPARTMENTAL_FLAG_CARGO

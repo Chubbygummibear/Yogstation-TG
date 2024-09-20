@@ -513,13 +513,14 @@
 		var/min_y = -1
 		var/max_x = WORLDMAXX_CUTOFF
 		var/max_y = WORLDMAXY_CUTOFF
-		for(var/area/area as anything in shuttle_areas)
-			for(var/turf/turf as anything in area.get_contained_turfs())
-				min_x = max(turf.x, min_x)
-				max_x = min(turf.x, max_x)
-				min_y = max(turf.y, min_y)
-				max_y = min(turf.y, max_y)
-			CHECK_TICK
+		for(var/area/shuttle_area as anything in shuttle_areas)
+			for (var/list/zlevel_turfs as anything in shuttle_area.get_zlevel_turf_lists())
+				for(var/turf/turf as anything in zlevel_turfs)
+					min_x = max(turf.x, min_x)
+					max_x = min(turf.x, max_x)
+					min_y = max(turf.y, min_y)
+					max_y = min(turf.y, max_y)
+				CHECK_TICK
 
 		if(min_x == -1 || max_x == WORLDMAXX_CUTOFF)
 			CRASH("Failed to locate shuttle boundaries when iterating through shuttle areas, somehow.")
@@ -926,6 +927,20 @@
 		return
 	time_remaining *= multiple
 	last_timer_length *= multiple
+	setTimer(time_remaining)
+
+/obj/docking_port/mobile/proc/alert_coeff_change(new_coeff)
+	if(isnull(new_coeff))
+		return
+
+	var/time_multiplier = new_coeff / alert_coeff
+	var/time_remaining = timer - world.time
+	if(time_remaining < 0 || !last_timer_length)
+		return
+
+	time_remaining *= time_multiplier
+	last_timer_length *= time_multiplier
+	alert_coeff = new_coeff
 	setTimer(time_remaining)
 
 /obj/docking_port/mobile/proc/invertTimer()

@@ -76,7 +76,7 @@
 	shield.pixel_x = -owner.pixel_x
 	shield.pixel_y = -owner.pixel_y
 	owner.overlays += shield
-	owner.weather_immunities |= WEATHER_ASH //no free charges/heals
+	owner.weather_immunities |= WEATHER_STORM //no free charges/heals
 	for(var/traits in grimoire_traits)
 		ADD_TRAIT(owner, traits, GRIMOIRE_TRAIT)
 	return ..()
@@ -96,7 +96,7 @@
 	if(owner)
 		for(var/traits in grimoire_traits)
 			REMOVE_TRAIT(owner, traits, GRIMOIRE_TRAIT)
-		owner.weather_immunities -= WEATHER_ASH
+		owner.weather_immunities &= ~WEATHER_STORM //might this remove immunity granted from other sources?
 		owner.overlays -= shield
 		owner.extinguish_mob()
 		owner.AdjustStun(-200)
@@ -127,3 +127,26 @@
 /atom/movable/screen/alert/status_effect/dodging/battleroyale
 	name = "Invulnerability"
 	desc = "You're protected by a ligma shield!"
+	
+/datum/status_effect/speedboost
+	id = "speedboost"
+	duration = 30 SECONDS
+	tick_interval = -1
+	status_type = STATUS_EFFECT_MULTIPLE
+	alert_type = null //might not even be a speedbuff, so don't show it
+	var/speedstrength
+	var/identifier //id for the speed boost
+
+/datum/status_effect/speedboost/on_creation(mob/living/new_owner, strength, length, identifier)
+	duration = length
+	speedstrength = strength
+	src.identifier = identifier
+	. = ..()
+
+/datum/status_effect/speedboost/on_apply()
+	. = ..()
+	if(. && speedstrength && identifier)
+		owner.add_movespeed_modifier(identifier, TRUE, 101, override=TRUE,  multiplicative_slowdown = speedstrength)
+
+/datum/status_effect/speedboost/on_remove()
+	owner.remove_movespeed_modifier(identifier)

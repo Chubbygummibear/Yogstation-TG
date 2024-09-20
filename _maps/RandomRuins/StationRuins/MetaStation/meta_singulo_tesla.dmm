@@ -143,6 +143,7 @@
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 4
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "eZ" = (
@@ -277,9 +278,21 @@
 	name = "Radiation Shutters Control";
 	pixel_x = 0;
 	pixel_y = -24;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /turf/open/floor/plasteel,
+/area/engine/engineering)
+"nz" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/turf_decal/stripes{
+	dir = 6
+	},
+/obj/machinery/light_switch{
+	pixel_y = -23
+	},
+/turf/open/floor/engine,
 /area/engine/engineering)
 "oj" = (
 /turf/open/floor/engine,
@@ -345,6 +358,7 @@
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 4
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "rF" = (
@@ -426,7 +440,7 @@
 	id = "engsm";
 	name = "Radiation Shutters Control";
 	pixel_y = -24;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
@@ -441,7 +455,7 @@
 	icon_state = "2-8"
 	},
 /turf/open/floor/plating/snowed/smoothed,
-/area/icemoon/top_layer/outdoors)
+/area/engine/engineering)
 "vB" = (
 /obj/structure/particle_accelerator/end_cap{
 	dir = 4
@@ -456,20 +470,6 @@
 /area/engine/engineering)
 "vP" = (
 /turf/closed/wall/r_wall,
-/area/engine/engineering)
-"wr" = (
-/obj/structure/cable{
-	icon_state = "1-2"
-	},
-/obj/machinery/button/door{
-	dir = 4;
-	id = "engsm";
-	name = "Radiation Shutters Control";
-	pixel_x = 24;
-	pixel_y = 0;
-	req_access_txt = "10"
-	},
-/turf/open/floor/plasteel,
 /area/engine/engineering)
 "wu" = (
 /obj/structure/grille,
@@ -486,9 +486,9 @@
 /area/engine/engineering)
 "xa" = (
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating/airless,
 /area/engine/engineering)
 "yo" = (
@@ -571,7 +571,7 @@
 	id = "engsm";
 	name = "Radiation Shutters Control";
 	pixel_y = 24;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /turf/open/floor/plasteel,
 /area/engine/engineering)
@@ -598,6 +598,18 @@
 	},
 /obj/machinery/power/grounding_rod,
 /turf/open/floor/plating/snowed/smoothed,
+/area/engine/engineering)
+"EA" = (
+/obj/structure/cable{
+	icon_state = "4-8"
+	},
+/obj/effect/turf_decal/stripes{
+	dir = 5
+	},
+/obj/machinery/light_switch{
+	pixel_y = 24
+	},
+/turf/open/floor/engine,
 /area/engine/engineering)
 "Fj" = (
 /obj/effect/turf_decal/stripes/line,
@@ -628,15 +640,6 @@
 	},
 /turf/open/floor/plating/snowed/smoothed,
 /area/engine/engineering)
-"Ij" = (
-/obj/structure/cable{
-	icon_state = "4-8"
-	},
-/obj/effect/turf_decal/stripes{
-	dir = 6
-	},
-/turf/open/floor/engine,
-/area/engine/engineering)
 "Ik" = (
 /obj/structure/cable{
 	icon_state = "4-8"
@@ -651,19 +654,10 @@
 	icon_state = "1-8"
 	},
 /turf/open/floor/plating/snowed/smoothed,
-/area/icemoon/top_layer/outdoors)
+/area/engine/engineering)
 "JC" = (
 /obj/effect/turf_decal/stripes{
 	dir = 8
-	},
-/turf/open/floor/engine,
-/area/engine/engineering)
-"JJ" = (
-/obj/structure/cable{
-	icon_state = "4-8"
-	},
-/obj/effect/turf_decal/stripes{
-	dir = 5
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
@@ -677,17 +671,6 @@
 /obj/item/clothing/gloves/color/yellow,
 /obj/item/clothing/gloves/color/yellow,
 /turf/open/floor/plasteel,
-/area/engine/engineering)
-"Ks" = (
-/obj/machinery/button/door{
-	dir = 8;
-	id = "engsm";
-	name = "Radiation Shutters Control";
-	pixel_x = -24;
-	pixel_y = 0;
-	req_access_txt = "10"
-	},
-/turf/open/floor/engine,
 /area/engine/engineering)
 "KT" = (
 /obj/structure/cable/orange{
@@ -752,13 +735,19 @@
 	name = "Radiation Shutters Control";
 	pixel_x = 0;
 	pixel_y = 24;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
 "Oy" = (
 /obj/structure/lattice,
 /turf/open/floor/plating/asteroid/snow/icemoon/top_layer,
+/area/engine/engineering)
+"Pj" = (
+/obj/machinery/light_switch{
+	pixel_y = 24
+	},
+/turf/open/floor/engine,
 /area/engine/engineering)
 "Pm" = (
 /obj/machinery/power/tesla_coil,
@@ -778,6 +767,7 @@
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 8
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating/airless,
 /area/engine/engineering)
 "PS" = (
@@ -1028,7 +1018,7 @@ aO
 Lj
 ul
 Lj
-wr
+Lj
 Lj
 zG
 Lj
@@ -1080,7 +1070,7 @@ Ik
 vP
 cR
 oj
-Ks
+oj
 oj
 cR
 vP
@@ -1156,7 +1146,7 @@ KV
 JC
 JC
 vP
-oj
+Pj
 oj
 cS
 oj
@@ -1178,7 +1168,7 @@ SN
 vP
 ZP
 vP
-JJ
+EA
 vE
 vE
 fE
@@ -1190,7 +1180,7 @@ oj
 fE
 vE
 vE
-Ij
+nz
 vP
 am
 vP

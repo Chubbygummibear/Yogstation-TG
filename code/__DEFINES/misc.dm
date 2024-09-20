@@ -58,7 +58,7 @@
 #define MANIFEST_ERROR_ITEM			4
 
 #define BE_CLOSE TRUE		//in the case of a silicon, to select if they need to be next to the atom
-#define NO_DEXTERY TRUE	//if other mobs (monkeys, aliens, etc) can use this
+#define NO_DEXTERITY TRUE	//if other mobs (monkeys, aliens, etc) can use this
 #define NO_TK TRUE
 //used by canUseTopic()
 
@@ -303,9 +303,6 @@ GLOBAL_LIST_INIT(donor_pdas, list(PDA_COLOR_NORMAL, PDA_COLOR_TRANSPARENT, PDA_C
 									//This makes sure that a single person can only spam 3 reopens and 3 closes before being ignored
 
 #define MAX_PROC_DEPTH 195 // 200 proc calls deep and shit breaks, this is a bit lower to give some safety room
-
-#define SYRINGE_DRAW 0
-#define SYRINGE_INJECT 1
 
 //gold slime core spawning
 #define NO_SPAWN 0

@@ -8,13 +8,14 @@
 	total_positions = 3
 	spawn_positions = 3
 	supervisors = "the quartermaster and the head of personnel"
-	selection_color = "#dcba97"
 	alt_titles = list("Lavaland Scout", "Prospector", "Junior Miner", "Major Miner", "Surveyor")
 
 	outfit = /datum/outfit/job/miner
 
-	added_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO, ACCESS_QM, ACCESS_RESEARCH, ACCESS_RND)
-	base_access = list(ACCESS_MINING, ACCESS_MECH_MINING, ACCESS_MINING_STATION, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM)
+	added_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO_BAY, ACCESS_QM, ACCESS_SCIENCE,
+					ACCESS_RESEARCH, ACCESS_AUX_BASE)
+	base_access = list(ACCESS_CARGO, ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MECH_MINING)
+
 	paycheck = PAYCHECK_HARD
 	paycheck_department = ACCOUNT_CAR
 
@@ -23,6 +24,10 @@
 
 	departments_list = list(
 		/datum/job_department/cargo,
+	)
+
+	minimal_lightup_areas = list(
+		/area/construction/mining/aux_base
 	)
 
 	mail_goodies = list(
@@ -41,13 +46,13 @@
 	name = "Shaft Miner"
 	jobtype = /datum/job/mining
 
-	pda_type = /obj/item/modular_computer/tablet/pda/preset/basic
+	pda_type = /obj/item/modular_computer/tablet/pda/preset/shaft_miner
 
 	ears = /obj/item/radio/headset/headset_cargo/mining
 	shoes = /obj/item/clothing/shoes/workboots/mining
-	digitigrade_shoes = /obj/item/clothing/shoes/xeno_wraps/cargo
+	digitigrade_shoes = /obj/item/clothing/shoes/xeno_wraps/cargo/cleated
 	gloves = /obj/item/clothing/gloves/color/black
-	uniform = /obj/item/clothing/under/rank/miner/lavaland
+	uniform = /obj/item/clothing/under/rank/cargo/miner/lavaland
 	neck = /obj/item/clothing/neck/bodycam/miner
 	l_pocket = /obj/item/wormhole_jaunter
 	r_pocket = /obj/item/flashlight/seclite
@@ -62,7 +67,7 @@
 	backpack = /obj/item/storage/backpack/explorer
 	satchel = /obj/item/storage/backpack/satchel/explorer
 	duffelbag = /obj/item/storage/backpack/duffelbag
-	box = /obj/item/storage/box/survival_mining
+	box = /obj/item/storage/box/survival/mining
 
 	chameleon_extras = /obj/item/gun/energy/kinetic_accelerator
 

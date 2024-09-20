@@ -6,17 +6,16 @@
 	orbit_icon = "box"
 	department_head = list("Head of Personnel")
 	faction = "Station"
-	total_positions = 2
-	spawn_positions = 1
+	total_positions = 5
+	spawn_positions = 4
 	supervisors = "the quartermaster and the head of personnel"
-	selection_color = "#dcba97"
 
 	outfit = /datum/outfit/job/cargo_tech
 
 	alt_titles = list("Deliveryperson", "Mail Service", "Exports Handler", "Cargo Trainee", "Crate Pusher", "Courier")
 
-	added_access = list(ACCESS_QM, ACCESS_MINING, ACCESS_MECH_MINING, ACCESS_MINING_STATION)
-	base_access = list(ACCESS_MAINT_TUNNELS, ACCESS_CARGO, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM)
+	added_access = list(ACCESS_QM, ACCESS_MINING, ACCESS_MINING_STATION)
+	base_access = list(ACCESS_CARGO, ACCESS_CARGO_BAY, ACCESS_MAINT_TUNNELS, ACCESS_MECH_MINING)
 	paycheck = PAYCHECK_EASY
 	paycheck_department = ACCOUNT_CAR
 
@@ -46,7 +45,11 @@
 	pda_type = /obj/item/modular_computer/tablet/pda/preset/cargo
 
 	ears = /obj/item/radio/headset/headset_cargo
-	uniform = /obj/item/clothing/under/rank/cargotech
-	uniform_skirt = /obj/item/clothing/under/rank/cargotech/skirt
+	uniform = /obj/item/clothing/under/rank/cargo/tech
+	uniform_skirt = /obj/item/clothing/under/rank/cargo/tech/skirt
 	l_hand = /obj/item/export_scanner
 
+/datum/outfit/job/cargo_tech/no_pda
+	name = "Cargo Technician (No PDA)"
+
+	pda_type = null

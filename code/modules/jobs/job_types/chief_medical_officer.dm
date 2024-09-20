@@ -10,7 +10,6 @@
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "the captain"
-	selection_color = "#c1e1ec"
 	req_admin_notify = 1
 	minimal_player_age = 7
 	exp_requirements = 1500 //25 hours
@@ -20,10 +19,13 @@
 
 	outfit = /datum/outfit/job/cmo
 
-	added_access = list(ACCESS_CAPTAIN) //Yogs: Gives CMO access to the brig physicians locker
-	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_GENETICS, ACCESS_CLONING, ACCESS_HEADS, ACCESS_MINERAL_STOREROOM,
-			ACCESS_CHEMISTRY, ACCESS_VIROLOGY, ACCESS_CMO, ACCESS_SURGERY, ACCESS_RC_ANNOUNCE, ACCESS_MECH_MEDICAL,
-			ACCESS_KEYCARD_AUTH, ACCESS_SEC_DOORS, ACCESS_MAINT_TUNNELS, ACCESS_BRIG_PHYS, ACCESS_PARAMEDIC, ACCESS_PSYCH) //Yogs: Gives CMO access to the brig physicians locker
+	added_access = list(ACCESS_CAPTAIN, ACCESS_AI_SAT, ACCESS_AI_MASTER) //Yogs: Gives CMO access to the brig physicians locker
+	base_access = list(ACCESS_COMMAND, ACCESS_MEDICAL, ACCESS_CMO, ACCESS_SURGERY,
+					ACCESS_PARAMEDIC, ACCESS_MORGUE, ACCESS_CHEMISTRY, ACCESS_CLONING,
+					ACCESS_VIROLOGY, ACCESS_PSYCHOLOGY, ACCESS_GENETICS, ACCESS_BRIG_PHYS,
+					ACCESS_MECH_MEDICAL, ACCESS_SEC_BASIC, ACCESS_MAINT_TUNNELS, ACCESS_EVA,
+				 	ACCESS_BRIG_PHYS, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH)
+
 	paycheck = PAYCHECK_COMMAND
 	paycheck_department = ACCOUNT_MED
 
@@ -63,8 +65,8 @@
 
 	belt = /obj/item/storage/belt/medical/chief/full
 	ears = /obj/item/radio/headset/heads/cmo
-	uniform = /obj/item/clothing/under/rank/chief_medical_officer
-	uniform_skirt = /obj/item/clothing/under/rank/chief_medical_officer/skirt
+	uniform = /obj/item/clothing/under/rank/medical/chief_medical_officer
+	uniform_skirt = /obj/item/clothing/under/rank/medical/chief_medical_officer/skirt
 	shoes = /obj/item/clothing/shoes/sneakers/brown
 	digitigrade_shoes = /obj/item/clothing/shoes/xeno_wraps/command
 	suit = /obj/item/clothing/suit/toggle/labcoat/cmo

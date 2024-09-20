@@ -185,8 +185,8 @@
 		return FALSE
 	return TRUE
 
-/obj/structure/holosign/barrier/medical/attack_hand(mob/living/user)
-	if(CanPass(user) && user.a_intent == INTENT_HELP)
+/obj/structure/holosign/barrier/medical/attack_hand(mob/living/user, modifiers)
+	if(CanPass(user) && !user.combat_mode)
 		force_allaccess = !force_allaccess
 		to_chat(user, span_warning("You [force_allaccess ? "deactivate" : "activate"] the biometric scanners.")) //warning spans because you can make the station sick!
 	else
@@ -237,7 +237,7 @@
 	icon_state = "[initial(icon_state)][stasis ? "" : "_off"]"
 
 /obj/structure/holobed/AltClick(mob/living/user)
-	if(user.a_intent == INTENT_HELP)
+	if(!user.combat_mode)
 		stasis = !stasis
 		handle_stasis(occupant)
 		update_appearance(UPDATE_ICON)
@@ -284,7 +284,7 @@
 	if(!shockcd)
 		if(ismob(user))
 			var/mob/living/M = user
-			M.electrocute_act(15,"Energy Barrier", zone=user.held_index_to_body_zone(user.active_hand_index)) // you touched it with your hand
+			M.electrocute_act(15,"Energy Barrier", zone=user.held_index_to_hand(user.active_hand_index)) // you touched it with your hand
 			shockcd = TRUE
 			addtimer(CALLBACK(src, PROC_REF(cooldown)), 5)
 

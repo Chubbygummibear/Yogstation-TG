@@ -1,10 +1,10 @@
 /datum/computer_file/program/job_management
 	filename = "job_manage"
 	filedesc = "Job Manager"
-	category = PROGRAM_CATEGORY_CMD
+	category = PROGRAM_CATEGORY_EQUIPMENT
 	program_icon_state = "id"
 	extended_desc = "Program for viewing and changing job slot availability."
-	transfer_access = ACCESS_HEADS
+	transfer_access = ACCESS_COMMAND
 	usage_flags = PROGRAM_CONSOLE | PROGRAM_LAPTOP | PROGRAM_TABLET | PROGRAM_PHONE | PROGRAM_PDA
 	size = 4
 	tgui_id = "NtosJobManager"
@@ -16,6 +16,7 @@
 		"AI",
 		"Assistant",
 		"Cyborg",
+		"Synthetic",
 		"Captain",
 		"Head of Personnel",
 		"Head of Security",

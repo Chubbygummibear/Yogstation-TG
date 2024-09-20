@@ -83,7 +83,7 @@ All foods are distributed among various categories. Use common sense.
 
 
 /obj/item/reagent_containers/food/snacks/attack(mob/living/M, mob/living/user, def_zone)
-	if(user.a_intent == INTENT_HARM)
+	if(user.combat_mode)
 		return ..()
 	if(!eatverb)
 		eatverb = pick("bite","chew","nibble","gnaw","gobble","chomp")
@@ -120,16 +120,6 @@ All foods are distributed among various categories. Use common sense.
 
 		if(!C.eat_text(fullness, eatverb, src, C, user))
 			return
-
-		if(!junkiness)
-			var/ate_without_table = TRUE
-			for(var/obj/structure/table/table in range(1, M))
-				ate_without_table = FALSE
-				break
-			if(ate_without_table)
-				SEND_SIGNAL(M, COMSIG_ADD_MOOD_EVENT, "no_table", /datum/mood_event/ate_without_table)
-			else
-				SEND_SIGNAL(M, COMSIG_CLEAR_MOOD_EVENT, "no_table")
 
 		if(reagents)								//Handle ingestion of the reagent.
 			if(M.satiety > -200)

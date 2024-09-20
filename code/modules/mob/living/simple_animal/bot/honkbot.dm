@@ -45,6 +45,11 @@
 	access_card.access += J.get_access()
 	prev_access = access_card.access
 
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 /mob/living/simple_animal/bot/honkbot/proc/spam_flag_false() //used for addtimer
 	spam_flag = FALSE
 
@@ -112,8 +117,8 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 		target = H
 		mode = BOT_HUNT
 
-/mob/living/simple_animal/bot/honkbot/attack_hand(mob/living/carbon/human/H)
-	if(H.a_intent == INTENT_HARM)
+/mob/living/simple_animal/bot/honkbot/attack_hand(mob/living/carbon/human/H, modifiers)
+	if(H.combat_mode)
 		retaliate(H)
 		addtimer(CALLBACK(src, PROC_REF(react_buzz)), 5)
 	return ..()
@@ -192,10 +197,10 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 		sensor_blink()
 	if(spam_flag == 0)
 		if(ishuman(C))
-			C.adjust_stutter(20 SECONDS)
+			C.adjust_stutter_up_to(20 SECONDS, 50 SECONDS)
+			C.adjust_jitter_up_to(20 SECONDS, 50 SECONDS)
 			C.adjustEarDamage(0, 5) //far less damage than the H.O.N.K.
-			C.adjust_jitter(50 SECONDS)
-			C.Paralyze(60)
+			C.Paralyze(6 SECONDS)
 			var/mob/living/carbon/human/H = C
 			if(client) //prevent spam from players..
 				spam_flag = TRUE
@@ -213,7 +218,7 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 			C.visible_message(span_danger("[src] has honked [C]!"),\
 					span_userdanger("[src] has honked you!"))
 		else
-			C.adjust_stutter(20 SECONDS)
+			C.adjust_stutter_up_to(20 SECONDS, 50 SECONDS)
 			C.Paralyze(8 SECONDS)
 			addtimer(CALLBACK(src, PROC_REF(spam_flag_false)), cooldowntime)
 
@@ -344,7 +349,7 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 		target = user
 		mode = BOT_HUNT
 
-/mob/living/simple_animal/bot/honkbot/Crossed(atom/movable/AM)
+/mob/living/simple_animal/bot/honkbot/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(ismob(AM) && (on)) //only if its online
 		if(prob(30)) //you're far more likely to trip on a honkbot
 			var/mob/living/carbon/C = AM
@@ -363,7 +368,6 @@ Maintenance panel panel is [open ? "opened" : "closed"]"},
 				speak("Honk!")
 			sensor_blink()
 			return
-	..()
 
 /obj/machinery/bot_core/honkbot
 	req_one_access = list(ACCESS_THEATRE, ACCESS_ROBO_CONTROL)

@@ -32,10 +32,7 @@
 /obj/item/mecha_parts/mecha_equipment/weapon/proc/get_shot_amount()
 	return projectiles_per_shot
 
-/obj/item/mecha_parts/mecha_equipment/weapon/action(atom/target, params)
-	if(!action_checks(target))
-		return 0
-
+/obj/item/mecha_parts/mecha_equipment/weapon/action(atom/target, mob/living/user, params)
 	var/turf/curloc = get_turf(chassis)
 	var/turf/targloc = get_turf(target)
 	if (!targloc || !istype(targloc) || !curloc)
@@ -65,7 +62,7 @@
 		sleep(max(0, projectile_delay))
 
 	if(kickback)
-		chassis.newtonian_move(turn(chassis.dir,180))
+		chassis.newtonian_move(get_dir(target, chassis))
 	chassis.log_message("Fired from [src.name], targeting [target].", LOG_MECHA)
 	return 1
 
@@ -76,11 +73,13 @@
 	firing_effect_type = /obj/effect/temp_visual/dir_setting/firing_effect/energy
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/get_shot_amount()
-	return min(round(chassis.cell.charge / energy_drain), projectiles_per_shot)
+	return min(round(chassis.cell.charge / energy_drain), round((OVERHEAT_MAXIMUM - chassis.overheat) / heat_cost), projectiles_per_shot)
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/start_cooldown()
 	set_ready_state(0)
-	chassis.use_power(energy_drain*get_shot_amount())
+	var/shot_amount = get_shot_amount()
+	chassis.use_power(energy_drain * shot_amount)
+	chassis.adjust_overheat(heat_cost * shot_amount)
 	addtimer(CALLBACK(src, PROC_REF(set_ready_state), 1), equip_cooldown)
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser
@@ -88,7 +87,8 @@
 	name = "\improper CH-PS \"Immolator\" laser"
 	desc = "A weapon for combat exosuits. Shoots basic lasers."
 	icon_state = "mecha_laser"
-	energy_drain = 30
+	energy_drain = 3
+	heat_cost = 5
 	projectile = /obj/projectile/beam/laser
 	fire_sound = 'sound/weapons/laser.ogg'
 	harmful = TRUE
@@ -98,17 +98,25 @@
 	name = "\improper CH-DS \"Peacemaker\" disabler"
 	desc = "A weapon for combat exosuits. Shoots basic disablers."
 	icon_state = "mecha_disabler"
-	energy_drain = 30
+	energy_drain = 3
+	heat_cost = 2
 	projectile = /obj/projectile/beam/disabler
 	fire_sound = 'sound/weapons/taser2.ogg'
+
+/obj/item/mecha_parts/mecha_equipment/weapon/energy/disabler/action_checks(atom/target)
+	. = ..()
+	if(. && HAS_TRAIT(chassis.occupant, TRAIT_NO_STUN_WEAPONS))
+		to_chat(chassis.occupant, span_warning("You cannot use non-lethal weapons!"))
+		return FALSE
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser/heavy
 	equip_cooldown = 15
 	name = "\improper CH-LC \"Solaris\" laser cannon"
 	desc = "A weapon for combat exosuits. Shoots heavy lasers."
 	icon_state = "mecha_laser"
-	energy_drain = 60
-	projectile = /obj/projectile/beam/laser/heavylaser
+	energy_drain = 6
+	heat_cost = 15
+	projectile = /obj/projectile/beam/laser/heavylaser/no_fire
 	fire_sound = 'sound/weapons/lasercannonfire.ogg'
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/laser/xray
@@ -116,7 +124,8 @@
 	name = "\improper CH-XC \"Transitum\" x-ray laser"
 	desc = "A weapon for combat exosuits. Shoots concentrated X-ray blasts."
 	icon_state = "mecha_xray"
-	energy_drain = 60
+	energy_drain = 6
+	heat_cost = 15
 	projectile = /obj/projectile/beam/xray
 	fire_sound = 'sound/weapons/laser3.ogg'
 
@@ -125,7 +134,8 @@
 	name = "\improper MKIV ion heavy cannon"
 	desc = "A weapon for combat exosuits. Shoots technology-disabling ion beams. Don't catch yourself in the blast!"
 	icon_state = "mecha_ion"
-	energy_drain = 200
+	energy_drain = 20
+	heat_cost = 10
 	projectile = /obj/projectile/ion/heavy	//Big boy 2/2 EMP bolts
 	fire_sound = 'sound/weapons/laser.ogg'
 
@@ -134,7 +144,8 @@
 	name = "\improper MKI Tesla Cannon"
 	desc = "A weapon for combat exosuits. Fires bolts of electricity similar to the experimental tesla engine."
 	icon_state = "mecha_ion"
-	energy_drain = 500
+	energy_drain = 50
+	heat_cost = 10
 	projectile = /obj/projectile/energy/tesla/cannon
 	fire_sound = 'sound/magic/lightningbolt.ogg'
 	harmful = TRUE
@@ -144,22 +155,28 @@
 	name = "eZ-13 MK2 heavy pulse rifle"
 	desc = "A weapon for combat exosuits. Shoots powerful destructive blasts capable of demolishing obstacles."
 	icon_state = "mecha_pulse"
-	energy_drain = 120
+	energy_drain = 12
+	heat_cost = 20
 	projectile = /obj/projectile/beam/pulse/heavy
 	fire_sound = 'sound/weapons/marauder.ogg'
 	harmful = TRUE
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/plasma
 	equip_cooldown = 10
+	range = MECHA_MELEE|MECHA_RANGED
 	name = "217-D Heavy Plasma Cutter"
 	desc = "A device that shoots resonant plasma bursts at extreme velocity. The blasts are capable of crushing rock and demolishing solid obstacles."
 	icon_state = "mecha_plasmacutter"
 	item_state = "plasmacutter"
 	lefthand_file = 'icons/mob/inhands/weapons/guns_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/weapons/guns_righthand.dmi'
-	energy_drain = 30
+	energy_drain = 3
+	heat_cost = 2
 	projectile = /obj/projectile/plasma/adv/mech
 	fire_sound = 'sound/weapons/plasma_cutter.ogg'
+	usesound = list('sound/items/welder.ogg', 'sound/items/welder2.ogg')
+	toolspeed = 0.25 // high-power cutting
+	tool_behaviour = TOOL_WELDER
 	harmful = FALSE
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/plasma/can_attach(obj/mecha/M)
@@ -171,12 +188,28 @@
 		return 1
 	return 0
 
+/obj/item/mecha_parts/mecha_equipment/weapon/energy/plasma/action(atom/target, mob/living/user, params)
+	if(!chassis.Adjacent(target))
+		return ..()
+	// Again, two ways using tools can be handled, so check both
+	if(target.tool_act(chassis.occupant, src, TOOL_WELDER, params) & TOOL_ACT_MELEE_CHAIN_BLOCKING)
+		return TRUE
+	if(target.attackby(src, chassis.occupant, params))
+		return TRUE
+	if(user.combat_mode) // hurt things
+		chassis.default_melee_attack(target)
+	return TRUE
+
+/obj/item/mecha_parts/mecha_equipment/weapon/energy/plasma/use(used)
+	return chassis?.cell?.use(used * energy_drain)
+
 /obj/item/mecha_parts/mecha_equipment/weapon/energy/mecha_kineticgun
 	equip_cooldown = 10
 	name = "Exosuit Proto-kinetic Accelerator"
 	desc = "An exosuit-mounted mining tool that does increased damage in low pressure. Drawing from an onboard power source allows it to project further than the handheld version."
 	icon_state = "mecha_kineticgun"
-	energy_drain = 30
+	energy_drain = 3
+	heat_cost = 2
 	projectile = /obj/projectile/kinetic/mech
 	fire_sound = 'sound/weapons/kenetic_accel.ogg'
 	harmful = FALSE
@@ -195,8 +228,9 @@
 	name = "\improper PBT \"Pacifier\" mounted taser"
 	desc = "A weapon for combat exosuits. Shoots non-lethal stunning electrodes."
 	icon_state = "mecha_taser"
-	energy_drain = 20
+	energy_drain = 2
 	equip_cooldown = 8
+	heat_cost = 5
 	projectile = /obj/projectile/energy/electrode
 	fire_sound = 'sound/weapons/taser.ogg'
 
@@ -205,8 +239,9 @@
 	name = "\improper HoNkER BlAsT 5000"
 	desc = "Equipment for clown exosuits. Spreads fun and joy to everyone around. Honk!"
 	icon_state = "mecha_honker"
-	energy_drain = 200
+	energy_drain = 20
 	equip_cooldown = 150
+	heat_cost = 20
 	range = MECHA_MELEE|MECHA_RANGED
 	kickback = FALSE
 	mech_flags = EXOSUIT_MODULE_HONK
@@ -218,8 +253,6 @@
 	return 0
 
 /obj/item/mecha_parts/mecha_equipment/weapon/honker/action(target, params)
-	if(!action_checks(target))
-		return
 	playsound(chassis, 'sound/items/airhorn.ogg', 100, 1)
 	chassis.occupant_message("<font color='red' size='5'>HONK</font>")
 	for(var/mob/living/carbon/M in ohearers(6, chassis))
@@ -309,7 +342,7 @@
 		src.rearm()
 	return
 
-/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/action(atom/target)
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/action(atom/target, mob/living/user, params)
 	if(..())
 		projectiles -= get_shot_amount()
 		send_byjax(chassis.occupant,"exosuit.browser","[REF(src)]",src.get_equip_info())
@@ -321,6 +354,7 @@
 	desc = "A weapon for combat exosuits. Shoots incendiary bullets."
 	icon_state = "mecha_carbine"
 	equip_cooldown = 10
+	heat_cost = 4
 	projectile = /obj/projectile/bullet/incendiary/fnx99
 	projectiles = 24
 	projectiles_cache = 24
@@ -334,6 +368,7 @@
 	fire_sound = null
 	icon_state = "mecha_mime"
 	equip_cooldown = 30
+	heat_cost = 10
 	projectile = /obj/projectile/bullet/mime
 	projectiles = 6
 	projectile_energy_cost = 50
@@ -344,6 +379,7 @@
 	desc = "A weapon for combat exosuits. Shoots a spread of pellets."
 	icon_state = "mecha_scatter"
 	equip_cooldown = 20
+	heat_cost = 8
 	projectile = /obj/projectile/bullet/scattershot
 	projectiles = 72
 	projectiles_cache = 72
@@ -358,6 +394,7 @@
 	desc = "A weapon for combat exosuits. Shoots a rapid, three shot burst."
 	icon_state = "mecha_uac2"
 	equip_cooldown = 10
+	heat_cost = 3
 	projectile = /obj/projectile/bullet/lmg
 	projectiles = 300
 	projectiles_cache = 300
@@ -374,6 +411,7 @@
 	desc = "A weapon for combat exosuits. Shoots an incredibly hot beam surrounded by a field of plasma."
 	icon_state = "mecha_laser"
 	equip_cooldown = 2 SECONDS
+	heat_cost = 15
 	projectile = /obj/projectile/beam/bfg
 	projectiles = 5
 	projectiles_cache = 0
@@ -381,6 +419,20 @@
 	harmful = TRUE
 	ammo_type = "bfg"
 	fire_sound = 'sound/weapons/lasercannonfire.ogg'
+
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/venom
+	name = "\improper K0-B3 \"Snakebite\" Carbine"
+	desc = "A weapon for combat exosuits. Shoots incendiary bullets."
+	icon_state = "mecha_venom"
+	equip_cooldown = 10
+	heat_cost = 5
+	fire_sound = 'sound/weapons/smgshot.ogg'
+	projectile = /obj/projectile/bullet/c45/venom	//yes the same one
+	projectiles = 24
+	projectiles_cache = 24
+	projectiles_cache_max = 96
+	harmful = TRUE
+	ammo_type = "venom"
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack
 	name = "\improper SRM-8 missile rack"
@@ -393,6 +445,7 @@
 	projectiles_cache_max = 0
 	disabledreload = TRUE
 	equip_cooldown = 60
+	heat_cost = 20
 	harmful = TRUE
 	ammo_type = "missiles_he"
 
@@ -407,6 +460,7 @@
 	projectiles_cache_max = 0
 	disabledreload = TRUE
 	equip_cooldown = 60
+	heat_cost = 20
 	harmful = TRUE
 	ammo_type = "missiles_br"
 
@@ -417,8 +471,6 @@
 	var/diags_first = FALSE
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/launcher/action(target)
-	if(!action_checks(target))
-		return
 	var/obj/O = new projectile(chassis.loc)
 	playsound(chassis, fire_sound, 50, 1)
 	log_message("Launched a [O.name] from [name], targeting [target].", LOG_MECHA)
@@ -443,6 +495,7 @@
 	projectiles_cache_max = 24
 	missile_speed = 1.5
 	equip_cooldown = 60
+	heat_cost = 10
 	var/det_time = 20
 	ammo_type = "flashbang"
 
@@ -461,6 +514,7 @@
 	disabledreload = TRUE
 	projectile = /obj/item/grenade/clusterbuster
 	equip_cooldown = 90
+	heat_cost = 20
 	ammo_type = "clusterbang"
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/launcher/banana_mortar
@@ -473,6 +527,7 @@
 	missile_speed = 1.5
 	projectile_energy_cost = 100
 	equip_cooldown = 20
+	heat_cost = 2 // honk
 	mech_flags = EXOSUIT_MODULE_HONK
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/launcher/banana_mortar/can_attach(obj/mecha/combat/honker/M)
@@ -491,6 +546,7 @@
 	missile_speed = 1.5
 	projectile_energy_cost = 100
 	equip_cooldown = 10
+	heat_cost = 2
 	mech_flags = EXOSUIT_MODULE_HONK
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/launcher/mousetrap_mortar/can_attach(obj/mecha/combat/honker/M)
@@ -510,6 +566,7 @@
 	icon_state = "mecha_punching_glove"
 	energy_drain = 250
 	equip_cooldown = 20
+	heat_cost = 5
 	range = MECHA_MELEE|MECHA_RANGED
 	missile_range = 5
 	projectile = /obj/item/punching_glove
@@ -548,3 +605,42 @@
 			var/atom/movable/AM = hit_atom
 			AM.safe_throw_at(get_edge_target_turf(AM,get_dir(src, AM)), 7, 2)
 		qdel(src)
+
+// pressure washer, technically a gun
+/obj/item/mecha_parts/mecha_equipment/weapon/pressure_washer
+	name = "exosuit-mounted pressure washer"
+	desc = "A high-power pressure washer."
+	icon_state = "mecha_washer"
+	range = MECHA_MELEE|MECHA_RANGED
+	projectile = /obj/projectile/reagent/pressure_washer
+	firing_effect_type = null
+	fire_sound = 'sound/effects/extinguish.ogg'
+	var/chem_amount = 5
+
+/obj/item/mecha_parts/mecha_equipment/weapon/pressure_washer/Initialize(mapload)
+	. = ..()
+	create_reagents(1000)
+	reagents.add_reagent(/datum/reagent/water, 1000)
+
+/obj/item/mecha_parts/mecha_equipment/weapon/pressure_washer/action(atom/target, mob/living/user, params)
+	if(istype(target, /obj/structure/reagent_dispensers/watertank) && get_dist(chassis,target) <= 1)
+		var/obj/structure/reagent_dispensers/WT = target
+		WT.reagents.trans_to(src, 1000)
+		occupant_message(span_notice("Pressure washer refilled."))
+		playsound(chassis, 'sound/effects/refill.ogg', 50, 1, -6)
+		return TRUE
+	else if(reagents.total_volume < 1)
+		occupant_message(span_notice("Not enough water!"))
+		return TRUE
+	if(..())
+		reagents.remove_reagent(/datum/reagent/water, chem_amount)
+		return TRUE
+	return FALSE
+
+/obj/item/mecha_parts/mecha_equipment/weapon/pressure_washer/can_attach(obj/mecha/M)
+	if(istype(M, /obj/mecha/working) && M.equipment.len < M.max_equip)
+		return TRUE
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/weapon/pressure_washer/get_equip_info()
+	return "[..()] \[[src.reagents.total_volume]\]"

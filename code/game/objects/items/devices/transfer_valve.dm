@@ -14,6 +14,13 @@
 	var/valve_open = FALSE
 	var/toggle = TRUE
 
+/obj/item/transfer_valve/Initialize(mapload)
+	. = ..()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 /obj/item/transfer_valve/Destroy()
 	attached_device = null
 	return ..()
@@ -70,17 +77,16 @@
 	if(attached_device)
 		attached_device.on_found(finder)
 
-/obj/item/transfer_valve/Crossed(atom/movable/AM as mob|obj)
-	. = ..()
+/obj/item/transfer_valve/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(attached_device)
 		attached_device.Crossed(AM)
 
-/obj/item/transfer_valve/attack_hand()//Triggers mousetraps
+/obj/item/transfer_valve/attack_hand(mob/user, modifiers)//Triggers mousetraps
 	. = ..()
 	if(.)
 		return
 	if(attached_device)
-		attached_device.attack_hand()
+		attached_device.attack_hand(user, modifiers)
 
 //These keep attached devices synced up, for example a TTV with a mouse trap being found in a bag so it's triggered, or moving the TTV with an infrared beam sensor to update the beam's direction.
 

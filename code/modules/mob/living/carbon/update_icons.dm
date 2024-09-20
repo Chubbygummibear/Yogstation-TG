@@ -237,8 +237,12 @@
 //Overlays for the worn overlay so you can overlay while you overlay
 //eg: ammo counters, primed grenade flashing, etc.
 //"icon_file" is used automatically for inhands etc. to make sure it gets the right inhand file
-/obj/item/proc/worn_overlays(isinhands = FALSE, icon_file)
+/obj/item/proc/worn_overlays(mutable_appearance/standing, isinhands = FALSE, icon_file)
+	SHOULD_CALL_PARENT(TRUE)
+	RETURN_TYPE(/list)
+
 	. = list()
+	SEND_SIGNAL(src, COMSIG_ITEM_GET_WORN_OVERLAYS, ., standing, isinhands, icon_file)
 
 /mob/living/carbon/proc/assign_bodypart_ownership()
 	for(var/X in bodyparts)
@@ -475,11 +479,12 @@
 //produces a key based on the mob's limbs
 
 /mob/living/carbon/proc/generate_icon_render_key()
+	var/squished = HAS_TRAIT(src, TRAIT_DIGI_SQUISH)
 	for(var/X in bodyparts)
 		var/obj/item/bodypart/BP = X
 		. += "-[BP.body_zone]"
 		if(BP.use_digitigrade)
-			. += "-digitigrade[BP.use_digitigrade]"
+			. += "-digitigrade[squished]"
 		if(BP.animal_origin)
 			. += "-[BP.animal_origin]"
 		if(BP.status == BODYPART_ORGANIC)

@@ -61,6 +61,7 @@
 	var/dimension_y = 32
 	var/limbs_id // The limbs id supplied for full-body replacing features.
 	var/center = FALSE	//Should we center the sprite?
+	var/emissive = FALSE //is this emissive?
 
 //////////////////////
 // Hair Definitions //
@@ -857,6 +858,7 @@
 /datum/sprite_accessory/ipc_screens
 	icon = 'icons/mob/ipc_accessories.dmi'
 	color_src = EYECOLOR
+	emissive = TRUE
 
 /datum/sprite_accessory/ipc_screens/blue
 	name = "Blue"
@@ -875,6 +877,7 @@
 /datum/sprite_accessory/ipc_screens/blank
 	name = "Null"
 	icon_state = "blank"
+	emissive = FALSE
 
 /datum/sprite_accessory/ipc_screens/console
 	name = "Console"
@@ -2008,6 +2011,22 @@
 	name = "Dark Tiger"
 	icon_state = "dtiger"
 
+/datum/sprite_accessory/tails/lizard/ltiger
+	name = "Light Tiger"
+	icon_state = "ltiger"
+
+/datum/sprite_accessory/tails_animated/lizard/ltiger
+	name = "Light Tiger"
+	icon_state = "ltiger"
+
+/datum/sprite_accessory/tails/lizard/plated
+	name = "Plated"
+	icon_state = "plated"
+
+/datum/sprite_accessory/tails_animated/lizard/plated
+	name = "Plated"
+	icon_state = "plated"
+
 /datum/sprite_accessory/tails/lizard/spikes
 	name = "Spikes"
 	icon_state = "spikes"
@@ -2032,6 +2051,16 @@
 /datum/sprite_accessory/tails_animated/human/cat
 	name = "Cat"
 	icon_state = "cat"
+	color_src = HAIR
+
+/datum/sprite_accessory/tails/human/fox
+	name = "Fox"
+	icon_state = "fox"
+	color_src = HAIR
+
+/datum/sprite_accessory/tails_animated/human/fox
+	name = "Fox"
+	icon_state = "fox"
 	color_src = HAIR
 
 /datum/sprite_accessory/snouts
@@ -2106,7 +2135,13 @@
 /datum/sprite_accessory/ears/cat
 	name = "Cat"
 	icon_state = "cat"
-	hasinner = 1
+	hasinner = TRUE
+	color_src = HAIR
+
+/datum/sprite_accessory/ears/fox
+	name = "Fox"
+	icon_state = "fox"
+	hasinner = TRUE
 	color_src = HAIR
 
 /datum/sprite_accessory/wings/none
@@ -2242,6 +2277,7 @@
 	center = TRUE
 	dimension_y = 34
 	locked = TRUE
+	emissive = TRUE
 
 /datum/sprite_accessory/wings_open/ethereal
 	name = "Ethereal"
@@ -2249,6 +2285,7 @@
 	dimension_x = 46
 	center = TRUE
 	dimension_y = 34
+	emissive = TRUE
 
 /datum/sprite_accessory/wings/etherealdetails
 	name = "Etherealdetails"
@@ -2258,6 +2295,7 @@
 	dimension_y = 34
 	locked = TRUE
 	color_src = null
+	emissive = TRUE
 
 /datum/sprite_accessory/wings_open/etherealdetails
 	name = "Etherealdetails"
@@ -2266,6 +2304,7 @@
 	center = TRUE
 	dimension_y = 34
 	color_src = null
+	emissive = TRUE
 
 /datum/sprite_accessory/wings/elytra
 	name = "Elytra"
@@ -2275,6 +2314,7 @@
 	dimension_y = 32
 	locked = TRUE
 	color_src = EYECOLOR
+	emissive = TRUE
 
 /datum/sprite_accessory/wings_open/elytra
 	name = "Elytra"
@@ -2283,6 +2323,7 @@
 	center = TRUE
 	dimension_y = 32
 	color_src = EYECOLOR
+	emissive = TRUE
 
 /datum/sprite_accessory/frills
 	icon = 'icons/mob/mutant_bodyparts.dmi'
@@ -2369,6 +2410,14 @@
 	name = "Aquatic"
 	icon_state = "aqua"
 
+/datum/sprite_accessory/spines/plated
+	name = "Plated"
+	icon_state = "plated"
+
+/datum/sprite_accessory/spines_animated/plated
+	name = "Plated"
+	icon_state = "plated"
+
 /datum/sprite_accessory/legs 	//legs are a special case, they aren't actually sprite_accessories but are updated with them.
 	icon = null					//These datums exist for selecting legs on preference, and little else
 
@@ -2389,7 +2438,7 @@
 /datum/sprite_accessory/moth_wings
 	icon = 'yogstation/icons/mob/wings.dmi' //yogs moth sprite fix
 	color_src = null
-	
+
 /datum/sprite_accessory/moth_wingsopen
 	icon = 'icons/mob/moth_wingsopen.dmi'
 	color_src = null
@@ -2598,10 +2647,23 @@
 /datum/sprite_accessory/ethereal_mark
 	icon = 'icons/mob/mutant_bodyparts.dmi'
 	color_src = EYECOLOR
+	emissive = TRUE
+
+/datum/sprite_accessory/ethereal_mark/cheese
+	name = "Cheese"
+	icon_state = "cheese"
+
+/datum/sprite_accessory/ethereal_mark/druid
+	name = "Druid"
+	icon_state = "druid"
 
 /datum/sprite_accessory/ethereal_mark/eyes
 	name = "Eyes"
 	icon_state = "eyes"
+
+/datum/sprite_accessory/ethereal_mark/full
+	name = "Full"
+	icon_state = "full"
 
 /datum/sprite_accessory/ethereal_mark/diamond
 	name = "Diamond"
@@ -2611,13 +2673,33 @@
 	name = "Heart"
 	icon_state = "heart"
 
+/datum/sprite_accessory/ethereal_mark/mc
+	name = "M.C."
+	icon_state = "mc"
+
+/datum/sprite_accessory/ethereal_mark/nova
+	name = "Nova"
+	icon_state = "nova"
+
 /datum/sprite_accessory/ethereal_mark/omega
 	name = "Omega"
 	icon_state = "omega"
 
+/datum/sprite_accessory/ethereal_mark/onion
+	name = "Onion"
+	icon_state = "onion"
+
 /datum/sprite_accessory/ethereal_mark/plus
 	name = "Plus"
 	icon_state = "plus"
+
+/datum/sprite_accessory/ethereal_mark/shard
+	name = "Shard"
+	icon_state = "shard"
+
+/datum/sprite_accessory/ethereal_mark/stars
+	name = "Stars"
+	icon_state = "stars"
 
 /datum/sprite_accessory/ethereal_mark/triangle
 	name = "Triangle"
@@ -2717,6 +2799,7 @@
 /datum/sprite_accessory/preternis_eye
 	icon = 'icons/mob/mutant_bodyparts.dmi'
 	color_src = EYECOLOR
+	emissive = TRUE
 
 /datum/sprite_accessory/preternis_eye/one
 	name = "Standard"
@@ -2754,6 +2837,7 @@
 /datum/sprite_accessory/preternis_core
 	icon = 'icons/mob/mutant_bodyparts.dmi'
 	color_src = EYECOLOR
+	emissive = TRUE
 
 /datum/sprite_accessory/preternis_core/core
 	name = "Core"

@@ -170,6 +170,7 @@
 		"coding.png" = 'html/coding.png',
 		"ban.png" = 'html/ban.png',
 		"chrome-wrench.png" = 'html/chrome-wrench.png',
+		"mapping.png" = 'html/mapping.png',
 		"changelog.css" = 'html/changelog.css'
 	)
 	parents = list("changelog.html" = 'html/changelog.html')
@@ -367,6 +368,14 @@
 				if (machine)
 					item = machine
 
+			// Check for GAGS support where necessary
+			var/greyscale_config = initial(item.greyscale_config)
+			var/greyscale_colors = initial(item.greyscale_colors)
+			if (greyscale_config && greyscale_colors)
+				icon_file = SSgreyscale.GetColoredIconByType(greyscale_config, greyscale_colors)
+			else
+				icon_file = initial(item.icon)
+
 			icon_file = initial(item.icon)
 			icon_state = initial(item.icon_state)
 			#ifdef UNIT_TESTS
@@ -398,7 +407,11 @@
 		if (!ispath(item, /atom))
 			continue
 
-		var/icon_file = initial(item.icon)
+		var/icon_file
+		if (initial(item.greyscale_colors) && initial(item.greyscale_config))
+			icon_file = SSgreyscale.GetColoredIconByType(initial(item.greyscale_config), initial(item.greyscale_colors))
+		else
+			icon_file = initial(item.icon)
 		var/icon_state = initial(item.icon_state)
 		if(ispath(item, /obj/item/ammo_box))
 			var/obj/item/ammo_box/ammoitem = item
@@ -414,7 +427,7 @@
 					icon_states_string = "[json_encode(an_icon_state)](\ref[an_icon_state])"
 				else
 					icon_states_string += ", [json_encode(an_icon_state)](\ref[an_icon_state])"
-	
+
 			stack_trace("[item] does not have a valid icon state, icon=[icon_file], icon_state=[json_encode(icon_state)](\ref[icon_state]), icon_states=[icon_states_string]")
 			continue
 		#endif
@@ -468,7 +481,7 @@
 			I.Blend(c, ICON_MULTIPLY)
 
 		var/imgid = replacetext(replacetext("[item]", "/obj/item/", ""), "/", "-")
-		
+
 		if(!sprites[imgid])
 			Insert(imgid, I)
 
@@ -599,9 +612,6 @@
 /datum/asset/spritesheet/sheetmaterials/create_spritesheets()
 	InsertAll("", 'icons/obj/stack_objects.dmi')
 
-	// Special case to handle Bluespace Crystals
-	Insert("polycrystal", 'icons/obj/telescience.dmi', "polycrystal")
-
 	Insert("dilithium_polycrystal", 'yogstation/icons/obj/telescience.dmi', "dilithium_polycrystal") //yogs: same as above but for dilithium
 
 
@@ -651,3 +661,80 @@
 				glow = "pod_glow_[glow]"
 				podIcon.Blend(icon(icon_file, glow), ICON_OVERLAY)
 		Insert("pod_asset[style]", podIcon)
+
+/datum/asset/spritesheet/rcd
+	name = "rcd-tgui"
+
+/datum/asset/spritesheet/rcd/create_spritesheets()
+	//We load airlock icons seperatly from other icons cause they need overlays
+
+	//load all category essential icon_states. format is icon_file = list of icon states we need from that file
+	var/list/essentials = list(
+		'icons/mob/radial.dmi' = list("wallfloor", "delete", "dirwindow", "fullwindow", "dirwindow_r", "fullwindow_r", "cnorth", "csouth", "ceast", "cwest", "chair", "stool", "windoor", "secure_windoor"),
+		'icons/obj/recycling.dmi' = list("conveyor_construct", "switch-off"),
+		'icons/obj/structures.dmi' = list("window0", "rwindow0", "table", "glass_table"),
+		'icons/obj/stock_parts.dmi' = list("box_1"),
+	)
+
+	var/icon/icon
+	for(var/icon_file as anything in essentials)
+		for(var/icon_state as anything in essentials[icon_file])
+			icon = icon(icon = icon_file, icon_state = icon_state)
+			Insert(sanitize_css_class_name(icon_state), icon)
+
+	//for each airlock type we create its overlayed version with the suffix Glass in the sprite name
+	var/list/airlocks = list(
+		"Standard" = 'icons/obj/doors/airlocks/station/public.dmi',
+		"Public" = 'icons/obj/doors/airlocks/station2/glass.dmi',
+		"Engineering" = 'icons/obj/doors/airlocks/station/engineering.dmi',
+		"Atmospherics" = 'icons/obj/doors/airlocks/station/atmos.dmi',
+		"Security" = 'icons/obj/doors/airlocks/station/security.dmi',
+		"Command" = 'icons/obj/doors/airlocks/station/command.dmi',
+		"Medical" = 'icons/obj/doors/airlocks/station/medical.dmi',
+		"Research" = 'icons/obj/doors/airlocks/station/research.dmi',
+		"Freezer" = 'icons/obj/doors/airlocks/station/freezer.dmi',
+		"Virology" = 'icons/obj/doors/airlocks/station/virology.dmi',
+		"Mining" = 'icons/obj/doors/airlocks/station/mining.dmi',
+		"Maintenance" = 'icons/obj/doors/airlocks/station/maintenance.dmi',
+		"External" = 'icons/obj/doors/airlocks/external/external.dmi',
+		"External Maintenance" = 'icons/obj/doors/airlocks/station/maintenanceexternal.dmi',
+		"Airtight Hatch" = 'icons/obj/doors/airlocks/hatch/centcom.dmi',
+		"Maintenance Hatch" = 'icons/obj/doors/airlocks/hatch/maintenance.dmi'
+	)
+	//these 3 types dont have glass doors
+	var/list/exclusion = list("Freezer", "Airtight Hatch", "Maintenance Hatch")
+
+	for(var/airlock_name in airlocks)
+		//solid door with overlay
+		icon = icon(icon = airlocks[airlock_name] , icon_state = "closed" , dir = SOUTH)
+		icon.Blend(icon(icon = airlocks[airlock_name], icon_state = "fill_closed", dir = SOUTH), ICON_OVERLAY)
+		Insert(sanitize_css_class_name(airlock_name), icon)
+
+		//exclude these glass types
+		if(airlock_name in exclusion)
+			continue
+
+		//glass door no overlay
+		icon = icon(airlocks[airlock_name] , "closed" , SOUTH)
+		Insert(sanitize_css_class_name("[airlock_name]Glass"), icon)
+
+/datum/asset/simple/inventory
+	assets = list(
+		"inventory-glasses.png" = 'icons/UI_Icons/inventory_midnight/glasses.png',
+		"inventory-head.png" = 'icons/UI_Icons/inventory_midnight/head.png',
+		"inventory-neck.png" = 'icons/UI_Icons/inventory_midnight/neck.png',
+		"inventory-mask.png" = 'icons/UI_Icons/inventory_midnight/mask.png',
+		"inventory-ears.png" = 'icons/UI_Icons/inventory_midnight/ears.png',
+		"inventory-uniform.png" = 'icons/UI_Icons/inventory_midnight/uniform.png',
+		"inventory-suit.png" = 'icons/UI_Icons/inventory_midnight/suit.png',
+		"inventory-gloves.png" = 'icons/UI_Icons/inventory_midnight/gloves.png',
+		"inventory-hand_l.png" = 'icons/UI_Icons/inventory_midnight/hand_l.png',
+		"inventory-hand_r.png" = 'icons/UI_Icons/inventory_midnight/hand_r.png',
+		"inventory-shoes.png" = 'icons/UI_Icons/inventory_midnight/shoes.png',
+		"inventory-suit_storage.png" = 'icons/UI_Icons/inventory_midnight/suit_storage.png',
+		"inventory-id.png" = 'icons/UI_Icons/inventory_midnight/id.png',
+		"inventory-belt.png" = 'icons/UI_Icons/inventory_midnight/belt.png',
+		"inventory-back.png" = 'icons/UI_Icons/inventory_midnight/back.png',
+		"inventory-pocket.png" = 'icons/UI_Icons/inventory_midnight/pocket.png',
+		"inventory-collar.png" = 'icons/UI_Icons/inventory_midnight/collar.png',
+	)

@@ -1,12 +1,12 @@
 /mob/living/simple_animal/bot/secbot
 	name = "\improper Securitron"
-	desc = "A little security robot.  He looks less than thrilled."
+	desc = "A little security robot. He looks less than thrilled."
 	icon = 'icons/mob/aibots.dmi'
 	icon_state = "secbot"
 	density = FALSE
 	anchored = FALSE
-	health = 25
-	maxHealth = 25
+	health = 50
+	maxHealth = 50
 	damage_coeff = list(BRUTE = 0.5, BURN = 0.7, TOX = 0, CLONE = 0, STAMINA = 0, OXY = 0)
 	pass_flags = PASSMOB
 
@@ -21,6 +21,7 @@
 	data_hud_type = DATA_HUD_SECURITY_ADVANCED
 	path_image_color = "#FF0000"
 
+	var/baton_damage = 60
 	var/baton_type = /obj/item/melee/baton
 	var/mob/living/carbon/target
 	var/oldtarget_name
@@ -52,8 +53,14 @@
 /mob/living/simple_animal/bot/secbot/beepsky/jr/Initialize(mapload)
 	. = ..()
 	resize = 0.8
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 	update_transform()
 
+/mob/living/simple_animal/bot/secbot/apply_damage(damage, damagetype, def_zone, blocked, wound_bonus, bare_wound_bonus, sharpness, attack_direction)
+	return ..(max(damage - 6, 0), damagetype, def_zone, blocked, wound_bonus, bare_wound_bonus, sharpness, attack_direction) // has 6 innate flat damage reduction
 
 /mob/living/simple_animal/bot/secbot/beepsky/explode()
 	lastStunned = null
@@ -183,8 +190,8 @@ Auto Patrol: []"},
 /mob/living/simple_animal/bot/secbot/proc/special_retaliate_after_attack(mob/user) //allows special actions to take place after being attacked.
 	return
 
-/mob/living/simple_animal/bot/secbot/attack_hand(mob/living/carbon/human/H)
-	if((H.a_intent == INTENT_HARM) || (H.a_intent == INTENT_DISARM))
+/mob/living/simple_animal/bot/secbot/attack_hand(mob/living/carbon/human/H, modifiers)
+	if(H.combat_mode || (modifiers && modifiers[RIGHT_CLICK]))
 		retaliate(H)
 		if(special_retaliate_after_attack(H))
 			return
@@ -193,7 +200,7 @@ Auto Patrol: []"},
 
 /mob/living/simple_animal/bot/secbot/attackby(obj/item/W, mob/user, params)
 	..()
-	if(W.tool_behaviour == TOOL_WELDER && user.a_intent != INTENT_HARM) // Any intent but harm will heal, so we shouldn't get angry.
+	if(W.tool_behaviour == TOOL_WELDER && !user.combat_mode) // Non-combat mode will heal, so we shouldn't get angry.
 		return
 	if(W.tool_behaviour != TOOL_SCREWDRIVER && (W.force) && (!target) && (W.damtype != STAMINA) ) // Added check for welding tool to fix #2432. Welding tool behavior is handled in superclass.
 		retaliate(user)
@@ -222,7 +229,7 @@ Auto Patrol: []"},
 		return
 	if(iscarbon(A))
 		var/mob/living/carbon/C = A
-		if((!C.IsParalyzed() || arrest_type) && stuncount < 30)
+		if((C.getStaminaLoss() < C.maxHealth || arrest_type) && stuncount < 30)
 			stun_attack(A)
 			if(lastStunned && lastStunned == A)
 				stuncount++
@@ -268,18 +275,19 @@ Auto Patrol: []"},
 	if(ishuman(C))
 		var/mob/living/carbon/human/H = C
 		threat = H.assess_threat(judgement_criteria, weaponcheck=CALLBACK(src, PROC_REF(check_for_weapons)))
+		if(H.check_shields(src, baton_damage, "[src]'s baton", MELEE_ATTACK, damage_type = STAMINA))
+			return
 	else
 		threat = C.assess_threat(judgement_criteria, weaponcheck=CALLBACK(src, PROC_REF(check_for_weapons)))
-
-	C.Paralyze(10 SECONDS)
-	C.adjust_stutter(5 SECONDS)
+	C.apply_damage(baton_damage, STAMINA, BODY_ZONE_CHEST, C.run_armor_check(BODY_ZONE_CHEST, ENERGY)) // baton runs off of the tiny bot's power instead of an actual cell, not enough to work at full capacity
 	log_combat(src,C,"stunned")
 	if(declare_arrests)
 		var/area/location = get_area(src)
 		speak("[arrest_type ? "Detaining" : "Arresting"] level [threat] scumbag <b>[C]</b> in [location].", radio_channel)
-	C.visible_message(span_danger("[src] has stunned [C]!"),\
-							span_userdanger("[src] has stunned you!"))
-
+	C.visible_message(
+		span_danger("[src] has stunned [C]!"),
+		span_userdanger("[src] has stunned you!")
+	)
 /mob/living/simple_animal/bot/secbot/handle_automated_action()
 	if(!..())
 		return
@@ -323,7 +331,7 @@ Auto Patrol: []"},
 		if(BOT_PREP_ARREST)		// preparing to arrest target
 
 			// see if he got away. If he's no no longer adjacent or inside a closet or about to get up, we hunt again.
-			if( !Adjacent(target) || !isturf(target.loc) ||  target.AmountParalyzed() < 40)
+			if( !Adjacent(target) || !isturf(target.loc) ||  target.getStaminaLoss() < target.maxHealth)
 				back_to_hunt()
 				return
 
@@ -350,7 +358,7 @@ Auto Patrol: []"},
 				back_to_idle()
 				return
 
-			if(!Adjacent(target) || !isturf(target.loc) || (target.loc != target_lastloc && target.AmountParalyzed() < 40)) //if he's changed loc and about to get up or not adjacent or got into a closet, we prep arrest again.
+			if(!Adjacent(target) || !isturf(target.loc) || (target.loc != target_lastloc && target.getStaminaLoss() < target.maxHealth)) //if he's changed loc and about to get up or not adjacent or got into a closet, we prep arrest again.
 				back_to_hunt()
 				return
 			else //Try arresting again if the target escapes.
@@ -445,14 +453,13 @@ Auto Patrol: []"},
 		target = user
 		mode = BOT_HUNT
 
-/mob/living/simple_animal/bot/secbot/Crossed(atom/movable/AM)
+/mob/living/simple_animal/bot/secbot/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(has_gravity() && ismob(AM) && target)
 		var/mob/living/carbon/C = AM
 		if(!istype(C) || !C || in_range(src, target))
 			return
 		knock_over(C)
 		return
-	..()
 
 /obj/machinery/bot_core/secbot
 	req_access = list(ACCESS_SECURITY)

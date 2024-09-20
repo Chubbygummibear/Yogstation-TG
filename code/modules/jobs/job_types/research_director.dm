@@ -11,7 +11,6 @@
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "the captain"
-	selection_color = "#ffddff"
 	req_admin_notify = 1
 	minimal_player_age = 7
 	exp_type_department = EXP_TYPE_SCIENCE
@@ -23,11 +22,13 @@
 	outfit = /datum/outfit/job/rd
 
 	added_access = list(ACCESS_CAPTAIN)
-	base_access = list(ACCESS_RD, ACCESS_HEADS, ACCESS_TOX, ACCESS_GENETICS, ACCESS_MORGUE,
-			            ACCESS_TOX_STORAGE, ACCESS_TELEPORTER, ACCESS_SEC_DOORS, ACCESS_MECH_SCIENCE,
-			            ACCESS_RESEARCH, ACCESS_RND, ACCESS_ROBO_CONTROL, ACCESS_XENOBIOLOGY, ACCESS_AI_UPLOAD,
-			            ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY, ACCESS_MINERAL_STOREROOM,
-			            ACCESS_TECH_STORAGE, ACCESS_MINISAT, ACCESS_MAINT_TUNNELS, ACCESS_NETWORK)
+	base_access = list(ACCESS_COMMAND, ACCESS_SCIENCE, ACCESS_RD, ACCESS_RESEARCH,
+					ACCESS_TOXINS, ACCESS_TOXINS_STORAGE, ACCESS_EXPERIMENTATION, ACCESS_GENETICS,
+					ACCESS_ROBOTICS, ACCESS_ROBO_CONTROL, ACCESS_XENOBIOLOGY, ACCESS_RND_SERVERS,
+					ACCESS_AI_MASTER, ACCESS_AI_SAT, ACCESS_MECH_SCIENCE, ACCESS_TELEPORTER,
+					ACCESS_AUX_BASE, ACCESS_SEC_BASIC, ACCESS_MAINT_TUNNELS, ACCESS_RC_ANNOUNCE,
+					ACCESS_KEYCARD_AUTH)
+
 	paycheck = PAYCHECK_COMMAND
 	paycheck_department = ACCOUNT_SCI
 
@@ -66,7 +67,7 @@
 		/area/science/xenobiology
 	)
 
-	smells_like = "theorhetical education"
+	smells_like = "theoretical education"
 
 /datum/outfit/job/rd
 	name = "Research Director"
@@ -77,8 +78,8 @@
 
 	ears = /obj/item/radio/headset/heads/rd
 	glasses = /obj/item/clothing/glasses/hud/diagnostic/sunglasses/rd
-	uniform = /obj/item/clothing/under/rank/research_director
-	uniform_skirt = /obj/item/clothing/under/rank/research_director/skirt
+	uniform = /obj/item/clothing/under/rank/rnd/research_director
+	uniform_skirt = /obj/item/clothing/under/rank/rnd/research_director/skirt
 	shoes = /obj/item/clothing/shoes/sneakers/brown
 	digitigrade_shoes = /obj/item/clothing/shoes/xeno_wraps/command
 	suit = /obj/item/clothing/suit/toggle/labcoat

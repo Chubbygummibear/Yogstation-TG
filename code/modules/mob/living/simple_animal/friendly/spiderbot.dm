@@ -68,7 +68,7 @@
 		update_appearance(UPDATE_ICON)
 		return 1
 
-	else if(O.tool_behaviour == TOOL_WELDER && (user.a_intent != INTENT_HARM || user == src)) ///Removed needless self repair part
+	else if(O.tool_behaviour == TOOL_WELDER && (!user.combat_mode || user == src)) ///Removed needless self repair part
 		user.changeNext_move(CLICK_CD_MELEE)
 		if (!getBruteLoss())
 			to_chat(user, span_warning("[src] is already in good condition!"))
@@ -164,7 +164,7 @@
 		name = initial(name)
 	update_appearance(UPDATE_ICON)
 
-/mob/living/simple_animal/spiderbot/gib()
+/mob/living/simple_animal/spiderbot/gib(no_brain, no_organs, no_bodyparts, no_items)
 	eject_brain()
 	new /obj/effect/decal/remains/robot(loc)
 	qdel(src)

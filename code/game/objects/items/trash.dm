@@ -46,7 +46,7 @@
 
 /obj/item/trash/plate
 	name = "plate"
-	desc = "a relic from a forgotten time...  I miss eating off of plates..."
+	desc = "A relic from a forgotten time... I miss eating off of plates..."
 	icon_state = "plate"
 	resistance_flags = NONE
 
@@ -84,7 +84,7 @@
 
 /obj/item/trash/floursack
 	name = "torn flour sack"
-	icon = 'yogstation/icons/obj/food/containers.dmi'
+	icon = 'icons/obj/food/containers.dmi'
 	icon_state = "floursad"
 	desc = "Perhaps it shouldn't have been filled with water."
 

@@ -8,14 +8,13 @@
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "the head of personnel"
-	selection_color = "#dddddd"
 
 	outfit = /datum/outfit/job/chaplain
 
 	alt_titles = list("Priest", "Preacher", "Cleric", "Exorcist", "Vicar")
 
 	added_access = list()
-	base_access = list(ACCESS_MORGUE, ACCESS_CHAPEL_OFFICE, ACCESS_CREMATORIUM, ACCESS_THEATRE)
+	base_access = list(ACCESS_SERVICE, ACCESS_CHAPEL_OFFICE, ACCESS_CREMATORIUM, ACCESS_MORGUE, ACCESS_THEATRE)
 	paycheck = PAYCHECK_EASY
 	paycheck_department = ACCOUNT_CIV
 
@@ -105,7 +104,7 @@
 			B.name = "Fluorescent Incandescence"
 		if("lol", "wtf", "gay", "penis", "ass", "poo", "badmin", "shitmin", "deadmin", "cock", "cocks", "meme", "memes")
 			B.name = pick("Woodys Got Wood: The Aftermath", "War of the Cocks", "Sweet Bro and Hella Jef: Expanded Edition","F.A.T.A.L. Rulebook")
-			H.adjustOrganLoss(ORGAN_SLOT_BRAIN, 100) // starts off retarded as fuck
+			H.adjustOrganLoss(ORGAN_SLOT_BRAIN, 100) // starts off stupid as fuck
 		if("monkeyism","apism","gorillism","primatism")
 			B.name = pick("Going Bananas", "Bananas Out For Harambe")
 		if("mormonism")
@@ -176,11 +175,11 @@
 	name = "Chaplain"
 	jobtype = /datum/job/chaplain
 
-	pda_type = /obj/item/modular_computer/tablet/pda/preset/basic
+	pda_type = /obj/item/modular_computer/tablet/pda/preset/chaplain
 
 	ears = /obj/item/radio/headset/headset_srv
-	uniform = /obj/item/clothing/under/rank/chaplain
-	uniform_skirt = /obj/item/clothing/under/rank/chaplain/skirt
+	uniform = /obj/item/clothing/under/rank/civilian/chaplain
+	uniform_skirt = /obj/item/clothing/under/rank/civilian/chaplain/skirt
 	backpack_contents = list(/obj/item/camera/spooky = 1)
 	backpack = /obj/item/storage/backpack/cultpack
 	satchel = /obj/item/storage/backpack/cultpack

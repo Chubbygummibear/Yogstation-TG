@@ -144,7 +144,7 @@ Credit where due:
 	recommended_enemies = 3
 	enemy_minimum_age = 14
 	protected_jobs = list("AI", "Cyborg", "Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Brig Physician") //Silicons can eventually be converted //Yogs: Added Brig Physician
-	restricted_jobs = list("Chaplain", "Captain")
+	restricted_jobs = list("Chaplain", "Captain", "Synthetic")
 	announce_span = "brass"
 	announce_text = "Servants of Ratvar are trying to summon the Justiciar!\n\
 	<span class='brass'>Servants</span>: Construct defenses to protect the Ark. Sabotage the station!\n\
@@ -274,15 +274,16 @@ Credit where due:
 	ears = /obj/item/radio/headset
 	gloves = /obj/item/clothing/gloves/color/yellow //Take them off if you want
 	belt = /obj/item/storage/belt/utility/servant //Take this off and pour it into a toolbox if you want
-	backpack_contents = list(/obj/item/storage/box/engineer = 1, \
-	/obj/item/clockwork/replica_fabricator = 1, /obj/item/stack/tile/brass/fifty = 1, /obj/item/paper/servant_primer = 1)
+	box = /obj/item/storage/box/survival/engineer
+	backpack_contents = list(/obj/item/clockwork/replica_fabricator = 1,\
+							 /obj/item/stack/tile/brass/fifty = 1, /obj/item/paper/servant_primer = 1)
 
 	var/obj/item/id_type = /obj/item/card/id
 	var/obj/item/modular_computer/pda_type = /obj/item/modular_computer/tablet/pda/preset/basic
 	var/plasmaman //We use this to determine if we should activate internals in post_equip()
 
 /datum/outfit/servant_of_ratvar/pre_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
-	if(H.dna.species.id == "plasmaman") //Plasmamen get additional equipment because of how they work
+	if(H.dna.species.id == SPECIES_PLASMAMAN) //Plasmamen get additional equipment because of how they work
 		head = /obj/item/clothing/head/helmet/space/plasmaman
 		uniform = /obj/item/clothing/under/plasmaman //Plasmamen generally shouldn't need chameleon suits anyways, since everyone expects them to wear their fire suit
 		r_hand = /obj/item/tank/internals/plasmaman/belt/full

@@ -15,7 +15,7 @@
 
 #define isnan(x) ( isnum((x)) && ((x) != (x)) )
 
-#define isinternalorgan(A) (istype(A, /obj/item/organ/internal))
+//#define isinternalorgan(A) (istype(A, /obj/item/organ/internal)) uncomment if we port tg organ code
 
 //Turfs
 //#define isturf(A) (istype(A, /turf)) This is actually a byond built-in. Added here for completeness sake.
@@ -90,8 +90,10 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 #define ispreternis(A) (is_species(A,/datum/species/preternis))
 #define isszlachta(A) (is_species(A, /datum/species/szlachta))
 #define isipc(A) (is_species(A, /datum/species/ipc))
+#define isinsurgent(A) (is_species(A, /datum/species/ipc/self/insurgent))
 #define issnail(A) (is_species(A, /datum/species/snail))
-#define isandroid(A) (is_species(A, /datum/species/android))
+#define isshadowperson(A) (is_species(A, /datum/species/shadow))
+#define is_synth(A) (is_species(A,/datum/species/wy_synth))
 #define isdummy(A) (istype(A, /mob/living/carbon/human/dummy))
 
 //more carbon mobs
@@ -163,6 +165,8 @@ GLOBAL_LIST_INIT(turfs_without_ground, typecacheof(list(
 
 #define ismegafauna(A) (istype(A, /mob/living/simple_animal/hostile/megafauna))
 
+#define isjunglealpha(A) (istype(A, /mob/living/simple_animal/hostile/megafauna))
+
 #define isclown(A) (istype(A, /mob/living/simple_animal/hostile/retaliate/clown))
 
 #define issupplypod(A) (istype(A, /obj/structure/closet/supplypod))
@@ -233,6 +237,8 @@ GLOBAL_LIST_INIT(glass_sheet_types, typecacheof(list(
 #define is_glass_sheet(O) (is_type_in_typecache(O, GLOB.glass_sheet_types))
 
 #define iseffect(O) (istype(O, /obj/effect))
+
+#define isholoeffect(O) (istype(O, /obj/effect/holodeck_effect))
 
 #define isblobmonster(O) (istype(O, /mob/living/simple_animal/hostile/blob))
 

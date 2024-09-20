@@ -1,13 +1,13 @@
 /datum/computer_file/program/aidiag
 	filename = "aidiag"
 	filedesc = "AI Integrity Restorer"
-	category = PROGRAM_CATEGORY_SCI
+	category = PROGRAM_CATEGORY_SCIENCE
 	program_icon_state = "generic"
 	extended_desc = "This program is capable of reconstructing damaged AI systems. Requires direct AI connection via intellicard slot."
 	size = 12
 	requires_ntnet = FALSE
 	usage_flags = PROGRAM_CONSOLE | PROGRAM_LAPTOP
-	transfer_access = ACCESS_HEADS
+	transfer_access = ACCESS_COMMAND
 	available_on_ntnet = TRUE
 	tgui_id = "NtosAiRestorer"
 	program_icon = "laptop-code"

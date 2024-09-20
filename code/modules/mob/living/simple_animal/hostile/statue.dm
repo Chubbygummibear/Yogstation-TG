@@ -8,7 +8,7 @@
 	icon_living = "human_male"
 	icon_dead = "human_male"
 	gender = NEUTER
-	a_intent = INTENT_HARM
+	combat_mode = TRUE
 	mob_biotypes = MOB_INORGANIC|MOB_HUMANOID
 
 	response_help = "touches"
@@ -107,7 +107,7 @@
 	if(!can_be_seen(get_turf(loc)))
 		..()
 
-/mob/living/simple_animal/hostile/statue/face_atom()
+/mob/living/simple_animal/hostile/statue/face_atom(atom/target, forced = FALSE)
 	if(!can_be_seen(get_turf(loc)))
 		..()
 
@@ -146,7 +146,7 @@
 
 // Turn to dust when gibbed
 
-/mob/living/simple_animal/hostile/statue/gib()
+/mob/living/simple_animal/hostile/statue/gib(no_brain, no_organs, no_bodyparts, no_items)
 	dust()
 
 

@@ -55,7 +55,7 @@
 			to_chat(user, span_notice("You build a floor."))
 			place_on_top(/turf/open/floor/plating, flags = CHANGETURF_INHERIT_AIR)
 			return TRUE
-	return FALSE  
+	return FALSE
 
 /turf/open/floor/plating/asteroid/try_replace_tile(obj/item/stack/tile/T, mob/user, params)
 	return
@@ -69,10 +69,10 @@
 /turf/open/floor/plating/asteroid/MakeDry()
 	return
 
-/turf/open/floor/plating/asteroid/attackby(obj/item/W, mob/user, params)
+/turf/open/floor/plating/asteroid/attackby(obj/item/attacking_item, mob/user, params)
 	. = ..()
 	if(!.)
-		if(W.tool_behaviour == TOOL_SHOVEL || W.tool_behaviour == TOOL_MINING)
+		if(attacking_item.tool_behaviour == TOOL_SHOVEL || attacking_item.tool_behaviour == TOOL_MINING)
 			if(!can_dig(user))
 				return TRUE
 
@@ -81,16 +81,16 @@
 
 			to_chat(user, span_notice("You start digging..."))
 
-			if(W.use_tool(src, user, 40, volume=50))
+			if(attacking_item.use_tool(src, user, 40, volume=50))
 				if(!can_dig(user))
 					return TRUE
 				to_chat(user, span_notice("You dig a hole."))
 				getDug()
-				SSblackbox.record_feedback("tally", "pick_used_mining", 1, W.type)
+				SSblackbox.record_feedback("tally", "pick_used_mining", 1, attacking_item.type)
 				return TRUE
-		else if(istype(W, /obj/item/storage/bag/ore))
+		else if(istype(attacking_item, /obj/item/storage/bag/ore))
 			for(var/obj/item/stack/ore/O in src)
-				SEND_SIGNAL(W, COMSIG_PARENT_ATTACKBY, O)
+				attacking_item.attackby(O, user, params)
 
 /turf/open/floor/plating/asteroid/ex_act(severity, target)
 	. = SEND_SIGNAL(src, COMSIG_ATOM_EX_ACT, severity, target)
@@ -175,7 +175,7 @@
 
 /turf/open/floor/plating/asteroid/snow/burn_tile()
 	if(!burnt)
-		visible_message(span_danger("[src] melts away!."))
+		visible_message(span_danger("[src] melts away!"))
 		slowdown = 0
 		burnt = TRUE
 		update_appearance()
@@ -208,7 +208,8 @@
 
 /turf/open/floor/plating/asteroid/snow/icemoon/top_layer
 	light_range = 2
-	light_power = 0.1
+	light_power = NIGHT_TURF_BRIGHTNESS
+	light_color = COLOR_STARLIGHT
 
 /turf/open/lava/plasma/ice_moon
 	initial_gas_mix = ICEMOON_DEFAULT_ATMOS
@@ -252,7 +253,8 @@
 
 /turf/open/floor/plating/asteroid/snow/ice/icemoon/top_layer
 	light_range = 2
-	light_power = 0.1
+	light_power = NIGHT_TURF_BRIGHTNESS
+	light_color = COLOR_STARLIGHT
 
 /turf/open/floor/plating/asteroid/snow/ice/burn_tile()
 	return FALSE

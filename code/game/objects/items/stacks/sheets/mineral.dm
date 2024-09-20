@@ -104,7 +104,6 @@ GLOBAL_LIST_INIT(sandbag_recipes, list ( \
 	singular_name = "diamond"
 	sheettype = "diamond"
 	materials = list(/datum/material/diamond=MINERAL_MATERIAL_AMOUNT)
-	novariants = TRUE
 	grind_results = list(/datum/reagent/carbon = 30)
 	point_value = 50
 	merge_type = /obj/item/stack/sheet/mineral/diamond
@@ -134,7 +133,6 @@ GLOBAL_LIST_INIT(diamond_recipes, list ( \
 	singular_name = "uranium sheet"
 	sheettype = "uranium"
 	materials = list(/datum/material/uranium=MINERAL_MATERIAL_AMOUNT)
-	novariants = TRUE
 	grind_results = list(/datum/reagent/uranium = 20)
 	point_value = 35
 	merge_type = /obj/item/stack/sheet/mineral/uranium
@@ -169,6 +167,8 @@ GLOBAL_LIST_INIT(uranium_recipes, list ( \
 	point_value = 25
 	merge_type = /obj/item/stack/sheet/mineral/plasma
 
+/obj/item/stack/sheet/mineral/plasma/ten
+	amount = 10
 /obj/item/stack/sheet/mineral/plasma/fifty
 	amount = 50
 
@@ -285,7 +285,6 @@ GLOBAL_LIST_INIT(silver_recipes, list ( \
 	singular_name = "bananium sheet"
 	sheettype = "bananium"
 	materials = list(/datum/material/bananium=MINERAL_MATERIAL_AMOUNT)
-	novariants = TRUE
 	grind_results = list(/datum/reagent/consumable/banana = 20)
 	point_value = 50
 	merge_type = /obj/item/stack/sheet/mineral/bananium
@@ -304,7 +303,7 @@ GLOBAL_LIST_INIT(bananium_recipes, list ( \
 /obj/item/stack/sheet/mineral/bananium/Initialize(mapload, new_amount, merge = TRUE)
 	recipes = GLOB.bananium_recipes
 	. = ..()
-	
+
 /obj/item/stack/sheet/mineral/bananium/five
 	amount = 5
 

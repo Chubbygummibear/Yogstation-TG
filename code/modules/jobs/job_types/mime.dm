@@ -7,14 +7,13 @@
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "the head of personnel"
-	selection_color = "#dddddd"
 
 	outfit = /datum/outfit/job/mime
 
 	alt_titles = list("Mute Entertainer", "Silent Jokester", "Pantomimist")
 
-	added_access = list()
-	base_access = list(ACCESS_THEATRE)
+	added_access = list(ACCESS_MAINT_TUNNELS)
+	base_access = list(ACCESS_SERVICE, ACCESS_THEATRE)
 	paycheck = PAYCHECK_MINIMAL
 	paycheck_department = ACCOUNT_SRV
 
@@ -44,11 +43,11 @@
 	name = "Mime"
 	jobtype = /datum/job/mime
 
-	pda_type = /obj/item/modular_computer/tablet/pda/preset/basic/mime
+	pda_type = /obj/item/modular_computer/tablet/pda/preset/mime
 
 	ears = /obj/item/radio/headset/headset_srv
-	uniform = /obj/item/clothing/under/rank/mime
-	uniform_skirt = /obj/item/clothing/under/rank/mime/skirt
+	uniform = /obj/item/clothing/under/rank/civilian/mime
+	uniform_skirt = /obj/item/clothing/under/rank/civilian/mime/skirt
 	mask = /obj/item/clothing/mask/gas/mime
 	gloves = /obj/item/clothing/gloves/color/white
 	head = /obj/item/clothing/head/frenchberet
@@ -57,7 +56,7 @@
 	/obj/item/book/mimery=1,
 	/obj/item/reagent_containers/food/drinks/bottle/bottleofnothing=1,
 	/obj/item/stamp/mime = 1)
-
+	box = /obj/item/storage/box/survival/hug/black
 	backpack = /obj/item/storage/backpack/mime
 	satchel = /obj/item/storage/backpack/mime
 

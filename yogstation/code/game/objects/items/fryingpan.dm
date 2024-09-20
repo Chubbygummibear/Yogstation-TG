@@ -3,7 +3,7 @@
 	desc = "A cast-iron frying pan designed for cooking food."
 	lefthand_file = 'yogstation/icons/mob/inhands/weapons/pan_lefthand.dmi'
 	righthand_file = 'yogstation/icons/mob/inhands/weapons/pan_righthand.dmi'
-	icon = 'yogstation/icons/obj/pan.dmi'
+	icon = 'icons/obj/weapons/shortsword.dmi'
 	icon_state = "frying_pan"
 	w_class = 3
 	force = 12
@@ -11,10 +11,14 @@
 	throw_range = 5
 	var/bonkpower = 15
 	var/pantrify = FALSE
-	block_chance = 10
+	var/block_force = 5
 	materials = list(/datum/material/iron=75)
 	attack_verb = list("BONKED", "panned")
 	hitsound = 'yogstation/sound/weapons/pan.ogg'
+
+/obj/item/melee/fryingpan/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/blocking, block_force = src.block_force, block_flags = WEAPON_BLOCK_FLAGS|PROJECTILE_ATTACK)
 
 /obj/item/melee/fryingpan/get_clamped_volume()
 	return 100 // BONK!
@@ -31,7 +35,7 @@
 	throwforce = 15
 	bonkpower = 50
 	pantrify = TRUE
-	block_chance = 25
+	block_force = 15
 	materials = list(/datum/material/bananium=75)
 	attack_verb = list("BONKED", "panned", "flexes on")
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 100, BIO = 0, RAD = 0, FIRE = 100, ACID = 100) //honkzo bananium frying pan folded over 1000 times, your mime explosives are no match.
@@ -54,8 +58,7 @@
 			statue.name = "bananium plated [statue.name]"
 			statue.desc = "An incredibly lifelike bananium carving."
 			statue.add_atom_colour("#ffd700", FIXED_COLOUR_PRIORITY)
-			statue.max_integrity = 9999
-			statue.obj_integrity = 9999
+			statue.modify_max_integrity(9999, can_break=FALSE)
 	return ..()
 
 /obj/item/melee/fryingpan/bananium/honk_act()

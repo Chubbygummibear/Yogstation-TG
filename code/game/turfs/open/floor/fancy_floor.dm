@@ -48,22 +48,21 @@
 	C.play_tool_sound(src, 80)
 	return remove_tile(user, silent, (C.tool_behaviour == TOOL_SCREWDRIVER))
 
-/turf/open/floor/wood/remove_tile(mob/user, silent = FALSE, make_tile = TRUE)
+/turf/open/floor/wood/remove_tile(mob/user, silent = FALSE, make_tile = TRUE, force_plating)
 	if(broken || burnt)
-		broken = 0
-		burnt = 0
+		broken = FALSE
+		burnt = FALSE
 		if(user && !silent)
 			to_chat(user, span_notice("You remove the broken planks."))
 	else
 		if(make_tile)
 			if(user && !silent)
 				to_chat(user, span_notice("You unscrew the planks."))
-			if(floor_tile)
-				new floor_tile(src)
+			spawn_tile()
 		else
 			if(user && !silent)
 				to_chat(user, span_notice("You forcefully pry off the planks, destroying them in the process."))
-	return make_plating()
+	return make_plating(force_plating)
 
 /turf/open/floor/wood/parquet
 	icon_state = "wood-parquet"
@@ -228,7 +227,8 @@
 /turf/open/floor/bamboo
 	desc = "A bamboo mat with a decorative trim."
 	icon = 'icons/turf/floors/bamboo_mat.dmi'
-	icon_state = "bamboo"
+	icon_state = "mat-255"
+	base_icon_state = "mat"
 	floor_tile = /obj/item/stack/tile/bamboo
 	smoothing_flags = SMOOTH_BITMASK
 	smoothing_groups = SMOOTH_GROUP_TURF_OPEN + SMOOTH_GROUP_BAMBOO_FLOOR
@@ -439,6 +439,30 @@
 	floor_tile = /obj/item/stack/tile/carpet/red
 	smoothing_groups = SMOOTH_GROUP_TURF_OPEN + SMOOTH_GROUP_CARPET_RED
 	canSmoothWith = SMOOTH_GROUP_CARPET_RED
+
+/turf/open/floor/carpet/plainblue
+	icon = 'icons/turf/floors/carpet_plainblue.dmi'
+	icon_state = "carpet_plainblue-255"
+	base_icon_state = "carpet_plainblue"
+	floor_tile = /obj/item/stack/tile/carpet/plainblue
+	smoothing_groups = SMOOTH_GROUP_TURF_OPEN + SMOOTH_GROUP_CARPET_PLAIN_BLUE
+	canSmoothWith = SMOOTH_GROUP_CARPET_PLAIN_BLUE
+
+/turf/open/floor/carpet/plaingreen
+	icon = 'icons/turf/floors/carpet_plaingreen.dmi'
+	icon_state = "carpet_plaingreen-255"
+	base_icon_state = "carpet_plaingreen"
+	floor_tile = /obj/item/stack/tile/carpet/plaingreen
+	smoothing_groups = SMOOTH_GROUP_TURF_OPEN + SMOOTH_GROUP_CARPET_PLAIN_GREEN
+	canSmoothWith = SMOOTH_GROUP_CARPET_PLAIN_GREEN
+
+/turf/open/floor/carpet/plainpurple
+	icon = 'icons/turf/floors/carpet_plainpurple.dmi'
+	icon_state = "carpet_plainpurple-255"
+	base_icon_state = "carpet_plainpurple"
+	floor_tile = /obj/item/stack/tile/carpet/plainpurple
+	smoothing_groups = SMOOTH_GROUP_TURF_OPEN + SMOOTH_GROUP_CARPET_PLAIN_PURPLE
+	canSmoothWith = SMOOTH_GROUP_CARPET_PLAIN_PURPLE
 
 /turf/open/floor/carpet/royalblack
 	icon = 'icons/turf/floors/carpet_royalblack.dmi'

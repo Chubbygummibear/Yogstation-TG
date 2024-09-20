@@ -10,7 +10,7 @@
 		return COMPONENT_INCOMPATIBLE
 
 	RegisterSignal(parent, COMSIG_ATOM_EXAMINE, PROC_REF(examine))
-	RegisterSignal(parent, COMSIG_PARENT_ATTACKBY, PROC_REF(applyplate))
+	RegisterSignal(parent, COMSIG_ATOM_ATTACKBY, PROC_REF(applyplate))
 	RegisterSignal(parent, COMSIG_PREQDELETED, PROC_REF(dropplates))
 
 	if(_maxamount)
@@ -53,6 +53,7 @@
 /datum/component/armor_plate/proc/applyplate(datum/source, obj/item/I, mob/user, params)
 	if(!istype(I,upgrade_item))
 		return
+	. = COMPONENT_NO_AFTERATTACK
 	if(amount >= maxamount)
 		to_chat(user, span_warning("You can't improve [parent] any further!"))
 		return

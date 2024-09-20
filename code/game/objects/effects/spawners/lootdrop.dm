@@ -84,12 +84,15 @@
 		///obj/item/organ/tongue/ethereal,
 		/obj/item/organ/tongue/robot,
 		/obj/item/organ/tongue/zombie,
+		/obj/item/organ/tongue/vox,
 		/obj/item/organ/appendix,
 		/obj/item/organ/liver/fly,
 		/obj/item/organ/lungs/plasmaman,
 		/obj/item/organ/lungs/ethereal,
+		/obj/item/organ/lungs/vox,
 		/obj/item/organ/tail/cat,
 		/obj/item/organ/tail/lizard,
+		/obj/item/organ/tail/vox
 	)
 
 /obj/effect/spawner/lootdrop/plushies
@@ -115,7 +118,8 @@
 		/obj/item/toy/plush/inorixplushie,
 		/obj/item/toy/plush/flowerbunch,
 		/obj/item/toy/plush/goatplushie,
-		/obj/item/toy/plush/realgoat
+		/obj/item/toy/plush/realgoat,
+		/obj/item/toy/plush/voxplushie
 	)
 
 /obj/effect/spawner/lootdrop/techshell
@@ -430,6 +434,14 @@
 	loot = list(pick(soups) = 1,pick(salads) = 1,pick(mains) = 1)
 	. = ..()
 
+/obj/effect/spawner/lootdrop/random_meat
+	name = "meat loot spawner"
+
+/obj/effect/spawner/lootdrop/random_meat/Initialize(mapload)
+	var/item = pick(typesof(/obj/item/reagent_containers/food/snacks/meat/slab))
+	new item(loc)
+	return INITIALIZE_HINT_QDEL
+
 /obj/effect/spawner/lootdrop/maintenance
 	name = "maintenance loot spawner"
 	// see code/_globalvars/lists/maintenance_loot.dm for loot table
@@ -713,7 +725,6 @@
 	name = "secure AI circuit board spawner"
 	loot = list(
 				/obj/item/circuitboard/computer/aiupload,
-				/obj/item/circuitboard/computer/ai_upload_download,
 				/obj/item/circuitboard/computer/borgupload
 				)
 
@@ -738,7 +749,7 @@
 	lootdoubles = FALSE
 
 	loot = list(
-		/obj/item/clothing/under/drip = 20,
+		/obj/item/clothing/under/costume/drip = 20,
 		"" = 80)
 
 /obj/effect/spawner/lootdrop/twenty_percent_drip_shoes
@@ -762,7 +773,6 @@
 	lootcount = 1
 	loot = list(/mob/living/simple_animal/hostile/retaliate/goat/pete = 1,
 			/mob/living/simple_animal/cow/betsy = 1,
-			/mob/living/simple_animal/sheep = 1,
 			/mob/living/simple_animal/sheep/shawn = 1)
 
 /obj/effect/spawner/lootdrop/mob/marrow_weaver
@@ -774,3 +784,11 @@
 	loot = list(/mob/living/simple_animal/hostile/asteroid/marrowweaver = 35,
 			/mob/living/simple_animal/hostile/asteroid/marrowweaver/ice = 5,
 			"" = 60)
+
+/obj/effect/spawner/lootdrop/random_anomaly_core
+	name = "anomaly core spawner"
+
+/obj/effect/spawner/lootdrop/random_anomaly_core/Initialize(mapload)
+	var/item = pick(typesof(/obj/item/assembly/signaler/anomaly))
+	new item(loc)
+	return INITIALIZE_HINT_QDEL

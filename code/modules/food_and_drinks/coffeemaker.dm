@@ -133,7 +133,7 @@
 		. += "coffeemaker_cartidge"
 	return .
 
-/obj/machinery/coffeemaker/proc/replace_pot(mob/living/user, var/obj/item/reagent_containers/food/drinks/bottle/coffeepot/new_coffeepot)
+/obj/machinery/coffeemaker/proc/replace_pot(mob/living/user, obj/item/reagent_containers/food/drinks/bottle/coffeepot/new_coffeepot)
 	if(!user)
 		return FALSE
 	if(coffeepot)
@@ -404,7 +404,7 @@
 	icon = 'icons/obj/machines/coffeemaker.dmi'
 	icon_state = "cartridge_basic"
 	var/charges = 4
-	var/list/drink_type = list(/datum/reagent/consumable/coffee = 120)
+	var/list/drink_type = list(/datum/reagent/consumable/coffee/hot = 120)
 
 /obj/item/coffee_cartridge/examine(mob/user)
 	. = ..()
@@ -716,7 +716,7 @@
 	if(!try_brew())
 		return
 	operate_for(brew_time)
-	coffeepot.reagents.add_reagent_list(list(/datum/reagent/consumable/coffee = 120))
+	coffeepot.reagents.add_reagent_list(list(/datum/reagent/consumable/coffee/hot = 120))
 	coffee.Cut(1,2) //remove the first item from the list
 	coffee_amount--
 	update_appearance(UPDATE_OVERLAYS)

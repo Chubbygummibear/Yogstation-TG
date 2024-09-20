@@ -21,7 +21,7 @@ GLOBAL_LIST_EMPTY(parasites) //all currently existing/living guardians
 	icon_living = "magicOrange"
 	icon_dead = "magicOrange"
 	speed = 0
-	a_intent = INTENT_HARM
+	combat_mode = TRUE
 	stop_automated_movement = 1
 	movement_type = FLYING // Immunity to chasms and landmines, etc.
 	attack_sound = 'sound/weapons/punch1.ogg'
@@ -215,7 +215,7 @@ GLOBAL_LIST_EMPTY(parasites) //all currently existing/living guardians
 		if(3)
 			adjustBruteLoss(30)
 
-/mob/living/simple_animal/hostile/guardian/gib()
+/mob/living/simple_animal/hostile/guardian/gib(no_brain, no_organs, no_bodyparts, no_items)
 	if(summoner)
 		to_chat(summoner, "<span class='danger'><B>Your [src] was blown up!</span></B>")
 		summoner.gib()

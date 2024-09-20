@@ -152,13 +152,13 @@ GLOBAL_VAR(final_zone)
 /datum/game_mode/fortnite/proc/shrinkborders()
 	switch(borderstage)//to keep it seperate and not fuck with weather selection
 		if(1)
-			set_security_level("blue")
+			SSsecurity_level.set_level(SEC_LEVEL_BLUE)
 		if(4)
-			set_security_level("red")
+			SSsecurity_level.set_level(SEC_LEVEL_RED)
 		if(7)
-			set_security_level("gamma")
+			SSsecurity_level.set_level(SEC_LEVEL_GAMMA)
 		if(9)
-			set_security_level("epsilon")
+			SSsecurity_level.set_level(SEC_LEVEL_EPSILON)
 
 	var/datum/weather/royale/W
 	switch(borderstage)
@@ -271,7 +271,7 @@ GLOBAL_VAR(final_zone)
 			continue //also, ideally keeps people out of maints, and in larger open areas that are more interesting
 		if(is_type_in_list(lootlake, weathered))
 			continue //if the area is covered with a storm, don't spawn loot (less lag)
-		var/number = LAZYLEN(lootlake.get_contained_turfs())//so bigger areas spawn more crates
+		var/number = LAZYLEN(lootlake.get_zlevel_turf_lists())//so bigger areas spawn more crates
 		var/amount = round(number / ROOMSIZESCALING) + prob(((number % ROOMSIZESCALING)/ROOMSIZESCALING)*100) //any remaining tiles gives a probability to have an extra crate
 		for(var/I = 0, I < amount, I++)
 			var/turf/turfy = pick(get_area_turfs(lootlake))
@@ -386,14 +386,14 @@ GLOBAL_VAR(final_zone)
 /obj/item/clothing/neck/tie/gamer/equipped(mob/user, slot)
 	. = ..()
 	RegisterSignal(user, COMSIG_LIVING_DEATH, PROC_REF(death))
+	RegisterSignal(user, COMSIG_HUMAN_CHECK_SHIELDS, PROC_REF(hit_reaction))
 
 /obj/item/clothing/neck/tie/gamer/proc/death()
 	if(last_hit)
 		last_hit.killed++
 	qdel(src)//so reviving them doesn't give the necklace back
 
-/obj/item/clothing/neck/tie/gamer/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text, final_block_chance, damage, attack_type)
-	. = ..()
+/obj/item/clothing/neck/tie/gamer/proc/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, damage, attack_text)
 	var/mob/living/culprit
 
 	if(isprojectile(hitby))//get the person that shot the projectile

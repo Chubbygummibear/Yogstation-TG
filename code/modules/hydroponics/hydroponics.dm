@@ -58,8 +58,8 @@
 		myseed = null
 	return ..()
 
-/obj/machinery/hydroponics/constructable/attackby(obj/item/I, mob/user, params)
-	if (user.a_intent != INTENT_HARM)
+/obj/machinery/hydroponics/constructable/attackby(obj/item/I, mob/living/user, params)
+	if (!user.combat_mode)
 		// handle opening the panel
 		if(default_deconstruction_screwdriver(user, icon_state, icon_state, I))
 			return
@@ -113,6 +113,7 @@
 		adjustWeeds(-0.5 * delta_time)
 		adjustPests(-0.5 * delta_time)
 		adjustToxic(-2)
+		needs_update = TRUE
 
 	if(world.time > (lastcycle + cycledelay))
 		lastcycle = world.time
@@ -214,8 +215,8 @@
 			else
 				weedinvasion() // Weed invasion into empty tray
 			needs_update = 1
-		if (needs_update)
-			update_appearance(UPDATE_ICON)
+	if(needs_update)
+		update_appearance(UPDATE_ICON)
 	return
 
 /obj/machinery/hydroponics/proc/nutrimentMutation()
@@ -402,7 +403,7 @@
 		if(myseed)
 			qdel(myseed)
 			myseed = null
-		var/newWeed = pick(/obj/item/seeds/liberty, /obj/item/seeds/angel, /obj/item/seeds/nettle/death, /obj/item/seeds/kudzu)
+		var/newWeed = pick(/obj/item/seeds/liberty, /obj/item/seeds/angel, /obj/item/seeds/nettle/death)
 		myseed = new newWeed
 		dead = 0
 		hardmutate()
@@ -565,7 +566,7 @@
 		adjustHealth(round(S.get_reagent_amount(/datum/reagent/consumable/sodawater) * 0.1))
 		adjustNutri(round(S.get_reagent_amount(/datum/reagent/consumable/sodawater) * 0.1))
 
-	// Man, you guys are retards
+	// Man, you guys are ridiculous haha that's what it said before..
 	if(S.has_reagent(/datum/reagent/toxin/acid, 1))
 		adjustHealth(-round(S.get_reagent_amount(/datum/reagent/toxin/acid) * 1))
 		adjustToxic(round(S.get_reagent_amount(/datum/reagent/toxin/acid) * 1.5))
@@ -708,12 +709,6 @@
 	if(istype(O, /obj/item/reagent_containers) )  // Syringe stuff (and other reagent containers now too)
 		var/obj/item/reagent_containers/reagent_source = O
 
-		if(istype(reagent_source, /obj/item/reagent_containers/syringe))
-			var/obj/item/reagent_containers/syringe/syr = reagent_source
-			if(syr.mode != 1)
-				to_chat(user, span_warning("You can't get any extract out of this plant.")		)
-				return
-
 		if(!reagent_source.reagents.total_volume)
 			to_chat(user, span_notice("[reagent_source] is empty."))
 			return 1
@@ -736,8 +731,6 @@
 			if(istype(reagent_source, /obj/item/reagent_containers/syringe/))
 				var/obj/item/reagent_containers/syringe/syr = reagent_source
 				visi_msg="[user] injects [target] with [syr]"
-				if(syr.reagents.total_volume <= syr.amount_per_transfer_from_this)
-					syr.mode = 0
 			else if(istype(reagent_source, /obj/item/reagent_containers/spray/))
 				visi_msg="[user] sprays [target] with [reagent_source]"
 				playsound(loc, 'sound/effects/spray3.ogg', 50, 1, -6)
@@ -862,6 +855,12 @@
 
 	else
 		return ..()
+
+/obj/machinery/hydroponics/attackby_secondary(obj/item/weapon, mob/user, params)
+	if (istype(weapon, /obj/item/reagent_containers/syringe))
+		to_chat(user, span_warning("You can't get any extract out of this plant."))
+		return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
+	return SECONDARY_ATTACK_CALL_NORMAL
 
 /obj/machinery/hydroponics/can_be_unfasten_wrench(mob/user, silent)
 	if (!unwrenchable)  // case also covered by NODECONSTRUCT checks in default_unfasten_wrench

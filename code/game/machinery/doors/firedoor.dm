@@ -147,7 +147,7 @@
 /obj/machinery/door/firedoor/try_to_activate_door(mob/user)
 	return
 
-/obj/machinery/door/firedoor/try_to_weld(obj/item/weldingtool/W, mob/user)
+/obj/machinery/door/firedoor/try_to_weld(obj/item/weldingtool/W, mob/living/user, list/modifiers)
 	if(!W.tool_start_check(user, amount=0))
 		return
 	user.visible_message(span_notice("[user] starts [welded ? "unwelding" : "welding"] [src]."), span_notice("You start welding [src]."))
@@ -195,12 +195,12 @@
 /obj/machinery/door/firedoor/attack_robot(mob/user)
 	return attack_ai(user)
 
-/obj/machinery/door/firedoor/attack_alien(mob/user)
+/obj/machinery/door/firedoor/attack_alien(mob/living/user)
 	add_fingerprint(user)
 	if(welded)
 		to_chat(user, span_warning("[src] refuses to budge!"))
 		return
-	if(user.a_intent == INTENT_HARM)
+	if(user.combat_mode)
 		return ..()
 	else
 		open()
@@ -323,6 +323,15 @@
 	can_atmos_pass = ATMOS_PASS_PROC
 	assemblytype = /obj/structure/firelock_frame/border
 
+/obj/machinery/door/firedoor/border_only/north // No south since it's south by default
+	dir = NORTH
+
+/obj/machinery/door/firedoor/border_only/east
+	dir = EAST
+
+/obj/machinery/door/firedoor/border_only/west
+	dir = WEST
+
 /obj/machinery/door/firedoor/border_only/closed
 	icon_state = "door_closed"
 	opacity = TRUE
@@ -335,6 +344,15 @@
 	)
 
 	AddElement(/datum/element/connect_loc, loc_connections)
+
+/obj/machinery/door/firedoor/border_only/closed/north
+	dir = NORTH
+
+/obj/machinery/door/firedoor/border_only/closed/east
+	dir = EAST
+
+/obj/machinery/door/firedoor/border_only/closed/west
+	dir = WEST
 
 /obj/machinery/door/firedoor/border_only/close()
 	if(density)
@@ -506,7 +524,7 @@
 	icon_state = "frame[constructionStep]"
 
 /obj/structure/firelock_frame/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	if(the_rcd.mode == RCD_DECONSTRUCT)
+	if(the_rcd.construction_mode == RCD_DECONSTRUCT)
 		return list("mode" = RCD_DECONSTRUCT, "delay" = 50, "cost" = 16)
 	return FALSE
 

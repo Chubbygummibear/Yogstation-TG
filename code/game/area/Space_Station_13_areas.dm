@@ -100,7 +100,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	lighting_colour_tube = "#ffe5cb"
 	lighting_colour_bulb = "#ffdbb4"
 
-
 //Departments
 
 /area/maintenance/department/chapel
@@ -485,6 +484,14 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	airlock_wires = /datum/wires/airlock/service
 	sound_environment = SOUND_AREA_WOODFLOOR
 
+/area/crew_quarters/public_lounge
+	name = "Lounge"
+	icon_state = "bar"
+	minimap_color = "#5ac866"
+	mood_bonus = 5
+	mood_message = span_nicegreen("I love being in the lounge!\n")
+	airlock_wires = /datum/wires/airlock/service
+
 /area/crew_quarters/bar/Initialize(mapload)
 	. = ..()
 	GLOB.bar_areas += src
@@ -515,7 +522,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 /area/crew_quarters/theatre/abandoned
 	name = "Abandoned Theatre"
 	icon_state = "Theatre"
-	lights_always_start_on = FALSE
 
 /area/library
 	name = "Library"
@@ -675,6 +681,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	flags_1 = NONE
 	ambience_index = AMBIENCE_ENGI
 	sound_environment = SOUND_AREA_SPACE
+	lights_always_start_on = TRUE
 	minimap_color = "#6b6b6b"
 	airlock_wires = /datum/wires/airlock/engineering
 
@@ -703,9 +710,17 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	name = "Starboard Quarter (SE) Solar Array"
 	icon_state = "panelsAS"
 
+/area/solar/starboard/aft/icemoon
+	name = "Southeast (SE) Geothermal Station" // it's a planetary station and not a ship, cardinal directions apply
+	uses_daylight = TRUE
+
 /area/solar/starboard/fore
 	name = "Starboard Bow (NE) Solar Array"
 	icon_state = "panelsFS"
+
+/area/solar/starboard/fore/icemoon
+	name = "Northeast (NE) Geothermal Station"
+	uses_daylight = TRUE
 
 /area/solar/port
 	name = "Port (W) Solar Array"
@@ -715,9 +730,17 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	name = "Port Quarter (SW) Solar Array"
 	icon_state = "panelsAP"
 
+/area/solar/port/aft/icemoon
+	name = "Southwest (SW) Geothermal Station"
+	uses_daylight = TRUE
+
 /area/solar/port/fore
 	name = "Port Bow (NW) Solar Array"
 	icon_state = "panelsFP"
+
+/area/solar/port/fore/icemoon
+	name = "Northwest (NW) Geothermal Station"
+	uses_daylight = TRUE
 
 
 //Solar Maint
@@ -844,7 +867,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 /area/medical/morgue
 	name = "Morgue"
 	icon_state = "morgue"
-	ambience_index = AMBIENCE_SPOOKY
 	sound_environment = SOUND_AREA_SMALL_ENCLOSED
 
 /area/medical/chemistry
@@ -910,6 +932,7 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	name = "Prison Wing"
 	icon_state = "sec_prison"
 	minimap_color = "#530505"
+	lights_always_start_on = TRUE
 
 /area/security/prison/hallway
 	name = "Prison Wing Hallway"

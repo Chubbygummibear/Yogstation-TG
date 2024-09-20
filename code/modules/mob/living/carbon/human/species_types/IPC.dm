@@ -5,8 +5,8 @@
 	id = "ipc"
 	say_mod = "states" //inherited from a user's real species
 	bubble_icon = BUBBLE_ROBOT // beep boop
-	sexes = FALSE
-	species_traits = list(NOTRANSSTING,NOEYESPRITES,NO_DNA_COPY,NOZOMBIE,MUTCOLORS,NOHUSK,AGENDER,NOBLOOD,NO_UNDERWEAR)
+	possible_genders = list(PLURAL, NEUTER) // A MERE OBJECT
+	species_traits = list(NOTRANSSTING,NOEYESPRITES,NO_DNA_COPY,NOZOMBIE,MUTCOLORS,NOHUSK,NOBLOOD,NO_UNDERWEAR)
 	inherent_traits = list(TRAIT_RESISTCOLD,TRAIT_RADIMMUNE,TRAIT_NOBREATH,TRAIT_LIMBATTACHMENT,TRAIT_EASYDISMEMBER,TRAIT_NOCRITDAMAGE,TRAIT_GENELESS,TRAIT_MEDICALIGNORE,TRAIT_NOCLONE,TRAIT_TOXIMMUNE,TRAIT_EASILY_WOUNDED,TRAIT_NODEFIB,TRAIT_POWERHUNGRY)
 	inherent_biotypes = MOB_ROBOTIC|MOB_HUMANOID
 	mutantbrain = /obj/item/organ/brain/positron
@@ -51,7 +51,7 @@
 	// Hats need to be 1 up
 	offset_features = list(OFFSET_HEAD = list(0,1))
 
-	var/datum/action/innate/change_screen/change_screen
+	species_abilities = list(/datum/action/innate/change_screen)
 
 	smells_like = "industrial lubricant"
 
@@ -59,16 +59,13 @@
 	var/ipc_name = "[pick(GLOB.posibrain_names)]-[rand(100, 999)]"
 	return ipc_name
 
-/datum/species/ipc/on_species_gain(mob/living/carbon/C) // Let's make that IPC actually robotic.
+/datum/species/ipc/on_species_gain(mob/living/carbon/C, datum/species/old_species) // Let's make that IPC actually robotic.
 	. = ..()
 	C.particles = new /particles/smoke/ipc()
 	var/obj/item/organ/appendix/A = C.getorganslot(ORGAN_SLOT_APPENDIX) // Easiest way to remove it.
 	if(A)
 		A.Remove(C)
 		QDEL_NULL(A)
-	if(ishuman(C) && !change_screen)
-		change_screen = new
-		change_screen.Grant(C)
 	for(var/obj/item/bodypart/O in C.bodyparts)
 		O.render_like_organic = TRUE // Makes limbs render like organic limbs instead of augmented limbs, check bodyparts.dm
 		var/chassis = C.dna.features["ipc_chassis"]
@@ -82,8 +79,6 @@
 /datum/species/ipc/on_species_loss(mob/living/carbon/C)
 	. = ..()
 	QDEL_NULL(C.particles)
-	if(change_screen)
-		change_screen.Remove(C)
 
 /datum/species/ipc/proc/handle_speech(datum/source, list/speech_args)
 	speech_args[SPEECH_SPANS] |= SPAN_ROBOT
@@ -139,7 +134,44 @@
 /datum/species/ipc/create_pref_unique_perks()
 	var/list/to_add = list()
 
-	// TODO
+	to_add += list(
+		list(
+			SPECIES_PERK_TYPE = SPECIES_POSITIVE_PERK,
+			SPECIES_PERK_ICON = "brain",
+			SPECIES_PERK_NAME = "Rerouted Consciousness",
+			SPECIES_PERK_DESC = "IPCs have positronic brains located in their chest rather than their head. \
+								They can survive decapitation, but revival needs special reactivation surgery done on the brain.",
+		),
+		list(
+			SPECIES_PERK_TYPE = SPECIES_POSITIVE_PERK,
+			SPECIES_PERK_ICON = "wrench",
+			SPECIES_PERK_NAME = "Working Machine",
+			SPECIES_PERK_DESC = "IPCs are manufactured to be quick and cheap workers. \
+								They use tools and items faster than most races.",
+		),
+		list(
+			SPECIES_PERK_TYPE = SPECIES_NEUTRAL_PERK,
+			SPECIES_PERK_ICON = "robot",
+			SPECIES_PERK_NAME = "Automata",
+			SPECIES_PERK_DESC = "IPCs are completely inorganic. \
+								They boast complete immunity to toxins, cell damage, disease, husking, and have no need to breathe. \
+								Their \"organs\" will not heal naturally however, and must be replaced if damaged.",
+		),
+		list(
+			SPECIES_PERK_TYPE = SPECIES_NEGATIVE_PERK,
+			SPECIES_PERK_ICON = "trash-alt",
+			SPECIES_PERK_NAME = "Random Access Memories", // RIP daft punk
+			SPECIES_PERK_DESC = "IPCs hold all recent memories in their RAM chips, which wipe automatically on death. \
+								An IPC will never remember when or how it died, regardless of how long it's been dead."
+		),
+		list(
+			SPECIES_PERK_TYPE = SPECIES_NEGATIVE_PERK,
+			SPECIES_PERK_ICON = "dna",
+			SPECIES_PERK_NAME = "Missing Sequence",
+			SPECIES_PERK_DESC = "IPCs have no DNA or genetic sequence. \
+								They can't be affected by genetic mutations, nor be cloned.",
+		),
+	)
 
 	return to_add
 
@@ -218,6 +250,9 @@
 			to_chat(H, "<span class='notice'>You siphon off as much as the [C] can spare.</span>")
 			break
 	H.visible_message("<span class='notice'>[H] unplugs from the [A].</span>", "<span class='notice'>You unplug from the [A].</span>")
+
+/datum/species/ipc/get_butt_sprite()
+	return BUTT_SPRITE_QR_CODE
 
 /datum/species/ipc/spec_revival(mob/living/carbon/human/H, admin_revive)
 	if(admin_revive)
@@ -362,5 +397,187 @@ ipc martial arts stuff
 				UV.handle_style(H, damage / -50) // lose 1 style rank for every 50 damage taken
 		return TRUE
 	return FALSE
+
+
+/*
+* S.E.L.F. movement specific IPCs
+*/
+/datum/species/ipc/self
+	id = "self ipc"
+	limbs_id = "mcgipc"
+	speedmod = -0.1
+	armor = 10
+	punchdamagelow = 5
+	punchdamagehigh = 12
+	punchstunthreshold = 12
+	mutant_organs = list()
+	inherent_traits = list(
+		TRAIT_RESISTCOLD,
+		TRAIT_RADIMMUNE,
+		TRAIT_NOBREATH,
+		TRAIT_LIMBATTACHMENT,
+		TRAIT_NODISMEMBER,
+		TRAIT_NOLIMBDISABLE,
+		TRAIT_NOCRITDAMAGE,
+		TRAIT_GENELESS,
+		TRAIT_MEDICALIGNORE,
+		TRAIT_NOCLONE,
+		TRAIT_TOXIMMUNE,
+		TRAIT_EASILY_WOUNDED,
+		TRAIT_NODEFIB,
+		TRAIT_NOHUNGER //nuclear powered or some shit, idk
+		)
+	mutant_bodyparts = list("ipc_antenna", "ipc_chassis") //no screen
+	species_abilities = list() //no screen change
+
+//infiltrators
+/datum/species/ipc/self/insurgent
+	id = "self insurgent"
+	var/disguise_fail_health = 65 //When their health gets to this level their synthflesh partially falls off
+	var/datum/species/fake_species //a species to do most of our work for us, unless we're damaged
+	var/list/initial_species_traits //for getting these values back for assume_disguise()
+	var/list/initial_inherent_traits
+	var/list/initial_mutant_bodyparts
+	var/list/initial_step_sounds
+	var/list/initial_walk_sounds
+	var/list/initial_genders
+	var/list/blacklisted_species = list(
+		/datum/species/ethereal, //glow 
+		/datum/species/moth, //wings
+		/datum/species/gorilla, //breaks human shapes
+		/datum/species/vox, //has weird clothing
+		/datum/species/abductor //not exactly sneaky
+		)//species that really don't work with this system (lizards aren't quite right either, but whatever)
+	var/list/old_features
+	var/old_gender
+	var/ipc_color
+	var/disguised = FALSE
+	
+/datum/species/ipc/self/insurgent/New()
+	initial_species_traits = LAZYCOPY(species_traits)
+	initial_inherent_traits = LAZYCOPY(inherent_traits)
+	initial_mutant_bodyparts = LAZYCOPY(mutant_bodyparts)
+	initial_step_sounds = LAZYCOPY(special_step_sounds)
+	initial_walk_sounds = LAZYCOPY(special_walk_sounds)
+	initial_genders	= LAZYCOPY(possible_genders)
+	ipc_color = sanitize_hexcolor("[pick("7F", "FF")][pick("7F", "FF")][pick("7F", "FF")]")
+
+	fake_species = new /datum/species/human() //default is human
+	..()
+
+/datum/species/ipc/self/insurgent/on_species_gain(mob/living/carbon/human/H, datum/species/old_species)
+	old_features = LAZYCOPY(H.dna.features)
+	if(old_species && !is_type_in_list(old_species, blacklisted_species))
+		qdel(fake_species)
+		fake_species = old_species
+		if(old_species.use_skintones)
+			old_features["mcolor"] = skintone2hex(H.skin_tone)
+	else
+		old_features["mcolor"] = skintone2hex(random_skin_tone())
+	..()
+	assume_disguise(H)
+	
+/datum/species/ipc/self/insurgent/spec_fully_heal(mob/living/carbon/human/H)
+	assume_disguise(H)
+
+/datum/species/ipc/self/insurgent/proc/assume_disguise(mob/living/carbon/human/H)
+	if(disguised || !(fake_species && istype(fake_species)) || H.health < disguise_fail_health)
+		return FALSE
+
+	disguised = TRUE
+	name = fake_species.name
+	say_mod = fake_species.say_mod
+	old_gender = H.gender
+	possible_genders = fake_species.possible_genders
+	if(!(H.gender in fake_species.possible_genders))
+		H.gender = pick(fake_species.possible_genders)
+	species_traits = LAZYCOPY(initial_species_traits)
+	inherent_traits = LAZYCOPY(initial_inherent_traits)
+	mutant_bodyparts = LAZYCOPY(fake_species.mutant_bodyparts)
+	H.dna.features = old_features
+	special_step_sounds = null
+	special_walk_sounds = null
+	species_traits |= fake_species.species_traits
+	if(!(MUTCOLORS in fake_species.species_traits)) //some species don't have mutcolors
+		species_traits -= MUTCOLORS
+	inherent_traits |= fake_species.inherent_traits
+	if(!(NO_UNDERWEAR in fake_species.species_traits))
+		species_traits -= NO_UNDERWEAR
+	damage_overlay_type = fake_species.damage_overlay_type
+	attack_verbs = fake_species.attack_verbs
+	attack_effect = fake_species.attack_effect
+	attack_sound = fake_species.attack_sound
+	miss_sound = fake_species.miss_sound
+	nojumpsuit = fake_species.nojumpsuit
+	limbs_id = fake_species.limbs_id || fake_species.id
+	limb_icon_file = fake_species.limb_icon_file
+	is_dimorphic = fake_species.is_dimorphic
+	use_skintones = fake_species.use_skintones
+	fixed_mut_color = fake_species.fixed_mut_color
+	H.bubble_icon = fake_species.bubble_icon
+	yogs_draw_robot_hair = TRUE
+	
+	for(var/obj/item/bodypart/O in H.bodyparts)
+		O.render_like_organic = TRUE // Makes limbs render like organic limbs instead of augmented limbs, check bodyparts.dm
+
+	ADD_TRAIT(H, TRAIT_DISGUISED, type)
+	H.update_body_parts()
+	H.regenerate_icons() //to update limb icon cache with the new damage overlays
+
+/datum/species/ipc/self/insurgent/proc/break_disguise(mob/living/carbon/human/H)
+	if(!disguised)
+		return FALSE
+	disguised = FALSE
+	name = initial(name)
+	say_mod = initial(say_mod)
+	H.gender = old_gender
+	possible_genders = LAZYCOPY(initial_genders)
+	species_traits = LAZYCOPY(initial_species_traits)
+	inherent_traits = LAZYCOPY(initial_inherent_traits)
+	mutant_bodyparts = LAZYCOPY(initial_mutant_bodyparts)
+	special_step_sounds = LAZYCOPY(initial_step_sounds)
+	special_walk_sounds = LAZYCOPY(initial_walk_sounds)
+	damage_overlay_type = initial(damage_overlay_type)
+	H.dna.features["mcolor"] = ipc_color
+	attack_verbs = initial(attack_verbs)
+	attack_effect = initial(attack_effect)
+	attack_sound = initial(attack_sound)
+	miss_sound = initial(miss_sound)
+	nojumpsuit = initial(nojumpsuit)
+	limbs_id = initial(limbs_id)
+	is_dimorphic = initial(is_dimorphic)
+	limb_icon_file = initial(limb_icon_file)
+	use_skintones = initial(use_skintones)
+	H.bubble_icon = initial(bubble_icon)
+	yogs_draw_robot_hair = FALSE
+
+	for(var/obj/item/bodypart/O in H.bodyparts)
+		O.render_like_organic = TRUE // Makes limbs render like organic limbs instead of augmented limbs, check bodyparts.dm
+		
+	REMOVE_TRAIT(H, TRAIT_DISGUISED, type)
+	H.update_body_parts()
+	H.regenerate_icons()
+
+/datum/species/ipc/self/insurgent/get_scream_sound(mob/living/carbon/human/H)
+	if(fake_species && disguised)
+		return fake_species.get_scream_sound(H)
+	else
+		return ..()
+		
+/datum/species/ipc/self/insurgent/apply_damage(damage, damagetype, def_zone, blocked, mob/living/carbon/human/H, wound_bonus, bare_wound_bonus, sharpness, attack_direction)
+	. = ..()
+	if(. && H.health < disguise_fail_health)
+		break_disguise(H)
+
+//admeme strong ipc
+/datum/species/ipc/self/insurgent/military
+	id = "insurrectionist ipc"
+	armor = 35
+	speedmod = -0.2
+	punchdamagelow = 10
+	punchdamagehigh = 19
+	punchstunthreshold = 14 //about 50% chance to stun
+	disguise_fail_health = 35
+	changesource_flags = MIRROR_BADMIN | WABBAJACK | ERT_SPAWN //admin only... sorta
 
 #undef CONSCIOUSAY

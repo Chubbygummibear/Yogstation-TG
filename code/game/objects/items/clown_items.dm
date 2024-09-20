@@ -85,9 +85,9 @@
 		to_chat(user, span_warning("[src] crumbles into tiny bits!"))
 		qdel(src)
 
-/obj/item/soap/afterattack(atom/target, mob/user, proximity)
+/obj/item/soap/afterattack(atom/target, mob/living/user, proximity)
 	. = ..()
-	if(iscarbon(target) && user == target && user.zone_selected == BODY_ZONE_PRECISE_MOUTH && user.a_intent == INTENT_HELP) //mmm, soap...
+	if(iscarbon(target) && user == target && user.zone_selected == BODY_ZONE_PRECISE_MOUTH && !user.combat_mode) //mmm, soap...
 		var/mob/living/carbon/C = user
 		user.visible_message(span_notice("[user] takes a bite out of [src.name]!"), span_notice("You gnaw on [src]! This can't be good for you..."))
 		playsound(get_turf(C), 'sound/items/eatfood.ogg', 25, 0)
@@ -132,10 +132,10 @@
 		return
 	if(istype(target, /obj/machinery/door))
 		var/obj/machinery/door/door = target
-		if(door.obj_flags && CMAGGED)
+		if(door.obj_flags & CMAGGED)
 			user.visible_message("[user] starts to clean the ooze off \the [door.name]'s access panel.", "You start to clean the ooze off \the [door.name]'s access panel.")
 			if(do_after(user, src.cleanspeed, door))
-				to_chat(span_notice(" You clean the ooze off [src]'s access panel."))
+				to_chat(user, span_notice("You clean the ooze off \the [door.name]'s access panel."))
 				door.obj_flags &= ~CMAGGED
 				decreaseUses(user)
 			return

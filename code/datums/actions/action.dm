@@ -46,6 +46,8 @@
 	/// This is the icon state for any FOREGROUND overlay icons on the button (such as borders)
 	var/overlay_icon_state
 
+	var/atom/movable/screen/movable/action_button/button = null
+	
 /datum/action/New(Target)
 	link_to(Target)
 
@@ -77,7 +79,7 @@
 		qdel(src)
 
 /// Grants the action to the passed mob, making it the owner
-/datum/action/proc/Grant(mob/grant_to)
+/datum/action/proc/Grant(mob/grant_to, ...)
 	if(isnull(grant_to))
 		Remove(owner)
 		return

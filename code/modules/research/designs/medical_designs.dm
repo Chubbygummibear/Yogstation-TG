@@ -11,7 +11,7 @@
 	construction_time = 75
 	build_path = /obj/item/mmi
 	category = list("Control Interfaces", "Medical Designs")
-	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
 
 /datum/design/posibrain
 	name = "Positronic Brain"
@@ -22,7 +22,7 @@
 	construction_time = 75
 	build_path = /obj/item/mmi/posibrain
 	category = list("Control Interfaces", "Medical Designs")
-	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL | DEPARTMENTAL_FLAG_SCIENCE
+	departmental_flags = DEPARTMENTAL_FLAG_SCIENCE
 
 /datum/design/bluespacebeaker
 	name = "Bluespace Beaker"
@@ -347,6 +347,39 @@
 	materials = list (/datum/material/iron = 2500, /datum/material/glass = 1500, /datum/material/silver = 1500)
 	construction_time = 200
 	build_path = /obj/item/organ/cyberimp/arm/toolset
+	category = list("Implants", "Medical Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+	
+/datum/design/cyberimp_botanyset
+	name = "Botanical Arm Implant"
+	desc = "A set of botanical tools hidden behind a concealed panel on the user's arm."
+	id = "ci-botanyset"
+	build_type = MECHFAB
+	materials = list (/datum/material/iron = 2500, /datum/material/glass = 1000, /datum/material/silver = 500, /datum/material/plastic = 500)
+	construction_time = 200
+	build_path = /obj/item/organ/cyberimp/arm/toolset/botany
+	category = list("Implants", "Medical Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+
+/datum/design/cyberimp_janitorset
+	name = "Janitorial Arm Implant"
+	desc = "A set of janitorial tools hidden behind a concealed panel on the user's arm."
+	id = "ci-janitorset"
+	build_type = MECHFAB
+	materials = list (/datum/material/iron = 2500, /datum/material/glass = 1000, /datum/material/silver = 500, /datum/material/plastic = 500)
+	construction_time = 200
+	build_path = /obj/item/organ/cyberimp/arm/toolset/janitor
+	category = list("Implants", "Medical Designs")
+	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
+
+/datum/design/cyberimp_clownset
+	name = "Comedy Arm Implant"
+	desc = "A set of comedy tools hidden behind a concealed panel on the user's arm."
+	id = "ci-clownset"
+	build_type = MECHFAB
+	materials = list (/datum/material/iron = 2500, /datum/material/glass = 1500, /datum/material/bananium = 3000) //costs more bananium than any other individual item, but the utility is unmatched
+	construction_time = 200
+	build_path = /obj/item/organ/cyberimp/arm/toolset/clown
 	category = list("Implants", "Medical Designs")
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
 
@@ -708,7 +741,7 @@
 /////////////////////
 /datum/design/surgery
 	name = "Surgery Design"
-	desc = "what"
+	desc = "What."
 	id = "surgery_parent"
 	research_icon = 'icons/misc/surgery_icons.dmi'
 	research_icon_state = "surgery_any"

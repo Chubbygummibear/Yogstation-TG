@@ -6,6 +6,8 @@
 /atom/movable/gravity_lens
 	plane = GRAVITY_PULSE_PLANE
 	//plane = GHOST_LAYER
+	density = FALSE
+	anchored = TRUE
 	appearance_flags = PIXEL_SCALE | RESET_TRANSFORM
 	icon = 'icons/effects/512x512.dmi'
 	icon_state = "gravitational_lensing"
@@ -452,7 +454,7 @@
 			if(STAGE_ONE)
 				steps = 1
 			if(STAGE_TWO)
-				steps = 3//Yes this is right
+				steps = 2
 			if(STAGE_THREE)
 				steps = 3
 			if(STAGE_FOUR)

@@ -126,7 +126,7 @@
 	
 /datum/outfit/crewmember
 	name = "Exploratory Crew Member"
-	uniform = /obj/item/clothing/under/rank/scientist
+	uniform = /obj/item/clothing/under/rank/rnd/scientist
 	shoes = /obj/item/clothing/shoes/sneakers/white
 	suit = /obj/item/clothing/suit/toggle/labcoat/science
 	back = /obj/item/storage/backpack/science
@@ -198,7 +198,7 @@
 	glasses = /obj/item/clothing/glasses/sunglasses
 
 	gloves = /obj/item/clothing/gloves/color/captain
-	uniform =  /obj/item/clothing/under/rank/captain
+	uniform =  /obj/item/clothing/under/rank/command/captain
 	suit = /obj/item/clothing/suit/armor/vest/capcarapace/alt
 	shoes = /obj/item/clothing/shoes/sneakers/brown
 	head = /obj/item/clothing/head/caphat/parade
@@ -208,7 +208,7 @@
 /obj/item/card/id/bus/crewmember/captain
 	name = "Captain"
 	desc = "An employee ID used to access areas around the ship."
-	access = list(ACCESS_CAPTAIN, ACCESS_SECURITY, ACCESS_RESEARCH)
+	access = list(ACCESS_CAPTAIN, ACCESS_SECURITY, ACCESS_SCIENCE)
 
 /obj/item/card/id/bus/crewmember/captain/New()
 	..()
@@ -217,7 +217,7 @@
 /obj/item/card/id/bus/crewmember/sec
 	name = "Security Officer"
 	desc = "An employee ID used to access areas around the ship."
-	access = list(ACCESS_SECURITY, ACCESS_RESEARCH)
+	access = list(ACCESS_SECURITY, ACCESS_SCIENCE)
 
 /obj/item/card/id/bus/crewmember/sec/New()
 	..()
@@ -226,7 +226,7 @@
 /obj/item/card/id/bus/crewmember
 	name = "Crew member"
 	desc = "An employee ID used to access areas around the ship."
-	access = list(ACCESS_RESEARCH)
+	access = list(ACCESS_SCIENCE)
 
 /obj/item/card/id/bus/crewmember/New()
 	..()

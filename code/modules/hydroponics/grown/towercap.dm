@@ -210,12 +210,27 @@
 	var/grill = FALSE
 	var/fire_stack_strength = 5
 
+/obj/structure/bonfire/Initialize(mapload)
+	. = ..()
+	RegisterSignal(src, COMSIG_LIGHT_EATER_ACT, PROC_REF(on_light_eater))
+
+//fire isn't one light source, it's several constantly appearing and disappearing... or something
+/obj/structure/bonfire/proc/on_light_eater(atom/source, datum/light_eater)
+	SIGNAL_HANDLER 
+	if(burning)
+		visible_message("The roaring fire of \the [src] refuses to fade.")
+	return COMPONENT_BLOCK_LIGHT_EATER
+
 /obj/structure/bonfire/dense
 	density = TRUE
 
 /obj/structure/bonfire/prelit/Initialize(mapload)
 	. = ..()
 	StartBurning()
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 /obj/structure/bonfire/CanAllowThrough(atom/movable/mover, turf/target)
 	. = ..()
@@ -224,7 +239,7 @@
 	if(mover.throwing)
 		return TRUE
 
-/obj/structure/bonfire/attackby(obj/item/W, mob/user, params)
+/obj/structure/bonfire/attackby(obj/item/W, mob/living/user, params)
 	if(istype(W, /obj/item/stack/rods) && !can_buckle && !grill)
 		var/obj/item/stack/rods/R = W
 		var/choice = input(user, "What would you like to construct?", "Bonfire") as null|anything in list("Stake","Grill")
@@ -247,7 +262,7 @@
 	if(W.is_hot())
 		StartBurning()
 	if(grill)
-		if(user.a_intent != INTENT_HARM && !(W.item_flags & ABSTRACT))
+		if(!user.combat_mode && !(W.item_flags & ABSTRACT))
 			if(user.temporarilyRemoveItemFromInventory(W))
 				W.forceMove(get_turf(src))
 				var/list/click_params = params2list(params)
@@ -300,8 +315,7 @@
 /obj/structure/bonfire/fire_act(exposed_temperature, exposed_volume)
 	StartBurning()
 
-/obj/structure/bonfire/Crossed(atom/movable/AM)
-	. = ..()
+/obj/structure/bonfire/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(burning & !grill)
 		Burn()
 

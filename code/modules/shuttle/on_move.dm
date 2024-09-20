@@ -9,7 +9,6 @@ All ShuttleMove procs go here
 /turf/proc/fromShuttleMove(turf/newT, move_mode)
 	if(!(move_mode & MOVE_AREA) || !isshuttleturf(src))
 		return move_mode
-	
 	return move_mode | MOVE_TURF | MOVE_CONTENTS
 
 /// Called from the new turf before anything has been moved
@@ -50,7 +49,7 @@ All ShuttleMove procs go here
 	//Destination turf changes
 	//Baseturfs is definitely a list or this proc wouldnt be called
 	var/shuttle_depth = depth_to_find_baseturf(/turf/baseturf_skipover/shuttle)
-	
+
 	if(!shuttle_depth)
 		CRASH("A turf queued to move via shuttle somehow had no skipover in baseturfs. [src]([type]):[loc]")
 	newT.CopyOnTop(src, 1, shuttle_depth, TRUE, CHANGETURF_DEFER_CHANGE)
@@ -67,7 +66,7 @@ All ShuttleMove procs go here
 	var/shuttle_depth = depth_to_find_baseturf(/turf/baseturf_skipover/shuttle)
 
 	if(shuttle_depth)
-		oldT.ScrapeAway(shuttle_depth)
+		oldT.ScrapeAway(shuttle_depth, CHANGETURF_DEFER_CHANGE)
 
 	if(rotation)
 		shuttleRotate(rotation) //see shuttle_rotate.dm
@@ -75,8 +74,8 @@ All ShuttleMove procs go here
 	return TRUE
 
 /turf/proc/lateShuttleMove(turf/oldT)
-	AfterChange(CHANGETURF_RECALC_ADJACENT)
-	oldT.AfterChange(CHANGETURF_RECALC_ADJACENT)
+	AfterChange()
+	oldT.AfterChange()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -241,6 +240,11 @@ All ShuttleMove procs go here
 		// atmosinit() calls update_appearance(UPDATE_ICON), so we don't need to call it
 		update_appearance()
 
+/obj/machinery/atmospherics/pipe/afterShuttleMove(turf/oldT, list/movement_force, shuttle_dir, shuttle_preferred_direction, move_dir, rotation)
+	. = ..()
+	//var/turf/T = loc
+	//hide(T.underfloor_accessibility < UNDERFLOOR_VISIBLE)
+
 /obj/machinery/navbeacon/beforeShuttleMove(turf/newT, rotation, move_mode, obj/docking_port/mobile/moving_dock)
 	. = ..()
 	GLOB.navbeacons["[z]"] -= src
@@ -248,6 +252,9 @@ All ShuttleMove procs go here
 
 /obj/machinery/navbeacon/afterShuttleMove(turf/oldT, list/movement_force, shuttle_dir, shuttle_preferred_direction, move_dir, rotation)
 	. = ..()
+	//var/turf/T = loc
+	//hide(T.underfloor_accessibility < UNDERFLOOR_VISIBLE)
+	
 	if(codes["patrol"])
 		if(!GLOB.navbeacons["[z]"])
 			GLOB.navbeacons["[z]"] = list()
@@ -255,6 +262,12 @@ All ShuttleMove procs go here
 	if(codes["delivery"])
 		GLOB.deliverybeacons += src
 		GLOB.deliverybeacontags += location
+
+/obj/machinery/power/terminal/afterShuttleMove(turf/oldT, list/movement_force, shuttle_dir, shuttle_preferred_direction, move_dir, rotation)
+	. = ..()
+	//var/turf/T = src.loc
+	//if(level==1)
+		//hide(T.underfloor_accessibility < UNDERFLOOR_VISIBLE)
 
 /************************************Item move procs************************************/
 
@@ -310,6 +323,16 @@ All ShuttleMove procs go here
 	. = ..()
 	if(. & MOVE_AREA)
 		. |= MOVE_CONTENTS
+
+/obj/structure/disposalpipe/afterShuttleMove(turf/oldT, list/movement_force, shuttle_dir, shuttle_preferred_direction, move_dir, rotation)
+	. = ..()
+	//update()
+
+/obj/structure/cable/afterShuttleMove(turf/oldT, list/movement_force, shuttle_dir, shuttle_preferred_direction, move_dir, rotation)
+	. = ..()
+	//var/turf/T = loc
+	//if(level==1)
+		//hide(T.underfloor_accessibility < UNDERFLOOR_VISIBLE)
 
 /obj/structure/shuttle/beforeShuttleMove(turf/newT, rotation, move_mode, obj/docking_port/mobile/moving_dock)
 	. = ..()

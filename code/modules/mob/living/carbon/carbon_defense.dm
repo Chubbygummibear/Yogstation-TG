@@ -268,7 +268,7 @@
 	return //so we don't call the carbon's attack_hand().
 
 //ATTACK HAND IGNORING PARENT RETURN VALUE
-/mob/living/carbon/attack_hand(mob/living/carbon/human/user)
+/mob/living/carbon/attack_hand(mob/living/carbon/human/user, modifiers)
 
 	for(var/thing in diseases)
 		var/datum/disease/D = thing
@@ -282,8 +282,8 @@
 
 	for(var/datum/surgery/S in surgeries)
 		if(!(mobility_flags & MOBILITY_STAND) || !S.lying_required)
-			if((S.self_operable || user != src) && (user.a_intent == INTENT_HELP || user.a_intent == INTENT_DISARM))
-				if(S.next_step(user, user.a_intent))
+			if((S.self_operable || user != src) && !user.combat_mode)
+				if(S.next_step(user, modifiers))
 					return TRUE
 
 	for(var/datum/wound/W in all_wounds)
@@ -293,7 +293,7 @@
 	return FALSE
 
 
-/mob/living/carbon/attack_paw(mob/living/carbon/monkey/M)
+/mob/living/carbon/attack_paw(mob/living/carbon/monkey/M, modifiers)
 
 	if(can_inject(M, TRUE))
 		for(var/thing in diseases)
@@ -306,7 +306,7 @@
 		if(D.spread_flags & DISEASE_SPREAD_CONTACT_SKIN)
 			ContactContractDisease(D)
 
-	if(M.a_intent == INTENT_HELP)
+	if(!M.combat_mode)
 		help_shake_act(M)
 		return FALSE
 
@@ -318,25 +318,19 @@
 
 
 /mob/living/carbon/attack_slime(mob/living/simple_animal/slime/M)
-	if(..()) //successful slime attack
+	. = ..()
+	if(.) //successful slime attack
 		if(M.powerlevel > 0)
-			var/stunprob = M.powerlevel * 7 + 10  // 17 at level 1, 80 at level 10
-			if(prob(stunprob))
-				M.powerlevel -= 3
-				if(M.powerlevel < 0)
-					M.powerlevel = 0
+			var/dazeprob = M.powerlevel * 10  // 10 at level 1, 100 at level 10
+			if(!prob(dazeprob))
+				return
 
-				visible_message(span_danger("The [M.name] has shocked [src]!"), \
-				span_userdanger("The [M.name] has shocked [src]!"))
+			visible_message(span_danger("The [M.name] has dazed [src]!"), span_userdanger("The [M.name] has dazed [src]!"))
 
-				do_sparks(5, TRUE, src)
-				var/power = M.powerlevel + rand(0,3)
-				Paralyze(power*20)
-				set_stutter_if_lower(power * 2 SECONDS)
-				if (prob(stunprob) && M.powerlevel >= 8)
-					adjustFireLoss(M.powerlevel * rand(6,10))
-					updatehealth()
-		return TRUE
+			var/power = M.powerlevel + rand(0,3)
+			set_stutter_if_lower(power SECONDS)
+			Daze(power SECONDS)
+		return
 
 /mob/living/carbon/proc/dismembering_strike(mob/living/attacker, dam_zone)
 	if(!attacker.limb_destroyer)
@@ -383,7 +377,7 @@
 		if(!(BP.emp_act(severity, emp_message) & EMP_PROTECT_SELF))
 			emp_message = FALSE // if the EMP was successful, don't spam the chat with more messages
 
-/mob/living/carbon/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = BODY_ZONE_R_ARM, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE, gib = FALSE)
+/mob/living/carbon/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, zone = HANDS, override = FALSE, tesla_shock = FALSE, illusion = FALSE, stun = TRUE, gib = FALSE)
 	if(tesla_shock && (flags_1 & TESLA_IGNORE_1))
 		return FALSE
 	if(HAS_TRAIT(src, TRAIT_SHOCKIMMUNE))
@@ -434,7 +428,7 @@
 			adjust_jitter(10 SECONDS)
 			adjustOrganLoss(ORGAN_SLOT_BRAIN, 100, 199)
 
-	if(gib && siemens_coeff > 0)
+	if(gib && siemens_coeff > 0 && stat >= SOFT_CRIT)
 		visible_message(
 			span_danger("[src] body is emitting a loud noise!"), \
 			span_userdanger("You feel like you are about to explode!"), \
@@ -648,7 +642,7 @@
 /obj/item/self_grasp
 	name = "self-grasp"
 	desc = "Sometimes all you can do is slow the bleeding."
-	icon = 'icons/obj/toy.dmi'
+	icon = 'icons/obj/weapons/hand.dmi'
 	icon_state = "latexballon"
 	item_state = "nothing"
 	force = 0

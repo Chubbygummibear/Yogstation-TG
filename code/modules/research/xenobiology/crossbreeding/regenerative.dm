@@ -144,7 +144,7 @@ Regenerative extracts:
 
 /obj/item/slimecross/regenerative/bluespace
 	colour = "bluespace"
-	effect_desc = "Partially heals the target and teleports them to where this core was created."
+	effect_desc = "Partially heals the target and teleports them to nearby where this core was created."
 	var/turf/open/T
 
 /obj/item/slimecross/regenerative/bluespace/core_effect(mob/living/target, mob/user)
@@ -155,7 +155,7 @@ Regenerative extracts:
 
 /obj/item/slimecross/regenerative/bluespace/Initialize(mapload)
 	. = ..()
-	T = get_turf(src)
+	T = pick(range(3, get_turf(src))) //picks a random tile in the area
 
 /obj/item/slimecross/regenerative/sepia
 	colour = "sepia"
@@ -173,7 +173,7 @@ Regenerative extracts:
 	src.forceMove(user.loc)
 	var/obj/item/slimecross/X = new /obj/item/slimecross/regenerative(user.loc)
 	X.name = name
-	X.desc = desc
+	X.effect_desc = effect_desc
 	user.put_in_active_hand(X)
 	to_chat(user, span_notice("Some of the milky goo congeals in your hand!"))
 

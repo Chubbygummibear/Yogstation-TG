@@ -3,11 +3,11 @@
 /datum/species/zombie
 	// 1spooky
 	name = "High-Functioning Zombie"
-	id = "zombie"
+	id = SPECIES_ZOMBIE
 	say_mod = "moans"
-	sexes = FALSE
+	possible_genders = list(NEUTER)
 	meat = /obj/item/reagent_containers/food/snacks/meat/slab/human/mutant/zombie
-	species_traits = list(NOBLOOD,NOZOMBIE,NOTRANSSTING,HAS_FLESH,HAS_BONE, AGENDER)
+	species_traits = list(NOBLOOD, NOZOMBIE, NOTRANSSTING, HAS_FLESH, HAS_BONE)
 	inherent_traits = list(TRAIT_STABLELIVER, TRAIT_STABLEHEART, TRAIT_RESISTCOLD ,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_RADIMMUNE,TRAIT_EASYDISMEMBER,TRAIT_EASILY_WOUNDED,TRAIT_LIMBATTACHMENT,TRAIT_NOBREATH,TRAIT_NODEATH,TRAIT_FAKEDEATH)
 	inherent_biotypes = MOB_UNDEAD|MOB_HUMANOID
 	mutanttongue = /obj/item/organ/tongue/zombie
@@ -45,8 +45,8 @@
 
 /datum/species/zombie/infectious
 	name = "Infectious Zombie"
-	id = "memezombies"
-	limbs_id = "zombie"
+	id = SPECIES_ZOMBIE_INFECTIOUS
+	limbs_id = SPECIES_ZOMBIE
 	inherent_traits = list(TRAIT_STABLELIVER, TRAIT_STABLEHEART, TRAIT_RESISTCOLD,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE,TRAIT_RADIMMUNE,TRAIT_EASILY_WOUNDED,TRAIT_LIMBATTACHMENT,TRAIT_NOBREATH,TRAIT_NODEATH,TRAIT_FAKEDEATH,TRAIT_STUNIMMUNE)
 	mutanthands = /obj/item/zombie_hand
 	armor = 20 // 120 damage to KO a zombie, which kills it
@@ -70,7 +70,7 @@
 
 /datum/species/zombie/infectious/spec_life(mob/living/carbon/C)
 	. = ..()
-	C.a_intent = INTENT_HARM // THE SUFFERING MUST FLOW
+	C.set_combat_mode(TRUE, TRUE) // THE SUFFERING MUST FLOW
 
 	//Zombies never actually die, they just fall down until they regenerate enough to rise back up.
 	//They must be restrained, beheaded or gibbed to stop being a threat.
@@ -111,10 +111,10 @@
 // Your skin falls off
 /datum/species/krokodil_addict
 	name = "Human"
-	id = "goofzombies"
-	limbs_id = "zombie" //They look like zombies
-	sexes = FALSE
-	species_traits = list(HAS_FLESH, HAS_BONE, AGENDER)
+	id = SPECIES_ZOMBIE_KROKODIL
+	limbs_id = SPECIES_ZOMBIE //They look like zombies
+	possible_genders = list(PLURAL)
+	species_traits = list(HAS_FLESH, HAS_BONE)
 	inherent_traits = list(TRAIT_EASILY_WOUNDED) //you have no skin
 	inherent_biotypes = MOB_UNDEAD|MOB_HUMANOID //pretty much just rotting flesh, somehow still "technically" alive
 	meat = /obj/item/reagent_containers/food/snacks/meat/slab/human/mutant/zombie
@@ -125,7 +125,7 @@
 /datum/species/zombie/hecata
 	name = "Sanguine Zombie"
 	id = "hecatazombie"
-	limbs_id = "zombie"
+	limbs_id = SPECIES_ZOMBIE
 	say_mod = "moans"
 	brutemod = 1.1
 	burnmod = 1.1 //more fragile, though they also dont enter soft crit

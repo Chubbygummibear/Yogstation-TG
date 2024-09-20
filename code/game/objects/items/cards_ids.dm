@@ -341,6 +341,7 @@
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 25, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	var/mining_points = 0 //For redeeming at mining equipment vendors
+	var/shipbreaking_points = 0 //for redeeming at shipbreaking equipment vendors
 	var/list/access = list()
 	var/registered_name = null // The name registered_name on the card
 	var/assignment = null
@@ -561,6 +562,10 @@ update_label("John Doe", "Clowny")
 
 	name = "[(!registered_name)	? "identification card"	: "[registered_name]'s ID Card"][(!assignment) ? "" : " ([assignment])"]"
 
+//a card that can't register a bank account IC
+/obj/item/card/id/no_bank/AltClick(mob/living/user)
+	return FALSE
+
 /obj/item/card/id/silver
 	name = "silver identification card"
 	desc = "A silver card which shows honour and dedication."
@@ -583,6 +588,23 @@ update_label("John Doe", "Clowny")
 	item_state = "gold_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/equipment/idcards_righthand.dmi'
+
+/obj/item/card/id/silver/synthetic
+	name = "synthetic identification card"
+	desc = "An integrated card that allows synthetic units access across the station."
+	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+	item_flags = DROPDEL
+
+/obj/item/card/id/silver/synthetic/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_NODROP, SYNTHETIC_TRAIT)
+
+/obj/item/card/id/silver/synthetic/GetAccess()
+	if(ishuman(loc))
+		var/mob/living/carbon/human/H = loc
+		if(H.mind)
+			return GLOB.synthetic_base_access + GLOB.synthetic_added_access
+	return list()
 
 /obj/item/card/id/syndicate
 	name = "agent card"
@@ -636,7 +658,7 @@ update_label("John Doe", "Clowny")
 
 			var/newAge = input(user, "Choose the ID's age:\n([AGE_MIN]-[AGE_MAX])", "Agent card age") as num|null
 			if(newAge)
-				registered_age = max(round(text2num(newAge)), 0)
+				registered_age = clamp(round(text2num(newAge)), AGE_MIN, AGE_MAX)
 
 			registered_name = input_name
 			assignment = target_occupation
@@ -782,7 +804,7 @@ update_label("John Doe", "Clowny")
 /obj/item/card/id/captains_spare/temporary/Initialize(mapload)
 	. = ..()
 	access -= ACCESS_CHANGE_IDS
-	access -= ACCESS_HEADS
+	access -= ACCESS_COMMAND
 	addtimer(CALLBACK(src, PROC_REF(wipe_id)), 50 SECONDS)
 
 /obj/item/card/id/captains_spare/temporary/proc/wipe_id()
@@ -796,8 +818,8 @@ update_label("John Doe", "Clowny")
 		var/obj/structure/fireaxecabinet/bridge/spare/holder = loc
 		forceMove(holder.loc)
 		holder.spareid = null
-		if(holder.obj_integrity > holder.integrity_failure) //we dont want to heal it by accident
-			holder.take_damage(holder.obj_integrity - holder.integrity_failure, BURN, armour_penetration = 100) //we do a bit of trolling for being naughty
+		if(holder.get_integrity() > holder.integrity_failure) //we dont want to heal it by accident
+			holder.take_damage(holder.get_integrity() - holder.integrity_failure, BURN, armour_penetration = 100) //we do a bit of trolling for being naughty
 		else
 			holder.update_appearance(UPDATE_ICON) //update the icon anyway so it pops out
 		visible_message(span_danger("The heat of the temporary spare shatters the glass!"));
@@ -899,7 +921,7 @@ update_label("John Doe", "Clowny")
 	originalassignment = "Occupying Officer"
 
 /obj/item/card/id/ert/occupying/Initialize(mapload)
-    access = list(ACCESS_SECURITY,ACCESS_BRIG,ACCESS_WEAPONS,ACCESS_SEC_DOORS,ACCESS_MAINT_TUNNELS)+get_ert_access("sec")
+    access = list(ACCESS_SECURITY, ACCESS_BRIG, ACCESS_WEAPONS_PERMIT ,ACCESS_SEC_BASIC, ACCESS_MAINT_TUNNELS)+get_ert_access("sec")
     . = ..()
 
 /obj/item/card/id/ert/Initialize(mapload)
@@ -1007,22 +1029,22 @@ update_label("John Doe", "Clowny")
 
 /obj/item/card/id/mining
 	name = "mining ID"
-	access = list(ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MECH_MINING, ACCESS_MAILSORTING, ACCESS_MINERAL_STOREROOM)
+	access = list(ACCESS_MINING, ACCESS_MINING_STATION, ACCESS_MECH_MINING, ACCESS_CARGO)
 
 /obj/item/card/id/away
 	name = "a perfectly generic identification card"
 	desc = "A perfectly generic identification card. Looks like it could use some flavor."
-	access = list(ACCESS_AWAY_GENERAL)
+	access = list(ACCESS_RUINS_GENERAL)
 	registered_age = null
 
 /obj/item/card/id/away/hotel
 	name = "Staff ID"
 	desc = "A staff ID used to access the hotel's doors."
-	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT)
+	access = list(ACCESS_RUINS_GENERAL, ACCESS_RUINS_MAINTENANCE)
 
 /obj/item/card/id/away/hotel/securty
 	name = "Officer ID"
-	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT, ACCESS_AWAY_SEC)
+	access = list(ACCESS_RUINS_GENERAL, ACCESS_RUINS_MAINTENANCE, ACCESS_RUINS_SECURITY)
 
 /obj/item/card/id/away/old
 	name = "a perfectly generic identification card"
@@ -1034,21 +1056,21 @@ update_label("John Doe", "Clowny")
 	desc = "A faded Charlie Station ID card. You can make out the rank \"Security Officer\"."
 	assignment = "Charlie Station Security Officer"
 	originalassignment = "Security Officer"
-	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_SEC)
+	access = list(ACCESS_RUINS_GENERAL, ACCESS_RUINS_SECURITY)
 
 /obj/item/card/id/away/old/sci
 	name = "Charlie Station Scientist's ID card"
 	desc = "A faded Charlie Station ID card. You can make out the rank \"Scientist\"."
 	assignment = "Charlie Station Scientist"
 	originalassignment = "Scientist"
-	access = list(ACCESS_AWAY_GENERAL)
+	access = list(ACCESS_RUINS_GENERAL)
 
 /obj/item/card/id/away/old/eng
 	name = "Charlie Station Engineer's ID card"
 	desc = "A faded Charlie Station ID card. You can make out the rank \"Station Engineer\"."
 	assignment = "Charlie Station Engineer"
 	originalassignment = "Engineer"
-	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_ENGINE)
+	access = list(ACCESS_RUINS_GENERAL, ACCESS_RUINS_ENGINEERING)
 
 /obj/item/card/id/away/old/apc
 	name = "APC Access ID"

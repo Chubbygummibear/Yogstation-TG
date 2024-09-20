@@ -33,7 +33,7 @@
 	name = "Bluespace Locker"
 	icon_state = "away"
 	has_gravity = STANDARD_GRAVITY
-	noteleport = TRUE
+	area_flags = NOTELEPORT
 
 /area/vacant_room/office/office_b
 	name = "Vacant Office - B"
@@ -73,3 +73,8 @@
 /area/security/podbay
 	name = "Security Podbay"
 	icon_state = "security"
+
+
+/area/shipbreak
+	name = "Shipbreak Zone"
+	icon_state = "escape"

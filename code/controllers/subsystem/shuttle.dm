@@ -217,28 +217,36 @@ SUBSYSTEM_DEF(shuttle)
 	if(emergency_no_escape || admin_emergency_no_recall || emergency_no_recall || !emergency || !SSticker.HasRoundStarted())
 		return
 
-	var/threshold = CONFIG_GET(number/emergency_shuttle_autocall_threshold)
-	if(!threshold)
+	if(!length(GLOB.joined_player_list)) //if there's nobody actually in the game...
 		return
 
-	var/alive = 0
-	for(var/I in GLOB.player_list)
-		var/mob/M = I
-		if(M.stat != DEAD)
-			++alive
+	var/threshold = CONFIG_GET(number/emergency_shuttle_autocall_threshold)
+	if(threshold)
+		var/alive = 0
+		for(var/I in GLOB.player_list)
+			var/mob/M = I
+			if(M.stat != DEAD)
+				++alive
+		
+		var/total = length(GLOB.joined_player_list)
+		if(!total) return
 
-	var/total = GLOB.joined_player_list.len
-	if(total <= 0)
-		return //no players no autoevac
-
-	if(alive / total <= threshold)
-		var/msg = "Automatically dispatching shuttle due to crew death."
-		message_admins(msg)
-		log_game("[msg] Alive: [alive], Roundstart: [total], Threshold: [threshold]")
-		emergency_no_recall = TRUE
-		priority_announce("Catastrophic casualties detected: crisis shuttle protocols activated - jamming recall signals across all frequencies.")
-		if(emergency.timeLeft(1) > emergency_no_recall * 0.4)
-			emergency.request(null, set_coefficient = 0.4)
+		if(alive / total <= threshold)
+			emergency_no_recall = TRUE
+			if(emergency.timeLeft(1) > ALERT_COEFF_AUTOEVAC_CRITICAL)
+				var/msg = "Automatically dispatching shuttle due to crew death."
+				message_admins(msg)
+				log_game("[msg] Alive: [alive], Roundstart: [total], Threshold: [threshold]")
+				priority_announce("Catastrophic casualties detected: crisis shuttle protocols activated - jamming recall signals across all frequencies.")
+				emergency.request(null, set_coefficient = ALERT_COEFF_AUTOEVAC_CRITICAL)
+				return
+	if(world.time - SSticker.round_start_time >= 2 HOURS) //auto call the shuttle after 2 hours 
+		emergency_no_recall = TRUE //no recalling after 2 hours
+		if(emergency.timeLeft(1) > SSsecurity_level.current_security_level.shuttle_call_time_mod)
+			var/msg = "Automatically dispatching shuttle due to lack of shift end response."
+			message_admins(msg)
+			priority_announce("Dispatching shuttle due to lack of shift end response.")
+			emergency.request(null)
 
 /datum/controller/subsystem/shuttle/proc/block_recall(lockout_timer)
 	if(isnull(lockout_timer))
@@ -334,7 +342,7 @@ SUBSYSTEM_DEF(shuttle)
 
 	call_reason = trim(html_encode(call_reason))
 
-	if(length(call_reason) < CALL_SHUTTLE_REASON_LENGTH && seclevel2num(get_security_level()) > SEC_LEVEL_GREEN)
+	if(length(call_reason) < CALL_SHUTTLE_REASON_LENGTH && SSsecurity_level.current_security_level.require_call_reason)
 		to_chat(user, "You must provide a reason.")
 		return
 
@@ -396,7 +404,7 @@ SUBSYSTEM_DEF(shuttle)
 /datum/controller/subsystem/shuttle/proc/canRecall()
 	if(!emergency || emergency.mode != SHUTTLE_CALL || admin_emergency_no_recall || emergency_no_recall)
 		return
-	var/security_num = seclevel2num(get_security_level())
+	var/security_num = SSsecurity_level.get_current_level_as_number()
 	switch(security_num)
 		if(SEC_LEVEL_GREEN)
 			if(emergency.timeLeft(1) < emergency_call_time)
@@ -434,7 +442,7 @@ SUBSYSTEM_DEF(shuttle)
 
 	if(callShuttle)
 		if(EMERGENCY_IDLE_OR_RECALLED)
-			emergency.request(null, set_coefficient = 2.5)
+			emergency.request(null, set_coefficient = ALERT_COEFF_AUTOEVAC_NORMAL)
 			log_game("There is no means of calling the shuttle anymore. Shuttle automatically called.")
 			message_admins("All the communications consoles were destroyed and all AIs are inactive. Shuttle called.")
 
@@ -616,13 +624,16 @@ SUBSYSTEM_DEF(shuttle)
 	if(!midpoint)
 		qdel(proposal)
 		return FALSE
+	
 	var/area/old_area = midpoint.loc
-	old_area.turfs_to_uncontain += proposal.reserved_turfs
+	LISTASSERTLEN(old_area.turfs_to_uncontain_by_zlevel, bottomleft.z, list())
+	old_area.turfs_to_uncontain_by_zlevel[bottomleft.z] += proposal.reserved_turfs
 	
 	var/area/shuttle/transit/new_area = new()
 	new_area.parallax_movedir = travel_dir
 	new_area.contents = proposal.reserved_turfs
-	new_area.contained_turfs = proposal.reserved_turfs
+	LISTASSERTLEN(new_area.turfs_by_zlevel, bottomleft.z, list())
+	new_area.turfs_by_zlevel[bottomleft.z] = proposal.reserved_turfs
 	
 	var/obj/docking_port/stationary/transit/new_transit_dock = new(midpoint)
 	new_transit_dock.reserved_area = proposal
@@ -1052,7 +1063,7 @@ SUBSYSTEM_DEF(shuttle)
 			else if(S)
 				. = TRUE
 				// If successful, returns the mobile docking port
-				var/obj/docking_port/mobile/mdp = action_load(S)
+				var/obj/docking_port/mobile/mdp = action_load(S, replace = TRUE)
 				if(mdp)
 					user.forceMove(get_turf(mdp))
 					message_admins("[key_name_admin(usr)] loaded [mdp] with the shuttle manipulator.")

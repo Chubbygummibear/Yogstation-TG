@@ -68,9 +68,9 @@
 		return FALSE
 	if(ispath(typepath, /datum/round_event/ghost_role) && !(GLOB.ghost_role_flags & GHOSTROLE_MIDROUND_EVENT))
 		return FALSE
-	if(GLOB.security_level > max_alert)
+	if(SSsecurity_level.get_current_level_as_number() > max_alert)
 		return FALSE
-	if(GLOB.security_level < min_alert)
+	if(SSsecurity_level.get_current_level_as_number() < min_alert)
 		return FALSE
 
 	var/datum/game_mode/dynamic/dynamic = SSticker.mode
@@ -108,7 +108,7 @@
 		return
 	if(href_list["cancel"])
 		if(!triggering)
-			to_chat(usr, span_admin("You are too late to cancel that event"))
+			to_chat(usr, span_admin("You are too late to cancel that event."))
 			return
 		triggering = FALSE
 		message_admins("[key_name_admin(usr)] cancelled event [name].")

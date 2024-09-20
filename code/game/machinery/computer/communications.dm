@@ -12,7 +12,7 @@
 	desc = "A console used for high-priority announcements and emergencies."
 	icon_screen = "comm"
 	icon_keyboard = "tech_key"
-	req_access = list(ACCESS_HEADS)
+	req_access = list(ACCESS_COMMAND)
 	circuit = /obj/item/circuitboard/computer/communications
 	light_color = LIGHT_COLOR_BLUE
 
@@ -54,12 +54,16 @@
 
 /// Are we NOT a silicon, AND we're logged in as the captain?
 /obj/machinery/computer/communications/proc/authenticated_as_non_silicon_captain(mob/user)
+	if(is_synth(user))
+		return FALSE
 	if (issilicon(user))
 		return FALSE
 	return ACCESS_CAPTAIN in authorize_access
 
 /// Are we a silicon, OR we're logged in as the captain?
 /obj/machinery/computer/communications/proc/authenticated_as_silicon_or_captain(mob/user)
+	if(is_synth(user))
+		return FALSE
 	if (issilicon(user))
 		return TRUE
 	return ACCESS_CAPTAIN in authorize_access
@@ -68,7 +72,7 @@
 /obj/machinery/computer/communications/proc/authenticated_as_non_silicon_head(mob/user)
 	if(issilicon(user))
 		return FALSE
-	return ACCESS_HEADS in authorize_access
+	return ACCESS_COMMAND in authorize_access
 
 /// Are we a silicon, OR logged in?
 /obj/machinery/computer/communications/proc/authenticated(mob/user)
@@ -150,18 +154,18 @@
 					to_chat(usr, span_warning("You need to swipe your ID!"))
 					playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, FALSE)
 					return
-				if (!(ACCESS_HEADS in id_card.access))
+				if (!(ACCESS_COMMAND in id_card.access))
 					to_chat(usr, span_warning("You are not authorized to do this!"))
 					playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 50, FALSE)
 					return
 
-			var/new_sec_level = seclevel2num(params["newSecurityLevel"])
+			var/new_sec_level = SSsecurity_level.text_level_to_number(params["newSecurityLevel"])
 			if (new_sec_level != SEC_LEVEL_GREEN && new_sec_level != SEC_LEVEL_BLUE)
 				return
-			if (GLOB.security_level == new_sec_level)
+			if (SSsecurity_level.get_current_level_as_number() == new_sec_level)
 				return
 
-			set_security_level(new_sec_level)
+			SSsecurity_level.set_level(new_sec_level)
 
 			to_chat(usr, span_notice("Authorization confirmed. Modifying security level."))
 			playsound(src, 'sound/machines/terminal_prompt_confirm.ogg', 50, FALSE)
@@ -366,16 +370,7 @@
 				new /obj/item/card/id/captains_spare/temporary(loc)
 				COOLDOWN_START(src, important_action_cooldown, IMPORTANT_ACTION_COOLDOWN)
 				priority_announce("The emergency spare ID has been printed by [authorize_name].", "Emergency Spare ID Warning System", SSstation.announcer.get_rand_report_sound())
-		if("printAIControlCode")
-			if(authenticated_as_non_silicon_head(usr))
-				if(!COOLDOWN_FINISHED(src, important_action_cooldown))
-					return
-				playsound(loc, 'sound/items/poster_being_created.ogg', 100, 1)
-				GLOB.ai_control_code = random_nukecode(6)
-				new /obj/item/paper/ai_control_code(loc)
-				COOLDOWN_START(src, important_action_cooldown, IMPORTANT_ACTION_COOLDOWN)
-				priority_announce("The AI Control Code been printed by [authorize_name]. All previous codes have been invalidated.", "Central Tech Support", SSstation.announcer.get_rand_report_sound())
-
+				
 
 /obj/machinery/computer/communications/ui_data(mob/user)
 	var/list/data = list(
@@ -410,7 +405,7 @@
 				data["aprilFools"] = check_holidays(APRIL_FOOLS)
 				data["canPrintIdAndCode"] = FALSE
 
-				data["alertLevel"] = get_security_level()
+				data["alertLevel"] = SSsecurity_level.get_current_level_as_text()
 				data["authorizeName"] = authorize_name
 				data["canLogOut"] = !issilicon(user)
 				data["shuttleCanEvacOrFailReason"] = SSshuttle.canEvac(user)

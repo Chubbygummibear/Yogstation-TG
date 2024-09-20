@@ -3,7 +3,7 @@ GLOBAL_LIST_EMPTY(PDABombCodes)
 /datum/computer_file/program/bomberman
 	filename = "bomberman"
 	filedesc = "BomberMan"
-	category = PROGRAM_CATEGORY_MISC
+	category = PROGRAM_CATEGORY_EQUIPMENT
 	program_icon_state = "hostile"
 	extended_desc = "A new-age version of the classic 'Detomatix' program run on legacy PDAs. Can be used to attempt detonation of any PDA on the messaging list."
 	size = 5
@@ -85,7 +85,7 @@ GLOBAL_LIST_EMPTY(PDABombCodes)
 						targetid = card_slot.GetID()
 					
 				if(targetid) // Adjust difficulty based on target's access
-					difficulty += BitCount(text2num(targetid.access_txt) & (ACCESS_MEDICAL | ACCESS_SECURITY | ACCESS_ENGINE | ACCESS_THEATRE | ACCESS_JANITOR | ACCESS_HEADS))
+					difficulty += BitCount(text2num(targetid.access_txt) & (ACCESS_MEDICAL | ACCESS_SECURITY | ACCESS_ENGINEERING | ACCESS_THEATRE | ACCESS_JANITOR | ACCESS_COMMAND))
 				
 				if(SEND_SIGNAL(target_computer, COMSIG_TABLET_CHECK_DETONATE) & COMPONENT_TABLET_NO_DETONATE || prob(difficulty * 15))
 					computer.visible_message(span_notice("Detonation failed. [bomb.uses] charges remaining."), null, null, 1)

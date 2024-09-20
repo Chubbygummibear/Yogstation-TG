@@ -22,7 +22,6 @@
 	icon_state = "drone_maint_grey"
 	icon_living = "drone_maint_grey"
 	icon_dead = "drone_maint_dead"
-	possible_a_intents = list(INTENT_HELP, INTENT_HARM)
 	health = 30
 	maxHealth = 30
 	unsuitable_atmos_damage = 0
@@ -163,8 +162,11 @@
 	alert_drones(DRONE_NET_DISCONNECT)
 
 
-/mob/living/simple_animal/drone/gib()
+/mob/living/simple_animal/drone/gib(no_brain, no_organs, no_bodyparts, no_items)
 	dust()
+
+/mob/living/simple_animal/drone/get_butt_sprite()
+	return BUTT_SPRITE_DRONE
 
 /mob/living/simple_animal/drone/ratvar_act()
 	if(status_flags & GODMODE)

@@ -30,10 +30,24 @@
 
 /obj/item/ammo_casing/caseless/bolts
 	name = "bolts"
-	desc = "rods, cut in half and ready to be shot"
+	desc = "Rods, cut in half and ready to be shot."
 	caliber = null
 	icon = 'icons/obj/ammo.dmi'
 	icon_state = "bolt"
 	projectile_type = /obj/projectile/bullet/bolt
 	firing_effect_type = /obj/effect/particle_effect/sparks/electricity
 	w_class = WEIGHT_CLASS_TINY
+
+/obj/item/ammo_casing/caseless/cartridge
+	name = "welding fuel cartridge"
+	desc = "A musket cartridge crafted by hand. This one uses welding fuel as its propellant."
+	caliber = CALIBER_MUSKET
+	icon_state = "cartridge"
+	projectile_type = /obj/projectile/bullet/cartridge
+	firing_effect_type = /obj/effect/particle_effect/fluid/smoke/bad
+
+/obj/item/ammo_casing/caseless/cartridge/black_powder
+	name = "black powder cartridge"
+	desc = "A musket cartridge crafted by hand. This one uses black powder as its propellant."
+	icon_state = "cartridge_BP"
+	projectile_type = /obj/projectile/bullet/cartridge/black_powder

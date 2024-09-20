@@ -8,7 +8,7 @@
 
 /obj/mecha/take_damage(damage_amount, damage_type = BRUTE, damage_flag = 0, sound_effect = TRUE, attack_dir, armour_penetration = 0)
 	. = ..()
-	if(. && obj_integrity > 0)
+	if(. && atom_integrity > 0)
 		spark_system.start()
 		switch(damage_flag)
 			if(FIRE)
@@ -20,30 +20,29 @@
 		if(. >= 5 || prob(33))
 			occupant_message(span_userdanger("Taking damage!"))
 		log_message("Took [damage_amount] points of damage. Damage type: [damage_type]", LOG_MECHA)
+		diag_hud_set_mechhealth()
 
-/obj/mecha/run_obj_armor(damage_amount, damage_type, damage_flag = 0, attack_dir)
+/obj/mecha/repair_damage(amount)
+	. = ..()
+	diag_hud_set_mechhealth()
+
+/obj/mecha/run_atom_armor(damage_amount, damage_type, damage_flag = 0, attack_dir)
 	. = ..()
 	if(!damage_amount)
 		return 0
-	var/booster_deflection_modifier = 1
-	var/booster_damage_modifier = 1
+	var/deflection_modifier = 1
+	var/damage_modifier = 1
 	if(damage_flag == MELEE)
-		for(var/obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster/B in equipment)
-			if(B.attack_react())
-				booster_deflection_modifier *= B.deflect_coeff
-				booster_damage_modifier *= B.damage_coeff
-				break
-
 		if(attack_dir)
 			var/facing_modifier = get_armour_facing(dir2angle(attack_dir) - dir2angle(dir))
-			booster_damage_modifier /= facing_modifier
-			booster_deflection_modifier *= facing_modifier
-		if(prob(deflect_chance * booster_deflection_modifier))
+			damage_modifier /= facing_modifier
+			deflection_modifier *= facing_modifier
+		if(prob(deflect_chance * deflection_modifier))
 			visible_message(span_danger("[src]'s armour deflects the attack!"))
 			log_message("Armor saved.", LOG_MECHA)
 			return 0
 		if(.)
-			. *= booster_damage_modifier
+			. *= damage_modifier
 
 
 /obj/mecha/attack_hand(mob/living/user)
@@ -107,37 +106,34 @@
 	. = ..()
 
 
-/obj/mecha/bullet_act(obj/projectile/Proj) //wrapper
-	if ((!enclosed || istype(Proj, /obj/projectile/bullet/shotgun/slug/uranium))&& occupant && !silicon_pilot && !Proj.force_hit && (Proj.def_zone == BODY_ZONE_HEAD || Proj.def_zone == BODY_ZONE_CHEST)) //allows bullets to hit the pilot of open-canopy mechs
-		occupant.bullet_act(Proj) //If the sides are open, the occupant can be hit
-		return BULLET_ACT_HIT
-	if(istype(Proj, /obj/projectile/ion))
+/obj/mecha/bullet_act(obj/projectile/incoming)
+	if((!enclosed || incoming.penetration_flags & PENETRATE_OBJECTS) && occupant && !silicon_pilot && !incoming.force_hit && (incoming.def_zone == BODY_ZONE_HEAD || incoming.def_zone == BODY_ZONE_CHEST)) //allows bullets to hit the pilot of open-canopy mechs
+		occupant.bullet_act(incoming) //If the sides are open, the occupant can be hit
+	if(istype(incoming, /obj/projectile/ion))
 		return ..()
-	var/booster_deflection_modifier = 1
-	var/booster_damage_modifier = 1
-	var/attack_dir = get_dir(src, Proj)
-	for(var/obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster/B in equipment)
-		if(B.projectile_react())
-			booster_deflection_modifier = B.deflect_coeff
-			booster_damage_modifier = B.damage_coeff
+	var/deflection_modifier = 1
+	var/damage_modifier = 1
+	var/attack_dir = get_dir(src, incoming)
 	if(attack_dir)
 		var/facing_modifier = get_armour_facing(dir2angle(attack_dir) - dir2angle(dir))
-		booster_damage_modifier /= facing_modifier
-		booster_deflection_modifier *= facing_modifier
-	if(prob(deflect_chance * booster_deflection_modifier))
+		damage_modifier /= facing_modifier
+		deflection_modifier *= facing_modifier
+	if(prob(deflect_chance * deflection_modifier))
 		visible_message(span_danger("[src]'s armour deflects the attack!"))
 		if(super_deflects)
-			Proj.firer = src
-			Proj.setAngle(rand(0, 360))	//PTING
+			incoming.firer = src
+			incoming.setAngle(rand(0, 360))	//PTING
 			return BULLET_ACT_FORCE_PIERCE
 		else
-			Proj.damage = 0	//Armor has stopped the projectile effectively, if it has other effects that's another issue
+			incoming.damage = 0	//Armor has stopped the projectile effectively, if it has other effects that's another issue
 			return BULLET_ACT_BLOCK
 
-	Proj.damage *= booster_damage_modifier	//If you manage to shoot THROUGH a mech with something, the bullet wont be fully intact
+	incoming.damage *= damage_modifier	//If you manage to shoot THROUGH a mech with something, the bullet wont be fully intact
+	if(!HAS_TRAIT(incoming, TRAIT_SHIELDBUSTER)) // Exceptionally strong projectiles do the full damage
+		incoming.demolition_mod = (1 + incoming.demolition_mod) / 2
 
-	log_message("Hit by projectile. Type: [Proj.name]([Proj.armor_flag]).", LOG_MECHA, color="red")
-	. = ..()
+	log_message("Hit by projectile. Type: [incoming.name]([incoming.armor_flag]).", LOG_MECHA, color="red")
+	return ..()
 
 /obj/mecha/ex_act(severity, target)
 	log_message("Affected by explosion of severity: [severity].", LOG_MECHA, color="red")
@@ -179,27 +175,61 @@
 	. = ..()
 	if (. & EMP_PROTECT_SELF)
 		return
+	severity -= EMP_HEAVY * (100 - armor.getRating(ENERGY)) / 100 // energy armor is subtractive so that it's less effective against stronger EMPs and more against weaker ones
 	if(get_charge())
-		use_power((cell.charge * severity / 15))
-		
-	take_damage(4 * severity, BURN, ENERGY, 1)
+		use_power(cell.charge * severity / 40)
+	if(overheat < OVERHEAT_EMP_MAX)
+		adjust_overheat(min(severity, OVERHEAT_EMP_MAX - overheat))
+
+	take_damage(2 * severity, BURN, ENERGY, 1)
 	log_message("EMP detected", LOG_MECHA, color="red")
+
+	if(severity <= EMP_LIGHT || overheat < OVERHEAT_WARNING / 2)
+		return // only a light EMP, equipment is still fine
 
 	if(istype(src, /obj/mecha/combat))
 		mouse_pointer = 'icons/mecha/mecha_mouse-disable.dmi'
 		occupant?.update_mouse_pointer()
 	if(!equipment_disabled && occupant) //prevent spamming this message with back-to-back EMPs
 		to_chat(occupant, "<span=danger>Error -- Connection to equipment control unit has been lost.</span>")
-	overload_action.Activate(0)
-	addtimer(CALLBACK(src, /obj/mecha/proc/restore_equipment), 3 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
-	equipment_disabled = 1
+	overload_action.Activate(FALSE)
+	addtimer(CALLBACK(src, /obj/mecha/proc/restore_equipment), (overheat / OVERHEAT_WARNING) SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE) // up to 3 seconds based on heat
+	equipment_disabled = TRUE
 
 /obj/mecha/temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume)
 	if(exposed_temperature>max_temperature)
 		log_message("Exposed to dangerous temperature.", LOG_MECHA, color="red")
 		take_damage(5, BURN, 0, 1)
 
-/obj/mecha/attackby(obj/item/W as obj, mob/user as mob, params)
+/obj/mecha/tool_act(mob/living/user, obj/item/tool, tool_type, params)
+	if(istype(tool, /obj/item/mecha_parts/mecha_equipment) && !ismecha(tool.loc))
+		return FALSE
+	return ..()
+
+/obj/mecha/welder_act(mob/living/user, obj/item/tool, modifiers)
+	if(user.combat_mode)
+		return FALSE
+	if(wrecked)
+		try_repair(tool, user)
+	else if(atom_integrity < max_integrity)
+		while(atom_integrity < max_integrity && tool.use_tool(src, user, 1 SECONDS, volume=50, amount=1))
+			if(internal_damage & MECHA_INT_TANK_BREACH)
+				clearInternalDamage(MECHA_INT_TANK_BREACH)
+				to_chat(user, span_notice("You repair the damaged gas tank."))
+			user.visible_message(span_notice("[user] repairs some damage to [name]."), span_notice("You repair some damage to [src]."))
+			repair_damage(10)
+			if(atom_integrity == max_integrity)
+				to_chat(user, span_notice("It looks to be fully repaired now."))
+	else
+		to_chat(user, span_warning("The [name] is at full integrity!"))
+	return TRUE
+
+/obj/mecha/attackby(obj/item/W, mob/living/user, params)
+	if(user.combat_mode)
+		return ..()
+
+	if(wrecked)
+		return try_repair(W, user)
 
 	if(istype(W, /obj/item/mmi))
 		if(mmi_move_inside(W,user))
@@ -210,6 +240,15 @@
 
 	if(istype(W, /obj/item/mecha_ammo))
 		ammo_resupply(W, user)
+		return
+	
+	if(istype(W, /obj/item/stack) || istype(W, /obj/item/rcd_ammo) || istype(W, /obj/item/rcd_upgrade))
+		if(matter_resupply(W, user))
+			return
+
+	if(istype(W, /obj/item/mecha_parts))
+		var/obj/item/mecha_parts/P = W
+		P.try_attach_part(user, src)
 		return
 
 	if(W.GetID())
@@ -287,28 +326,6 @@
 				to_chat(user, span_notice("There's already a capacitor installed."))
 		return
 
-	else if(W.tool_behaviour == TOOL_WELDER && user.a_intent != INTENT_HARM)
-		user.changeNext_move(CLICK_CD_MELEE)
-		if(obj_integrity < max_integrity)
-			if(W.use_tool(src, user, 0, volume=50, amount=1))
-				if (internal_damage & MECHA_INT_TANK_BREACH)
-					clearInternalDamage(MECHA_INT_TANK_BREACH)
-					to_chat(user, span_notice("You repair the damaged gas tank."))
-				else
-					user.visible_message(span_notice("[user] repairs some damage to [name]."), span_notice("You repair some damage to [src]."))
-					obj_integrity += min(10, max_integrity-obj_integrity)
-					if(obj_integrity == max_integrity)
-						to_chat(user, span_notice("It looks to be fully repaired now."))
-			return 1
-		else
-			to_chat(user, span_warning("The [name] is at full integrity!"))
-		return 1
-
-	else if(istype(W, /obj/item/mecha_parts))
-		var/obj/item/mecha_parts/P = W
-		P.try_attach_part(user, src)
-		return
-
 	else if(istype(W, /obj/item/airlock_scanner))		//yogs start
 		var/obj/item/airlock_scanner/S = W
 		S.show_access(src, user)					//yogs end
@@ -316,21 +333,88 @@
 	else
 		return ..()
 
+/obj/mecha/proc/try_repair(obj/item/I, mob/living/user)
+	if(!capacitor?.rating)
+		to_chat(user, span_warning("[src] is damaged beyond repair, there is nothing you can do."))
+		return
+
+	switch(repair_state)
+		if(MECHA_WRECK_CUT)
+			if(I.tool_behaviour == TOOL_WELDER && !user.combat_mode)
+				user.visible_message(
+					span_notice("[user] begins to weld together \the [src]'s broken parts..."),
+					span_notice("You begin welding together \the [src]'s broken parts..."),
+				)
+				if(I.use_tool(src, user, 20 SECONDS / capacitor.rating, amount = 5, volume = 100, robo_check = TRUE))
+					repair_state = MECHA_WRECK_DENTED
+					repair_hint = span_notice("The chassis has suffered major damage and will require the dents to be smoothed out with a <b>welder</b>.")
+					to_chat(user, span_notice("The parts are loosely reattached, but are dented wildly out of place."))
+
+		if(MECHA_WRECK_DENTED)
+			if(I.tool_behaviour == TOOL_WELDER && !user.combat_mode)
+				user.visible_message(
+					span_notice("[user] welds out the many, many dents in \the [src]'s chassis..."),
+					span_notice("You weld out the many, many dents in \the [src]'s chassis..."),
+				)
+				if(I.use_tool(src, user, 20 SECONDS / capacitor.rating, amount = 5, volume = 100, robo_check = TRUE))
+					repair_state = MECHA_WRECK_LOOSE
+					repair_hint = span_notice("The mecha wouldn't make it two steps before falling apart. The bolts must be tightened with a <b>wrench</b>.")
+					to_chat(user, span_notice("The chassis has been repaired, but the bolts are incredibly loose and need to be tightened."))
+
+		if(MECHA_WRECK_LOOSE)
+			if(I.tool_behaviour == TOOL_WRENCH)
+				user.visible_message(
+					span_notice("[user] slowly tightens the bolts of \the [src]..."),
+					span_notice("You slowly tighten the bolts of \the [src]..."),
+				)
+				if(I.use_tool(src, user, 18 SECONDS / capacitor.rating, volume = 50, robo_check = TRUE))
+					repair_state = MECHA_WRECK_UNWIRED
+					repair_hint = span_notice("The mech is nearly ready, but the <b>wiring</b> has been fried and needs repair.")
+					to_chat(user, span_notice("The bolts are tightened and the mecha is looking as good as new, but the wiring was fried in the destruction and needs repair."))
+
+		if(MECHA_WRECK_UNWIRED)
+			if(istype(I, /obj/item/stack/cable_coil) && I.tool_start_check(user, amount=5))
+				user.visible_message(
+					span_notice("[user] starts repairing the wiring on \the [src]..."),
+					span_notice("You start repairing the wiring on \the [src]..."),
+				)
+				if(I.use_tool(src, user, 12 SECONDS / capacitor.rating, amount = 5, volume = 50, robo_check = TRUE))
+					repair_state = MECHA_WRECK_MISSING_CAPACITOR
+					repair_hint = span_notice("The wiring is functional, but it's still missing a <b>capacitor</b>.")
+
+		if(MECHA_WRECK_MISSING_CAPACITOR)
+			if(istype(I, /obj/item/stock_parts/capacitor))
+				QDEL_NULL(capacitor)
+				capacitor = I
+				I.forceMove(src)
+				user.visible_message(span_notice("[user] replaces the capacitor of \the [src]."))
+				repair_state = MECHA_WRECK_UNSECURED_CAPACITOR
+				repair_hint = span_notice("The capacitor has been replaced and needs to be <b>secured</b>.")
+
+		if(MECHA_WRECK_UNSECURED_CAPACITOR)
+			if(I.tool_behaviour == TOOL_SCREWDRIVER)
+				I.play_tool_sound()
+				user.visible_message(
+					span_notice("[user] finishes repairing \the [src]!"),
+					span_notice("You finish repairing \the [src]!"),
+				)
+				atom_fix()
+
 /obj/mecha/attacked_by(obj/item/attacking_item, mob/living/user)
 	if(!attacking_item.force)
 		return
 
 	log_message("Attacked by [attacking_item]. Attacker - [user]", LOG_MECHA)
-	var/is_combat = istype(src, /obj/mecha/combat)	//Combat mechs are armored properly
 	var/attack_direction = get_dir(src, user)
-	var/demolition_mult = is_combat ? min(1, (1 + attacking_item.demolition_mod)/2) : (1 + attacking_item.demolition_mod)/2	//Half effective modifier
+	var/demolition_mult = attacking_item.demolition_mod
+	if(!HAS_TRAIT(attacking_item, TRAIT_SHIELDBUSTER)) // Supercharged vxtvul hammer cares not for your "armor"
+		demolition_mult = istype(src, /obj/mecha/combat) ? min((1 + demolition_mult) / 2, 2) : ((1 + demolition_mult) / 2) // combat mechs capped at 2x modifier
 	var/damage = take_damage(attacking_item.force * demolition_mult, attacking_item.damtype, MELEE, 1, attack_direction, armour_penetration = attacking_item.armour_penetration)
 	var/damage_verb = "hit"
-	if(!is_combat && attacking_item.demolition_mod != 1)
-		if(attacking_item.demolition_mod > 1 && damage)
-			damage_verb = "pulverized"
-		else
-			damage_verb = "ineffectively pierced"
+	if(demolition_mult > 1 && damage)
+		damage_verb = "pulverized"
+	else if(demolition_mult < 1)
+		damage_verb = "ineffectively pierced"
 
 	visible_message(span_danger("[user] [damage_verb] [src] with [attacking_item][damage ? "" : ", without leaving a mark"]!"), null, null, COMBAT_MESSAGE_RANGE)
 	//only witnesses close by and the victim see a hit message.
@@ -345,16 +429,12 @@
 			target.reagents.add_reagent(/datum/reagent/toxin, force/2.5)
 
 
-/obj/mecha/mech_melee_attack(obj/mecha/M, equip_allowed)
-	if(!has_charge(melee_energy_drain))
-		return 0
-	use_power(melee_energy_drain)
-	if(M.damtype == BRUTE || M.damtype == BURN)
-		log_combat(M.occupant, src, "attacked", M, "(INTENT: [uppertext(M.occupant.a_intent)]) (DAMTYPE: [uppertext(M.damtype)])")
-		. = ..()
+/obj/mecha/mech_melee_attack(obj/mecha/M, punch_force, equip_allowed = TRUE)
+	log_combat(M.occupant, src, "attacked", M, "(COMBAT MODE: [M.occupant.combat_mode ? "ON" : "OFF"]) (DAMTYPE: [uppertext(M.damtype)])")
+	return ..(M, punch_force / 2, equip_allowed)
 
 /obj/mecha/proc/full_repair(charge_cell)
-	obj_integrity = max_integrity
+	update_integrity(max_integrity)
 	if(cell && charge_cell)
 		cell.charge = cell.maxcharge
 	if(internal_damage & MECHA_INT_FIRE)
@@ -391,37 +471,35 @@
 				visual_effect_icon = ATTACK_EFFECT_MECHFIRE
 			else if(damtype == TOX)
 				visual_effect_icon = ATTACK_EFFECT_MECHTOXIN
-	..()
+	return ..()
 
-/obj/mecha/obj_destruction()
-	if(wreckage)
-		var/mob/living/silicon/ai/AI
-		if(isAI(occupant))
-			AI = occupant
-			occupant = null
-		var/obj/structure/mecha_wreckage/WR = new wreckage(loc, AI)
-		if(capacitor)
-			WR.repair_efficiency = capacitor.rating // Capacitor is destroyed regardless of rating
-		for(var/obj/item/mecha_parts/mecha_equipment/E in equipment)
-			if(E.salvageable && prob(20*WR.repair_efficiency))
-				E.detach(WR) //detaches from src into WR
-				E.equip_ready = 1
-				WR.equipment += E
-			else
-				E.detach(loc)
-				qdel(E)
-		if(scanmod && WR.repair_efficiency > 2) // Scanning module is retained if capacitor is T3+
-			WR.scanmod = scanmod
-			scanmod.forceMove(WR)
-			scanmod = null
-		if(cell && WR.repair_efficiency > 3) // Cell is retained if capacitor is T4
-			WR.cell = cell
-			cell.forceMove(WR)
-			cell.charge = rand(0, cell.charge)
-			cell = null
-		if(WR.repair_efficiency <= 0)
-			WR.can_be_reconstructed = FALSE
-		else
-			WR.can_be_reconstructed = TRUE
-			WR.hint = span_notice("The parts are scattered apart, but can be <b>welded</b> back together.")
+/obj/mecha/atom_break(damage_flag)
 	. = ..()
+	wrecked = TRUE
+	repair_state = MECHA_WRECK_CUT
+	repair_hint = span_notice("The parts are scattered apart, but can be <b>welded</b> back together.")
+	move_resist = MOVE_RESIST_DEFAULT
+	atom_integrity = integrity_failure // don't skip the wreckage state
+	force_eject_occupant()
+	update_appearance(UPDATE_ICON)
+	if(self_destruct)
+		audible_message("*beep* *beep* *beep*")
+		playsound(src, 'sound/machines/triple_beep.ogg', 75, TRUE)
+		addtimer(CALLBACK(src, PROC_REF(detonate), self_destruct), 0.5 SECONDS)
+
+/obj/mecha/proc/detonate(explosion_size)
+	if(QDELETED(src))
+		return
+	explosion(get_turf(src), round(explosion_size / 4), round(explosion_size / 2), round(explosion_size))
+	qdel(src)
+
+/obj/mecha/atom_fix()
+	. = ..()
+	if(!wrecked)
+		return
+	wrecked = FALSE
+	repair_state = 0
+	repair_hint = ""
+	move_resist = initial(move_resist)
+	update_integrity(max_integrity)
+	update_appearance(UPDATE_ICON)

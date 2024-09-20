@@ -3,11 +3,11 @@
 /datum/computer_file/program/power_monitor
 	filename = "powermonitor"
 	filedesc = "Power Monitor"
-	category = PROGRAM_CATEGORY_ENGI
+	category = PROGRAM_CATEGORY_ENGINEERING
 	program_icon_state = "power_monitor"
 	extended_desc = "This program connects to sensors around the station to provide information about electrical systems."
 	ui_header = "power_norm.gif"
-	transfer_access = ACCESS_ENGINE
+	transfer_access = ACCESS_ENGINEERING
 	usage_flags = PROGRAM_ALL
 	requires_ntnet = 0
 	network_destination = "power monitoring system"

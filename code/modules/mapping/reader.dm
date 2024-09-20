@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////////
 //SS13 Optimized Map loader
 //////////////////////////////////////////////////////////////
@@ -93,7 +94,7 @@
 	/// Offset bounds. Same as parsed_bounds until load().
 	var/list/bounds
 
-	///any turf in this list is skipped inside of build_coordinate. Lazy assoc list
+	///any turf in this list is skipped inside of build_coordinate
 	var/list/turf_blacklist
 
 	// raw strings used to represent regexes more accurately
@@ -148,7 +149,7 @@
  * - y_upper: The maximum y coordinate to load
  * - z_lower: The minimum z coordinate to load
  * - z_upper: The maximum z coordinate to load
- * - place_on_top: Whether to use /turf/proc/PlaceOnTop rather than /turf/proc/ChangeTurf
+ * - place_on_top: Whether to use /turf/proc/place_on_top rather than /turf/proc/ChangeTurf
  * - new_z: If true, a new z level will be created for the map
  */
 /proc/load_map(
@@ -930,8 +931,10 @@ GLOBAL_LIST_EMPTY(map_model_default)
 
 		if(!new_z)
 			old_area = crds.loc
-			old_area.turfs_to_uncontain += crds
-			area_instance.contained_turfs.Add(crds)
+			LISTASSERTLEN(old_area.turfs_to_uncontain_by_zlevel, crds.z, list())
+			LISTASSERTLEN(area_instance.turfs_by_zlevel, crds.z, list())
+			old_area.turfs_to_uncontain_by_zlevel[crds.z] += crds
+			area_instance.turfs_by_zlevel[crds.z] += crds
 		area_instance.contents.Add(crds)
 
 		if(GLOB.use_preloader)

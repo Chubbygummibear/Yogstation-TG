@@ -5,6 +5,7 @@
 	destroy_sound = 'sound/mecha/weapdestr.ogg'
 	mech_flags = EXOSUIT_MODULE_COMBAT
 	melee_override = TRUE
+	obj_flags = UNIQUE_RENAME // because it's COOL
 	var/restricted = TRUE //for our special hugbox exofabs
 	///	If we have a longer range weapon, such as a spear or whatever capable of hitting people further away, this is how much extra range it has
 	var/extended_range = 0
@@ -45,7 +46,7 @@
 	///	Effect on hitting something
 	var/hit_effect = ATTACK_EFFECT_SLASH
 	///	Effect of the cleave attack
-	var/cleave_effect = /obj/effect/temp_visual/dir_setting/firing_effect/mecha_swipe
+	var/cleave_effect = /obj/effect/temp_visual/dir_setting/firing_effect/sweep_attack
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/can_attach(obj/mecha/M)
 	if(!..())
@@ -56,31 +57,46 @@
 		return TRUE
 	return FALSE
 
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/action_checks(atom/target)
+	. = ..()
+	if(!.)
+		return FALSE
+	if(cleave && HAS_TRAIT(chassis.occupant, TRAIT_PACIFISM))
+		to_chat(chassis.occupant, span_warning("You don't want to harm other living beings!"))
+		return FALSE
+	return TRUE
+
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/start_cooldown()
 	set_ready_state(0)
 	chassis.use_power(energy_drain)
+	chassis.adjust_overheat(heat_cost)
 	addtimer(CALLBACK(src, PROC_REF(set_ready_state), 1), chassis.melee_cooldown * attack_speed_modifier * check_eva())	//Guns only shoot so fast, but weapons can be used as fast as the chassis can swing it!
 
 //Melee weapon attacks are a little different in that they'll override the standard melee attack
-/obj/item/mecha_parts/mecha_equipment/melee_weapon/action(atom/target, params)
-	if(!action_checks(target))
-		return 0
-
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/action(atom/target, mob/living/user, params)
 	var/turf/curloc = get_turf(chassis)
 	var/turf/targloc = get_turf(target)
 	if (!targloc || !istype(targloc) || !curloc)
 		return 0
 	if (targloc == curloc)
 		return 0
-	if(target == targloc && !(chassis.occupant.a_intent == INTENT_HELP) && cleave)	//If we are targetting a location, not an object or mob, and we're not in a passive stance
-		cleave_attack()
+	if(target == targloc && chassis.occupant.combat_mode && cleave)	//If we are targetting a location, not an object or mob, and we're not in a passive stance
+		var/attack_dir = NONE
+		if(chassis.omnidirectional_attacks)
+			if(user.client) //try to get the precise angle to the user's mouse rather than just the tile clicked on
+				attack_dir = angle2dir(mouse_angle_from_client(user.client))
+			if(!attack_dir) //if no fancy targeting has happened, default to something alright
+				attack_dir = angle2dir(get_angle(chassis, target))
+		else
+			attack_dir = chassis.dir
+		cleave_attack(attack_dir)
 	else if(precise_attacks && (get_dist(src,target) <= (1 + extended_range)) && can_stab_at(chassis, target) && !istype(target, /obj/item) && !istype(target, /obj/effect))	//If we are targetting something stabbable and they're within reach
 		if(istype(target, /turf/open) && !can_stab_turfs)
 			return 0	//Don't stab turf if we can't
 		else
 			precise_attack(target)
 	else if(cleave)
-		cleave_attack()	//Or swing wildly
+		cleave_attack((chassis.omnidirectional_attacks ? get_dir(chassis, target) : chassis.dir)) //Or swing wildly
 	else	//Failure to sword
 		return 0
 	chassis.log_message("Attacked with [src.name], targeting [target].", LOG_MECHA)
@@ -125,7 +141,7 @@
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/proc/cleave_attack()
 	return 0
 
-/obj/item/mecha_parts/mecha_equipment/melee_weapon/proc/special_hit()	//For special effects, slightly simplifies cleave/precise attack procs
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/proc/special_hit(atom/target)	//For special effects, slightly simplifies cleave/precise attack procs
 	return 1
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/on_select()
@@ -154,14 +170,19 @@
 	var/sword_wound_bonus = 0								//Wound bonus if it's supposed to be ouchy beyond just doing damage
 	var/precise_no_mobdamage = FALSE							//If our precise attacks have a light touch for mobs
 	var/precise_no_objdamage = FALSE							//Same but for objects/structures
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/butchering, 3 SECONDS, 120)
+
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/special_hit(atom/target)	
 	return 0
 
-
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/shortsword	//Our bread-and-butter mech shortsword for both slicing and stabbing baddies
-	name = "\improper GD6 \"Jaeger\" shortsword"
+	name = "\improper GD6 \"Jaeger\" Shortsword"
 	desc = "An extendable arm-mounted blade with a nasty edge. It is small and fast enough to deflect some incoming attacks."
-	energy_drain = 20
+	energy_drain = 2
+	heat_cost = 3
 	weapon_damage = 10
 	precise_weapon_damage = 15
 	fauna_damage_bonus = 30		//because why not
@@ -170,12 +191,12 @@
 	structure_damage_mult = 2.5	//Sword is not as smashy
 	minimum_damage = 25			
 
-/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/cleave_attack()	//use this for basic cleaving attacks, tweak as needed
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/cleave_attack(attack_dir)	//use this for basic cleaving attacks, tweak as needed
 	playsound(chassis, attack_sound, 50, 1)					
 	var/turf/M = get_turf(chassis)
 	for(var/i = 0 to 2)
 		var/it_turn = 45*(1-i)
-		var/turf/T = get_step(M,turn(chassis.dir, it_turn))	//+45, +0, and -45 will get the three front tiles
+		var/turf/T = get_step(M,turn(attack_dir, it_turn))	//+45, +0, and -45 will get the three front tiles
 		special_hit(T)	//So we can hit turfs too
 		for(var/atom/A in T.contents)
 			special_hit(A)
@@ -199,7 +220,7 @@
 
 			if((isstructure(A) || ismachinery(A) || istype(A, /obj/mecha)) && can_stab_at(chassis, A))	//if it's a big thing we hit anyways. Structures ALWAYS are hit, machines and mechs can be protected
 				var/obj/O = A
-				if(!O.density)	//Make sure it's not an open door or something
+				if(!O.density && !istype(O, /obj/structure/spacevine))	//Make sure it's not an open door or something
 					continue
 				var/object_damage = max(chassis.force + weapon_damage, minimum_damage) * structure_damage_mult * (istype(A, /obj/mecha) ? mech_damage_multiplier : 1)	//Half damage on mechs
 				O.take_damage(object_damage, dam_type, "melee", 0)
@@ -210,43 +231,49 @@
 						O.visible_message(span_danger("[chassis.name] strikes [O] with a wide swing of [src]!"))	//Don't really need to make a message for EVERY object, just important ones
 					playsound(O,'sound/weapons/smash.ogg', 50)	//metallic bonk noise
 
-	var/turf/cleave_effect_loc = get_step(get_turf(src), SOUTHWEST)
-	new cleave_effect(cleave_effect_loc, chassis.dir)
+	new cleave_effect(get_turf(src), attack_dir)
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/precise_attack(atom/target)
 	special_hit(target)
-	if(isliving(target))						
-		var/mob/living/L = target
+	if(isliving(target))
+		var/mob/living/living_target = target
 
-		if(iscarbon(L) && !precise_no_mobdamage)
-			var/mob/living/carbon/C = L
-			var/obj/item/bodypart/body_part = L.get_bodypart(chassis.occupant? chassis.occupant.zone_selected : BODY_ZONE_CHEST)
+		if(living_target.stat == DEAD && !precise_no_mobdamage && (LAZYLEN(living_target.butcher_results) || LAZYLEN(living_target.guaranteed_butcher_results)))
+			var/datum/component/butchering/butchering = src.GetComponent(/datum/component/butchering)
+			if(!do_after(chassis.occupant, butchering.speed, living_target))
+				return
+			butchering.Butcher(chassis, living_target)
+			return
+
+		if(iscarbon(living_target) && !precise_no_mobdamage)
+			var/mob/living/carbon/C = living_target
+			var/obj/item/bodypart/body_part = living_target.get_bodypart(chassis.occupant? chassis.occupant.zone_selected : BODY_ZONE_CHEST)
 			var/armor_block = C.run_armor_check(body_part, MELEE, armour_penetration = base_armor_piercing * 2)	//more AP for precision attacks
 			C.apply_damage(max(chassis.force + precise_weapon_damage, minimum_damage), dam_type, body_part, armor_block, sharpness = attack_sharpness, wound_bonus = sword_wound_bonus)
 		else if(!precise_no_mobdamage)
-			L.apply_damage(max(chassis.force + precise_weapon_damage, minimum_damage), dam_type)
-			if(ismegafauna(L) || istype(L, /mob/living/simple_animal/hostile/asteroid))	//Stab them harder
-				L.apply_damage(fauna_damage_bonus, dam_type)
+			living_target.apply_damage(max(chassis.force + precise_weapon_damage, minimum_damage), dam_type)
+			if(ismegafauna(living_target) || istype(living_target, /mob/living/simple_animal/hostile/asteroid))	//Stab them harder
+				living_target.apply_damage(fauna_damage_bonus, dam_type)
 
-		L.visible_message(span_danger("[chassis.name] strikes [L] with [src]!"), \
+		living_target.visible_message(span_danger("[chassis.name] strikes [living_target] with [src]!"), \
 				  span_userdanger("[chassis.name] strikes you with [src]!"))
-		chassis.log_message("Hit [L] with [src.name] (precise attack).", LOG_MECHA)
+		chassis.log_message("Hit [living_target] with [src.name] (precise attack).", LOG_MECHA)
 
-	else if(isstructure(target) || ismachinery(target) || istype(target, /obj/mecha) && !precise_no_objdamage)	//If the initial target is a big object, hit it even if it's not dense.
-		var/obj/O = target
-		var/object_damage = max(chassis.force + precise_weapon_damage, minimum_damage) * structure_damage_mult * (istype(target, /obj/mecha) ? mech_damage_multiplier : 1)	//Half damage on mechs to prolong COOL MECH FIGHTS
-		O.take_damage(object_damage, dam_type, "melee", 0, armour_penetration = base_armor_piercing * 2)
+	else if(target.uses_integrity && !precise_no_objdamage)	//If the initial target is a big object, hit it even if it's not dense.
+		var/object_damage = max(chassis.force + precise_weapon_damage, minimum_damage) * structure_damage_mult * (ismecha(target) ? mech_damage_multiplier : 1)	//Half damage on mechs to prolong COOL MECH FIGHTS
+		target.take_damage(object_damage, dam_type, "melee", 0, armour_penetration = base_armor_piercing * 2)
 	else
 		return
 	chassis.do_attack_animation(target, hit_effect)
 	playsound(chassis, attack_sound, 50, 1)
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/energy_axe
-	name = "\improper SH-NT \"Killerhurtz\" energy axe"
+	name = "\improper SH-NT \"Killerhurtz\" Energy Axe"
 	desc = "An oversized, destructive-looking axe with a powered edge. While far too big for use by an individual, an exosuit might be able to wield it."
 	icon_state = "mecha_energy_axe"
 	precise_attacks = FALSE		//This is not a weapon of precision, it is a weapon of destruction
-	energy_drain = 40
+	energy_drain = 4
+	heat_cost = 8
 	weapon_damage = 30
 	fauna_damage_bonus = 30		//If you're fighting fauna with this thing, why? I mean it works, I guess.
 	base_armor_piercing = 40
@@ -274,10 +301,11 @@
 	set_light_on(FALSE)	
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/katana	//Anime mech sword
-	name = "\improper HR-2 \"Ronin\" katana"
+	name = "\improper HR-2 \"Ronin\" Katana"
 	desc = "An oversized, light-weight replica of an ancient style of blade. Still woefully underpowered in D&D."
 	icon_state = "mecha_katana"
-	energy_drain = 15
+	energy_drain = 2
+	heat_cost = 3
 	cleave = FALSE				//small fast blade
 	precise_weapon_damage = 10
 	attack_speed_modifier = 0.7	//live out your anime dreams in a mech
@@ -289,10 +317,11 @@
 	sword_wound_bonus = 15		//More bleeding
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/batong	
-	name = "\improper AV-98 \"Ingram\" heavy stun baton" 
+	name = "\improper AV-98 \"Ingram\" Heavy Stun Baton" 
 	desc = "A stun baton, but bigger. The tide of toolbox-armed assistants don't stand a chance."
 	icon_state = "mecha_batong"
-	energy_drain = 300
+	energy_drain = 30
+	heat_cost = 15
 	attack_speed_modifier = 2	//needs to recharge
 	structure_damage_mult = 1
 	precise_weapon_damage = -25	//Mostly nonlethal
@@ -305,6 +334,12 @@
 	attack_sound = 'sound/weapons/egloves.ogg'
 	var/special_hit_stamina_damage = 75	//A bit stronger than a normal baton
 	var/stunforce = 12 SECONDS	//Stuns a little harder too
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/batong/action_checks(atom/target)
+	. = ..()
+	if(. && HAS_TRAIT(chassis.occupant, TRAIT_NO_STUN_WEAPONS))
+		to_chat(chassis.occupant, span_warning("You cannot use non-lethal weapons!"))
+		return FALSE
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/batong/special_hit(atom/target)	//It's a stun baton. It stuns.
 	if(ishuman(target))
@@ -336,10 +371,11 @@
 
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/trogdor	//TROGDOR!!!!! (But he's not a robot so I can't make the visible name that)
-	name = "\improper TO-4 \"Tahu\" flaming chainsword"	//ITS ALSO A CHAINSWORD FUCK YEAH
+	name = "\improper TO-4 \"Tahu\" Flaming Chainsword"	//ITS ALSO A CHAINSWORD FUCK YEAH
 	desc = "It's as ridiculous as it is badass. You feel like use of this this might be considered a war crime somewhere."
 	icon_state = "mecha_trogdor"
-	energy_drain = 30
+	energy_drain = 3
+	heat_cost = 5
 	precise_weapon_damage = 5	//Gotta make space for the burninating
 	attack_speed_modifier = 1.2	//Little unwieldy
 	fauna_damage_bonus = 20
@@ -364,10 +400,11 @@
 		playsound(L, 'sound/items/welder.ogg', 50, 1)
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/maul
-	name = "\improper ASW-8 \"Barbatos\" heavy maul"
+	name = "\improper ASW-8 \"Barbatos\" Heavy Maul"
 	desc = "A massive, unwieldy, mace-like weapon, this thing really looks like something you don't want to be hit by if you're not a fan of being concave."
 	icon_state = "mecha_maul"
-	energy_drain = 40
+	energy_drain = 4
+	heat_cost = 8
 	weapon_damage = 25			//Very smashy
 	precise_weapon_damage = 30
 	attack_speed_modifier = 2.5	//Very slow
@@ -386,23 +423,24 @@
 		do_item_attack_animation(L, hit_effect)
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/rapier
-	name = "\improper MS-15 \"Gyan\" rapier"
+	name = "\improper MS-15 \"Gyan\" Rapier"
 	desc = "A remarkably thin blade for a weapon wielded by an exosuit, this rapier is the favorite of syndicate pilots that perfer finesse over brute force."
 	icon_state = "mecha_rapier"
-	energy_drain = 40
+	energy_drain = 4
+	heat_cost = 5
 	cleave = FALSE
 	base_armor_piercing = 25	//50 on precise attack
-	deflect_bonus = 15			//mech fencing but it parries bullets too because robot reaction time or something
+	deflect_bonus = 15			//Mech fencing but it parries bullets too because robot reaction time or something
 	structure_damage_mult = 2	//Ever try to shank an engine block?
 	mech_damage_multiplier = 0.75	//Notably better against mechs
 	attack_sharpness = SHARP_POINTY
 	attack_speed_modifier = 0.8	//Counteracts the 0.2 second time between attacks
-	extended_range = 1			//so we can jump at people
+	extended_range = 1			//So we can jump at people
 	attack_sound = 'sound/weapons/rapierhit.ogg'
 	sword_wound_bonus = 10		//Stabby
 	var/stab_number = 2			//Stabby stabby
 	var/next_lunge = 0
-	var/base_lunge_cd = 1		//cooldown for lunge (in seconds because math)
+	var/base_lunge_cd = 1		//Cooldown for lunge (in seconds because math)
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/rapier/precise_attack(atom/target)
 	if(get_dist(chassis, target) > 1)	//First we hop forward
@@ -431,10 +469,9 @@
 					span_userdanger("[chassis.name] strikes you with [src]!"))
 			chassis.log_message("Hit [L] with [src.name] (precise attack).", LOG_MECHA)
 
-		else if(isstructure(target) || ismachinery(target) || istype(target, /obj/mecha) && !precise_no_objdamage)	//If the initial target is a big object, hit it even if it's not dense.
-			var/obj/O = target
-			var/object_damage = max(chassis.force + precise_weapon_damage, minimum_damage) * structure_damage_mult * (istype(target, /obj/mecha) ? mech_damage_multiplier : 1)	//Nukie mech, slightly less bad at killing mechs
-			O.take_damage(object_damage, dam_type, "melee", 0, armour_penetration = base_armor_piercing * 2)
+		else if(target.uses_integrity && !precise_no_objdamage)	//If the initial target is a big object, hit it even if it's not dense.
+			var/object_damage = max(chassis.force + precise_weapon_damage, minimum_damage) * structure_damage_mult * (ismecha(target) ? mech_damage_multiplier : 1)	//Nukie mech, slightly less bad at killing mechs
+			target.take_damage(object_damage, dam_type, "melee", 0, armour_penetration = base_armor_piercing * 2)
 		else
 			return
 		chassis.do_attack_animation(target, hit_effect)
@@ -442,6 +479,7 @@
 		set_ready_state(0)	//Wait till we're done multi-stabbing before we do it again
 		if(i != stab_number)	//Only sleep between attacks
 			sleep(0.2 SECONDS)	//Slight delay
+	return TRUE
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/rapier/proc/do_lunge_at(atom/target)
 	if(world.time < next_lunge)	//On cooldown
@@ -453,6 +491,100 @@
 	step_towards(src.chassis, target)
 	next_lunge = world.time + base_lunge_cd * (chassis.melee_cooldown * check_eva())	//If we can attack faster we can lunge faster too
 
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/rapier/razerfang
+	name = "\improper GAT-98 \"Razerfang\" Dual Daggers"
+	desc = "A pair of short, hollow blades forged of exceptionally hard metal, these weapons are capable of injecting venom into a target on a successful hit."
+	icon_state = "mecha_razer"
+	gender = PLURAL
+	energy_drain = 4
+	heat_cost = 5
+	cleave = FALSE
+	base_armor_piercing = 40	//80 on precise attack
+	deflect_bonus = 5			//Helps, but is a bit to small to be particularly good at it
+	attack_sharpness = SHARP_POINTY
+	attack_speed_modifier = 2	//Strike and fall back, let the venom do the work
+	precise_weapon_damage = -25	//Tiny dagger
+	minimum_damage = 10			//So we don't do negative damage
+	extended_range = 1			//So we can jump at people
+	attack_sound = 'sound/weapons/sword2.ogg'
+	sword_wound_bonus = 10		//Stabby
+	stab_number = 2				//Stabby stabby
+	base_lunge_cd = 5			//Cooldown for lunge (in seconds because math)
+	var/venom_cd = 5 SECONDS	//No infinite stacking of venom in people super easily please
+	var/next_venom = 0
+	var/venom_type = /datum/reagent/toxin/venom
+	var/inject_volume = 6		//12 units per hit by default
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/rapier/razerfang/special_hit(atom/target)
+	if(!iscarbon(target))
+		return
+	var/mob/living/carbon/C = target
+	if(world.time > next_venom)
+		C.reagents.add_reagent(venom_type, inject_volume)	//Should ruin your day without charcoal
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/rapier/razerfang/precise_attack(atom/target)
+	if(..() && iscarbon(target))
+		next_venom = world.time + venom_cd	//do this here so that we only reset the cooldown after a full attack on a carbon
+
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/kinetic_crusher
+	name = "exosuit kinetic crusher"
+	desc = "A version of the kinetic crusher designed for exosuits."
+	icon_state = "mecha_crusher"
+	mech_flags = EXOSUIT_MODULE_WORKING
+	weapon_damage = 10
+	var/obj/item/kinetic_crusher/exosuit/crusher
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/kinetic_crusher/Initialize(mapload)
+	. = ..()
+	crusher = new(src)
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/kinetic_crusher/action(atom/target, mob/living/user, params)
+	var/list/modifiers = params2list(params)
+	if(modifiers[RIGHT_CLICK])
+		crusher.fire_destabilizer(target, user, params)
+		return FALSE
+	if(chassis.Adjacent(target) && istype(target, /obj/item/crusher_trophy))
+		var/obj/item/crusher_trophy/trophy = target
+		trophy.add_to(crusher, user)
+		return FALSE
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/kinetic_crusher/special_hit(atom/target)
+	if(!ismob(target))
+		return
+	crusher.detonate_mark(target, chassis.occupant)
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/kinetic_crusher/Destroy()
+	for(var/obj/item/crusher_trophy/trophy as anything in crusher.trophies) // get your trophies back if the equipment is destroyed
+		trophy.remove_from(crusher, null)
+	qdel(crusher)
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/kinetic_crusher/can_attach(obj/mecha/new_mecha)
+	if(istype(new_mecha, /obj/mecha/working) && new_mecha.equipment.len < new_mecha.max_equip)
+		return TRUE
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/scythe
+	name = "hydraulic scythe"
+	desc = "A large cutting tool for removing infestations of expansionist plants."
+	icon_state = "mecha_scythe"
+	equip_cooldown = 5
+	minimum_damage = 5
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/scythe/can_attach(obj/mecha/new_mecha)
+	if(istype(new_mecha, /obj/mecha/working) && new_mecha.equipment.len < new_mecha.max_equip)
+		return TRUE
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/sword/scythe/special_hit(atom/target)
+	if(istype(target, /mob/living/simple_animal/hostile/venus_human_trap))
+		var/mob/living/dead_plant = target
+		dead_plant.take_bodypart_damage(chassis.force + weapon_damage)
+	else if(istype(target, /obj/structure/spacevine))
+		target.atom_destruction(BRUTE) // BEGONE!!
+
 
 	//		//=========================================================\\
 	//======||			SNOWFLAKE WEAPONS THAT ARENT SWORDS		 	   ||
@@ -460,28 +592,26 @@
 
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/rocket_fist	//Passive upgrade weapon when selected, makes your mech punch harder AND faster
-	name = "\improper RS-77 \"Atom Smasher\" rocket fist"
+	name = "\improper RS-77 \"Atom Smasher\" Rocket Fist"
 	desc = "A large metal fist fitted to the arm of an exosuit, it uses repurposed maneuvering thrusters from a Raven battlecruiser to give a little more oomph to every punch. Also helps increase the speed at which the mech is able to return to a ready stance after each swing."
 	icon_state = "mecha_rocket_fist"
-	weapon_damage = 20
+	weapon_damage = 20 // PUNCH HARDER
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/rocket_fist/precise_attack(atom/target)
-	target.mech_melee_attack(chassis, FALSE)	//DONT SET THIS TO TRUE
+	target.mech_melee_attack(chassis, chassis.force + weapon_damage, FALSE)	//DONT SET THIS TO TRUE
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/rocket_fist/on_select()
-	chassis.force += weapon_damage	//PUNCH HARDER
 	chassis.melee_cooldown *= 0.8	//PUNCH FASTER
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/rocket_fist/on_deselect()
-	chassis.force -= weapon_damage	//Return to babby fist
-	chassis.melee_cooldown /= 0.8	
-
+	chassis.melee_cooldown /= 0.8
 
 /obj/item/mecha_parts/mecha_equipment/melee_weapon/spear
-	name = "\improper S5-C \"White Witch\" shortspear"
+	name = "\improper S5-C \"White Witch\" Shortspear"
 	desc = "A hardened, telescoping metal rod with a wicked-sharp tip. Perfect for punching holes in things normally out of reach."
 	icon_state = "mecha_spear"
-	energy_drain = 30
+	energy_drain = 3
+	heat_cost = 5
 	force = 10						//I want someone to stab someone else with this by hand
 	extended_range = 1				//Hits from a tile away
 	precise_weapon_damage = 10
@@ -515,11 +645,10 @@
 				  span_userdanger("[chassis.name] stabs you with [src]!"))
 		chassis.log_message("Hit [L] with [src.name] (precise attack).", LOG_MECHA)
 
-	else if(isstructure(target) || ismachinery(target) || istype(target, /obj/mecha))	//If the initial target is a big object, hit it even if it's not dense.
-		var/obj/O = target
-		var/object_damage = max(chassis.force + precise_weapon_damage, minimum_damage) * structure_damage_mult * (istype(target, /obj/mecha) ? mech_damage_multiplier : 1)
-		O.take_damage(object_damage, dam_type, "melee", 0, armour_penetration = base_armor_piercing)
-		if(istype(target, /obj/mecha))
+	else if(target.uses_integrity)	//If the initial target is a big object, hit it even if it's not dense.
+		var/object_damage = max(chassis.force + precise_weapon_damage, minimum_damage) * structure_damage_mult * (ismecha(target) ? mech_damage_multiplier : 1)
+		target.take_damage(object_damage, dam_type, "melee", 0, armour_penetration = base_armor_piercing)
+		if(ismecha(target))
 			special_hit(target)	
 	else
 		return
@@ -536,3 +665,132 @@
 				span_userdanger("[chassis.name] penetrates your suits armor with [src]!"))
 			chassis.log_message("Hit [H] with [src.name] (precise attack).", LOG_MECHA)
 
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop
+	name = "heavy mop"
+	desc = "A very big mop, designed to be attached to mechanical exosuits."
+	icon_state = "mecha_mop"
+	energy_drain = 5
+	heat_cost = 1 // get mopped nerd
+	attack_sound = 'sound/effects/slosh.ogg'
+
+	cleave = TRUE
+	precise_attacks = FALSE // cleave only
+	attack_sharpness = SHARP_NONE
+	harmful = FALSE
+	weapon_damage = 0 // no damage
+	structure_damage_mult = 0 // don't break stuff while trying to clean
+	equip_actions = list(/datum/action/innate/mecha/equipment/sweeping)
+	var/auto_sweep = TRUE
+
+/datum/action/innate/mecha/equipment/sweeping
+	name = "Toggle Auto-Mop"
+	button_icon_state = "sweep_on"
+
+/datum/action/innate/mecha/equipment/sweeping/Activate()
+	var/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/mop = equipment
+	mop.auto_sweep = !mop.auto_sweep
+	button_icon_state = "sweep_[mop.auto_sweep ? "on" : "off"]"
+	build_all_button_icons()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/attach(obj/mecha/M)
+	. = ..()
+	RegisterSignal(M, COMSIG_MOVABLE_PRE_MOVE, PROC_REF(on_pre_move))
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/detach(atom/moveto)
+	UnregisterSignal(chassis, COMSIG_MOVABLE_PRE_MOVE)
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/can_attach(obj/mecha/M)
+	if(istype(M, /obj/mecha/working) && M.equipment.len < M.max_equip)
+		return TRUE
+	return ..()
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/proc/on_pre_move(obj/mecha/mech, atom/newloc)
+	if(mech.equipment_disabled || HAS_TRAIT(mech, TRAIT_MECH_DISABLED))
+		return
+	if(!auto_sweep)
+		return
+	var/mop_dir = get_dir(mech, newloc)
+	if(mop_dir != mech.dir) // only sweep things in front of the mech
+		return
+	do_mop(mech, newloc)
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/proc/do_mop(obj/mecha/mech, atom/newloc, throw_power=1)
+	var/turf/mop_turf = newloc
+	var/turf/thrown_at = get_edge_target_turf(mop_turf, chassis.dir)
+	var/cleaned = FALSE
+
+	if(mop_turf.wash(CLEAN_SCRUB))
+		cleaned = TRUE
+	for(var/atom/movable/moved_atom in newloc)
+		if(istype(moved_atom, /obj/effect/decal/nuclear_waste)) // sweep that nuclear waste under the rug
+			cleaned = TRUE
+			playsound(moved_atom, 'sound/effects/gib_step.ogg', 50, 1)
+			qdel(moved_atom)
+			continue
+		if(isobserver(moved_atom))
+			continue // what the fuck?
+		if(moved_atom.wash(CLEAN_SCRUB))
+			cleaned = TRUE
+		if(moved_atom.anchored)
+			continue
+		if(moved_atom == chassis) // it can clean itself, but not move itself
+			continue
+		moved_atom.throw_at(thrown_at, throw_power, 1, mech.occupant, (throw_power > 1))
+		if(isliving(moved_atom) && throw_power > 1)
+			moved_atom.visible_message(span_danger("[mech] mops the floor with [moved_atom]!"), span_userdanger("[mech] mops the floor with you!"))
+
+	if(cleaned)
+		playsound(newloc, 'sound/effects/slosh.ogg', 25, 1)
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/mop/cleave_attack(attack_dir)
+	playsound(chassis, attack_sound, 50, 1)
+	for(var/turf/T in list(get_turf(chassis), get_step(chassis, attack_dir), get_step(chassis, turn(attack_dir, -45)), get_step(chassis, turn(attack_dir, 45))))
+		do_mop(chassis, T, 3) // mop the floor with them!
+	new cleave_effect(get_turf(src), attack_dir)
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/flyswatter
+	name = "comically large flyswatter"
+	desc = "A comically large flyswatter, presumably for killing comically large bugs."
+	attack_sound = 'sound/effects/snap.ogg'
+	icon_state = "mecha_flyswatter"
+	heat_cost = 2
+	cleave = FALSE
+	precise_attacks = TRUE
+	hit_effect = ATTACK_EFFECT_SMASH
+	///Things in this list will be instantly splatted.
+	var/list/strong_against
+	///Damage to mobs with the MOB_BUG biotype, quadrupled for simple mobs
+	var/bug_damage = 30
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/flyswatter/Initialize(mapload)
+	. = ..()
+	strong_against = typecacheof(list(
+		/mob/living/simple_animal/hostile/poison/bees,
+		/mob/living/simple_animal/butterfly,
+		/mob/living/simple_animal/cockroach,
+		/mob/living/simple_animal/hostile/glockroach,
+		/obj/item/queen_bee
+	))
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/flyswatter/precise_attack(atom/target)
+	var/mob/living/mob_target = target
+	if(is_type_in_typecache(target, strong_against))
+		new /obj/effect/decal/cleanable/insectguts(target.drop_location())
+		to_chat(chassis.occupant, span_warning("You easily splat the [target]."))
+		if(isliving(target))
+			var/mob/living/bug = target
+			bug.death(TRUE)
+		else
+			qdel(target)
+	else if(isliving(target) && (mob_target.mob_biotypes & MOB_BUG))
+		mob_target.apply_damage(bug_damage * (ishuman(mob_target) ? 1 : 4), BRUTE, wound_bonus=CANT_WOUND) // bonus damage to simple mobs
+		target.visible_message(span_warning("[chassis] splats [target] with [src]!"), span_userdanger("[chassis] splats you with [src]!"))
+	chassis.do_attack_animation(target, hit_effect)
+	playsound(chassis, attack_sound, 50, 1)
+
+/obj/item/mecha_parts/mecha_equipment/melee_weapon/flyswatter/can_attach(obj/mecha/M)
+	if(istype(M, /obj/mecha/working) && M.equipment.len < M.max_equip)
+		return TRUE
+	return ..()

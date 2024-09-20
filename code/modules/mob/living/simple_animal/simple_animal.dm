@@ -277,7 +277,7 @@
 	if((bodytemperature < minbodytemp) || (bodytemperature > maxbodytemp))
 		adjustHealth(unsuitable_atmos_damage)
 
-/mob/living/simple_animal/gib()
+/mob/living/simple_animal/gib(no_brain, no_organs, no_bodyparts, no_items)
 	var/atom/Tsec = drop_location()
 	if(butcher_results)
 		for(var/path in butcher_results)
@@ -339,13 +339,15 @@
 		//a manner as to cause a call to death() again
 		del_on_death = FALSE
 		qdel(src)
-	else
-		health = 0
-		icon_state = icon_dead
-		if(flip_on_death)
-			transform = transform.Turn(180)
-		density = FALSE
-		..()
+		return
+	
+	health = 0
+	icon_state = icon_dead
+	if(flip_on_death)
+		transform = transform.Turn(180)
+	density = FALSE
+	update_appearance()
+	return	..()
 
 /mob/living/simple_animal/proc/CanAttack(atom/the_target)
 	if(see_invisible < the_target.invisibility)
@@ -413,14 +415,14 @@
 		if(target)
 			return new childspawn(target)
 
-/mob/living/simple_animal/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE)
+/mob/living/simple_animal/canUseTopic(atom/movable/M, be_close=FALSE, no_dexterity=FALSE, no_tk=FALSE)
 	if(incapacitated())
 		to_chat(src, span_warning("You can't do that right now!"))
 		return FALSE
 	if(be_close && !in_range(M, src))
 		to_chat(src, span_warning("You are too far away!"))
 		return FALSE
-	if(!(no_dextery || dextrous))
+	if(!(no_dexterity || dextrous))
 		to_chat(src, span_warning("You don't have the dexterity to do this!"))
 		return FALSE
 	return TRUE

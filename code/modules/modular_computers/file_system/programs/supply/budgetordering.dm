@@ -1,7 +1,7 @@
 /datum/computer_file/program/budgetorders
 	filename = "orderapp"
 	filedesc = "NT IRN"
-	category = PROGRAM_CATEGORY_SUPL
+	category = PROGRAM_CATEGORY_SUPPLY
 	program_icon_state = "bountyboard"
 	extended_desc = "Nanotrasen Internal Requisition Network interface for supply purchasing using a department budget account."
 	requires_ntnet = TRUE
@@ -80,7 +80,7 @@
 			unlock_budget = FALSE //cargo tech is already using the same budget.
 		if(id_card?.registered_account?.account_job?.paycheck_department && budget_order)
 			buyer = SSeconomy.get_dep_account(id_card.registered_account.account_job.paycheck_department)
-		if((ACCESS_HEADS in id_card.access) || (ACCESS_QM in id_card.access) || (ACCESS_CARGO in id_card.access))
+		if((ACCESS_COMMAND in id_card.access) || (ACCESS_QM in id_card.access) || (ACCESS_CARGO in id_card.access))
 			requestonly = FALSE
 			can_approve_requests = TRUE
 			can_send = TRUE

@@ -42,16 +42,17 @@
 			HMN.eye_color = eye_color
 		else
 			eye_color = HMN.eye_color
+		HMN.dna.update_ui_block(DNA_EYE_COLOR_BLOCK) //updates eye icon
+		HMN.update_body()
 	M.update_tint()
 	owner.update_sight()
-	if(M.has_dna() && ishuman(M))
-		M.dna.species.handle_body(M) //updates eye icon
 
 /obj/item/organ/eyes/Remove(mob/living/carbon/M, special = 0)
 	..()
 	if(ishuman(M) && eye_color)
 		var/mob/living/carbon/human/HMN = M
 		HMN.eye_color = old_eye_color
+		HMN.dna.update_ui_block(DNA_EYE_COLOR_BLOCK)
 		HMN.update_body()
 	M.cure_blind(list(EYE_DAMAGE)) // can't be blind from eye damage if there's no eye to be damaged, still blind from not having eyes though
 	M.cure_nearsighted(list(EYE_DAMAGE)) // likewise for nearsightedness
@@ -93,16 +94,20 @@
 /obj/item/organ/eyes/proc/generate_body_overlay(mob/living/carbon/human/parent)
 	if(!istype(parent) || parent.getorgan(/obj/item/organ/eyes) != src)
 		CRASH("Generating a body overlay for [src] targeting an invalid parent '[parent]'.")
-
-	var/mutable_appearance/eye_overlay = mutable_appearance('icons/mob/human_face.dmi', eye_icon_state, -BODY_LAYER)
+	var/obj/item/bodypart/head/head = parent.get_bodypart(BODY_ZONE_HEAD)
+	var/mutable_appearance/eye_overlay = mutable_appearance(head.eyes_icon, eye_icon_state, -BODY_LAYER)
 	var/list/overlays = list(eye_overlay)
 
 	if((EYECOLOR in parent.dna.species.species_traits))
 		eye_overlay.color = eye_color
 
+	if(head.eyes_static)
+		var/mutable_appearance/eyes_static_sprite = mutable_appearance(eye_overlay.icon, "[eye_overlay.icon_state]_static_[head.eyes_static]", eye_overlay.layer, appearance_flags = RESET_COLOR)
+		eye_overlay.add_overlay(eyes_static_sprite)
+
 	// Cry emote overlay
-	if (HAS_TRAIT(parent, TRAIT_CRYING)) // Caused by the *cry emote
-		var/mutable_appearance/tears_overlay = mutable_appearance('icons/mob/human_face.dmi', "tears", -BODY_ADJ_LAYER)
+	if(HAS_TRAIT(parent, TRAIT_CRYING)) // Caused by the *cry emote
+		var/mutable_appearance/tears_overlay = mutable_appearance(head.eyes_icon, "tears", -BODY_ADJ_LAYER)
 		tears_overlay.color = COLOR_DARK_CYAN
 		overlays += tears_overlay
 
@@ -172,18 +177,18 @@
 	medium_light_cutoff = list(0, 20, 35)
 	high_light_cutoff = list(0, 40, 50)
 
+/obj/item/organ/eyes/zombie
+	name = "undead eyes"
+	desc = "Somewhat counterintuitively, these half-rotten eyes actually have superior vision to those of a living human."
+	color_cutoffs = list(25, 35, 5)
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
+
 //innate nightvision eyes
 /obj/item/organ/eyes/alien
 	name = "alien eyes"
 	desc = "It turned out they had them after all!"
 	sight_flags = SEE_MOBS
 	color_cutoffs = list(25, 5, 42)
-	lighting_cutoff = LIGHTING_CUTOFF_HIGH
-
-/obj/item/organ/eyes/zombie
-	name = "undead eyes"
-	desc = "Somewhat counterintuitively, these half-rotten eyes actually have superior vision to those of a living human."
-	color_cutoffs = list(25, 35, 5)
 	lighting_cutoff = LIGHTING_CUTOFF_HIGH
 
 /obj/item/organ/eyes/shadow
@@ -243,7 +248,7 @@
 	sight_flags = SEE_MOBS
 	// We're gonna downshift green and blue a bit so darkness looks yellow
 	color_cutoffs = list(25, 8, 5)
-	flash_protect = -1
+	flash_protect = FLASH_PROTECTION_SENSITIVE
 
 /obj/item/organ/eyes/robotic/flashlight
 	name = "flashlight eyes"
@@ -279,7 +284,7 @@
 /obj/item/organ/eyes/robotic/shield
 	name = "shielded robotic eyes"
 	desc = "These reactive micro-shields will protect you from welders and flashes without obscuring your vision."
-	flash_protect = 2
+	flash_protect = FLASH_PROTECTION_WELDER
 
 /obj/item/organ/eyes/robotic/shield/emp_act(severity)
 	return
@@ -476,6 +481,9 @@
 	if(!isnull(light_flags))
 		set_light_flags(light_flags)
 
+/obj/item/organ/eyes/robotic/synth
+	flash_protect = 2
+
 /obj/item/organ/eyes/moth
 	name = "moth eyes"
 	desc = "These eyes can see just a little too well, light doesn't entirely agree with them."
@@ -489,29 +497,47 @@
 
 /obj/item/organ/eyes/polysmorph
 	name = "polysmorph eyes"
-	desc = "Eyes from a polysmorph, capable of retaining slightly more vision in low light environments"
-	lighting_cutoff = LIGHTING_CUTOFF_REAL_LOW
+	desc = "Eyes from a polysmorph, better capable of sensing heat than other eyes."
+	actions_types = list(/datum/action/item_action/organ_action/use)
+	var/infrared = FALSE
+
+/obj/item/organ/eyes/polysmorph/Remove(mob/living/carbon/M, special)
+	REMOVE_TRAIT(owner, TRAIT_INFRARED_VISION, type)
+	owner.update_sight()
+	. = ..()
+	
+/obj/item/organ/eyes/polysmorph/ui_action_click()
+	if(infrared)
+		REMOVE_TRAIT(owner, TRAIT_INFRARED_VISION, type)
+	else
+		ADD_TRAIT(owner, TRAIT_INFRARED_VISION, type)
+	owner.update_sight()
+	infrared = !infrared
 
 /obj/item/organ/eyes/ethereal
 	name = "fractal eyes"
 	desc = "Crystalline eyes from an Ethereal. Seeing with them should feel like using a kaleidoscope, but somehow it isn't."
 	icon_state = "ethereal_eyes"
+	actions_types = list(/datum/action/item_action/organ_action/use)
 	///Color of the eyes, is set by the species on gain
 	var/ethereal_color = "#9c3030"
+	var/active = FALSE
+
+/obj/item/organ/eyes/ethereal/Remove(mob/living/carbon/M, special)
+	. = ..()
+	M?.client?.view_size?.zoomIn()
 
 /obj/item/organ/eyes/ethereal/Initialize(mapload)
 	. = ..()
 	add_atom_colour(ethereal_color, FIXED_COLOUR_PRIORITY)
 
-/obj/item/organ/eyes/ethereal/Insert(mob/living/carbon/M, special, drop_if_replaced, initialising)
-	. = ..()
-	var/client/dude = M.client
-	if(dude)
-		dude.view_size.resetToDefault(getScreenSize(dude.prefs.read_preference(/datum/preference/toggle/widescreen)))
-		dude.view_size.addTo("2x2")
+/obj/item/organ/eyes/ethereal/ui_action_click()
+	var/client/dude = owner.client
+	if(!dude)
+		return
 
-/obj/item/organ/eyes/ethereal/Remove(mob/living/carbon/M, special)
-	var/client/dude = M.client
-	if(dude)
-		dude.view_size.resetToDefault(getScreenSize(dude.prefs.read_preference(/datum/preference/toggle/widescreen)))
-	. = ..()
+	active=!active
+	if(active)
+		dude.view_size.zoomOut(2)
+	else
+		dude.view_size.zoomIn()

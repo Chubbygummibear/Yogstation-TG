@@ -9,7 +9,7 @@
 	internal_radio = FALSE
 
 //Start growing a human clone in the pod!
-/obj/machinery/clonepod/experimental/growclone(clonename, ui, mutation_index, makeup, mindref, last_death, datum/species/mrace, list/features, factions, list/quirks, datum/bank_account/insurance)
+/obj/machinery/clonepod/experimental/growclone(clonename, ui, mutation_index, makeup, mindref, last_death, datum/species/mrace, list/features, factions, list/quirks, datum/bank_account/insurance, list/traumas, empty, mood)
 	if(panel_open)
 		return NONE
 	if(mess || attempting)
@@ -145,21 +145,20 @@
 	if(W.tool_behaviour == TOOL_MULTITOOL)
 		if(!multitool_check_buffer(user, W))
 			return
-		var/obj/item/multitool/P = W
-
-		if(istype(P.buffer, /obj/machinery/clonepod/experimental))
-			if(get_area(P.buffer) != get_area(src))
+		var/atom/buffer_atom = multitool_get_buffer(user, W)
+		if(istype(buffer_atom, /obj/machinery/clonepod/experimental))
+			if(get_area(buffer_atom) != get_area(src))
 				to_chat(user, "<font color = #666633>-% Cannot link machines across power zones. Buffer cleared %-</font color>")
-				P.buffer = null
+				multitool_set_buffer(user, W, null)
 				return
-			to_chat(user, "<font color = #666633>-% Successfully linked [P.buffer] with [src] %-</font color>")
-			var/obj/machinery/clonepod/experimental/pod = P.buffer
+			to_chat(user, "<font color = #666633>-% Successfully linked [buffer_atom] with [src] %-</font color>")
+			var/obj/machinery/clonepod/experimental/pod = buffer_atom
 			if(pod.connected)
 				pod.connected.DetachCloner(pod)
 			AttachCloner(pod)
 		else
-			P.buffer = src
-			to_chat(user, "<font color = #666633>-% Successfully stored [REF(P.buffer)] [P.buffer.name] in buffer %-</font color>")
+			multitool_set_buffer(user, W, src)
+			to_chat(user, "<font color = #666633>-% Successfully stored [REF(buffer_atom)] [buffer_atom.name] in buffer %-</font color>")
 		return
 	else
 		return ..()

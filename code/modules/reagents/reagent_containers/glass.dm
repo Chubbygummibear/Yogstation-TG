@@ -7,7 +7,9 @@
 	resistance_flags = ACID_PROOF
 
 
-/obj/item/reagent_containers/glass/attack(mob/M, mob/user, obj/target)
+
+
+/obj/item/reagent_containers/glass/attack(mob/M, mob/living/user, obj/target)
 	if(!canconsume(M, user))
 		return
 
@@ -19,7 +21,7 @@
 		return
 
 	if(istype(M))
-		if(user.a_intent == INTENT_HARM)
+		if(user.combat_mode)
 			var/R
 			M.visible_message(span_danger("[user] splashes the contents of [src] onto [M]!"), \
 							span_userdanger("[user] splashes the contents of [src] onto [M]!"))
@@ -80,7 +82,7 @@
 		to_chat(user, span_notice("You fill [src] with [trans] unit\s of the contents of [target]."))
 
 	else if(is_spillable() && reagents.total_volume)
-		if(user.a_intent == INTENT_HARM)
+		if(user.combat_mode)
 			user.visible_message(span_danger("[user] splashes the contents of [src] onto [target]!"), \
 								span_notice("You splash the contents of [src] onto [target]."))
 			reagents.reaction(target, TOUCH)
@@ -112,6 +114,8 @@
 	icon_state = "beaker"
 	item_state = "beaker"
 	materials = list(/datum/material/glass=500)
+	pickup_sound = 'sound/items/handling/beaker_pickup.ogg'
+	drop_sound = 'sound/items/handling/beaker_place.ogg'
 
 /obj/item/reagent_containers/glass/beaker/Initialize(mapload)
 	. = ..()
@@ -274,6 +278,24 @@
 		ITEM_SLOT_DEX_STORAGE
 	)
 
+/obj/item/reagent_containers/glass/bucket/attackby_secondary(obj/item/weapon, mob/user, params)
+	. = ..()
+	if(istype(weapon, /obj/item/mop))
+		if(reagents.total_volume == volume)
+			to_chat(user, "The [src.name] can't hold anymore liquids")
+			return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
+
+		var/obj/item/mop/attacked_mop = weapon
+
+		if(attacked_mop.reagents.total_volume < 0.1)
+			to_chat(user, span_warning("Your [attacked_mop.name] is already dry!"))
+			return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
+
+		to_chat(user, "You wring out the [attacked_mop.name] into the [src.name].")
+		attacked_mop.reagents.trans_to(src, attacked_mop.mopcap * 0.25)
+		attacked_mop.reagents.remove_all(attacked_mop.mopcap)
+		return SECONDARY_ATTACK_CONTINUE_CHAIN
+
 /obj/item/reagent_containers/glass/bucket/wooden
 	name = "wooden bucket"
 	icon_state = "woodbucket"
@@ -412,7 +434,7 @@
 /obj/item/reagent_containers/glass/mixbowl //chef's bowl
 	name = "mixing bowl"
 	desc = "A large bowl for mixing ingredients."
-	icon = 'yogstation/icons/obj/food/containers.dmi'
+	icon = 'icons/obj/food/containers.dmi'
 	icon_state = "mixbowl"
 	item_state = "mixbowl"
 	w_class = WEIGHT_CLASS_NORMAL

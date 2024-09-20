@@ -90,7 +90,6 @@ GLOBAL_LIST_INIT(battleroyale_armour, list(
 		//weight of 0 - all round good things
 		/obj/item/shield/riot = 0,
 		/obj/item/clothing/suit/armor/elder_atmosian = 0,
-		/obj/item/clothing/head/det_hat/evil = 0,
 		/obj/item/clothing/suit/space/hardsuit/mining = 0,
 		/obj/item/clothing/suit/armor/bulletproof = 0,
 		/obj/item/clothing/head/helmet/space/pirate = 0,
@@ -230,7 +229,7 @@ GLOBAL_LIST_INIT(battleroyale_weapon, list(
 		/obj/item/singularityhammer = -2,
 		
 		/obj/item/vibro_weapon = -3, //Strong melee weapon, but not enough to be -5
-		/obj/item/autosurgeon/arm/syndicate/syndie_mantis = -3,
+		/obj/item/autosurgeon/suspicious/syndie_mantis = -3,
 		/obj/item/melee/chainsaw/demon = -3,
 
 		/obj/item/melee/dualsaber = -4,
@@ -243,7 +242,7 @@ GLOBAL_LIST_INIT(battleroyale_weapon, list(
 		/obj/item/gun/ballistic/shotgun/doublebarrel/improvised = 0,
 		/obj/item/gun/ballistic/shotgun/doublebarrel/improvised/sawn = 0,
 		/obj/item/gun/ballistic/revolver/detective = 0,
-		/obj/item/flamethrower/full/tank = 0,
+		/obj/item/gun/flamethrower/full = 0,
 
 		/obj/item/gun/ballistic/automatic/pistol = -1,
 		/obj/item/gun/ballistic/shotgun/doublebarrel = -1,
@@ -274,6 +273,7 @@ GLOBAL_LIST_INIT(battleroyale_weapon, list(
 		/obj/item/gun/ballistic/automatic/ar = -5,
 		/obj/item/gun/ballistic/automatic/lwt650 = -5,
 		/obj/item/gun/ballistic/automatic/k41s = -5,
+		/obj/item/clothing/head/det_hat/evil = -5, //infinite ammo ranged weapon with high dps
 
 		/obj/item/gun/energy/beam_rifle = -6,
 		/obj/item/gun/ballistic/rifle/sniper_rifle = -6,
@@ -333,8 +333,8 @@ GLOBAL_LIST_INIT(battleroyale_utility, list(//bombs, explosives, anything that's
 		/obj/item/grenade/plastic/c4 = 3,
 
 		/obj/item/book/granter/action/spell/smoke/lesser = 2,
-		/obj/item/multisurgeon/jumpboots = 2,
-		/obj/item/autosurgeon/reviver = 2,
+		/obj/item/autosurgeon/jumpboots = 2,
+		/obj/item/autosurgeon/suspicious/reviver = 2,
 		/obj/item/grenade/plastic/c4 = 2,
 		/obj/effect/spawner/lootdrop/weakgene = 2,
 
@@ -347,20 +347,20 @@ GLOBAL_LIST_INIT(battleroyale_utility, list(//bombs, explosives, anything that's
 		/obj/effect/spawner/lootdrop/ammobox = 0,
 		/obj/item/warp_whistle = 0,
 		/obj/item/gun/magic/staff/animate = 0, //no clue why you'd want this, but why not
-		/obj/item/multisurgeon/wheelies = 0,
+		/obj/item/autosurgeon/wheelies = 0,
 		/obj/item/grenade/plastic/c4 = 0, //it's c4 all the way down buddy
 
 		/obj/item/autosurgeon/thermal_eyes = -1,
-		/obj/item/autosurgeon/xray_eyes = -1,
+		/obj/item/autosurgeon/suspicious/xray_eyes = -1,
 		/obj/item/gun/magic/wand/door = -1,
 		/obj/item/gun/magic/staff/door = -1,
 		/obj/item/storage/backpack/duffelbag/syndie = -1,
 		/obj/item/slimecross/stabilized/red = -1,
-		/obj/item/autosurgeon/reviver = -1,
+		/obj/item/autosurgeon/suspicious/reviver = -1,
 		/obj/effect/spawner/lootdrop/ammobox = -1,
 		/obj/item/slime_sling = -1,
 
-		/obj/item/multisurgeon/airshoes = -2,
+		/obj/item/autosurgeon/suspicious/airshoes = -2,
 		/obj/item/grenade/syndieminibomb = -2,
 		/obj/item/dragons_blood = -2,
 		/obj/item/dragons_blood/refined = -2,
@@ -379,7 +379,6 @@ GLOBAL_LIST_INIT(battleroyale_utility, list(//bombs, explosives, anything that's
 		/obj/item/storage/backpack/duffelbag/syndie/c4 = -3, //C4 Is kind of useless when you have AA
 		/obj/item/battleroyale/itemspawner/construct = -3,
 		/obj/item/book/granter/action/spell/forcewall = -3,
-		/obj/item/antag_spawner/slaughter_demon = -3, //why the hell not
 		/obj/item/antag_spawner/slaughter_demon/laughter = -3, //people still get disqualified, but they at least get to come back
 		/obj/item/storage/backpack/holding = -3,
 		/obj/effect/spawner/lootdrop/stronggene = -3,
@@ -402,17 +401,16 @@ GLOBAL_LIST_INIT(battleroyale_utility, list(//bombs, explosives, anything that's
 		/obj/item/slimecross/stabilized/bluespace = -5,
 		/obj/machinery/syndicatebomb = -5,
 		/obj/item/stand_arrow/safe = -5,
-		/obj/item/mdrive = -5, //get out of jail free card
+		/obj/item/mirage_drive = -5, //get out of jail free card
 		/obj/item/book/granter/martial/carp = -5,
 		/obj/item/battleroyale/martial/worldbreaker = -5, // Shaking the ground of Moria
 		/obj/item/bodypart/l_arm/robot/buster = -5,
 		/obj/item/demon_core = -5,
 
-		/obj/item/autosurgeon/syndicate/spinalspeed = -6, // No opportunity cost speed boost
+		/obj/item/autosurgeon/suspicious/spinalspeed = -6, // No opportunity cost speed boost
 
 		/obj/item/storage/belt/wands/full = -7, //not quite spellbook, but some of these wands are FUCKED
-
-		/obj/item/spellbook = -8, //literally auto-win
+		/obj/item/spellbook = -7, //literally auto-win IF you have the time to use it (a lot of spells are robe locked too)
 		))
 
 /obj/structure/closet/crate/battleroyale
@@ -509,7 +507,7 @@ GLOBAL_LIST_INIT(battleroyale_utility, list(//bombs, explosives, anything that's
 		to_chat(user,span_warning("You already know [user.mind.martial_art.name]!"))
 		return
 
-	if(do_after(user, 6 SECONDS, user))
+	if(do_after(user, 2 SECONDS, user))
 		var/datum/martial_art/MA = new martial
 		user.set_species(species)
 		MA.teach(user)

@@ -278,27 +278,6 @@
 //Fusion Rework Counter: Please increment this if you make a major overhaul to this system again.
 //6 reworks
 
-/datum/gas_reaction/cold_fusion
-	exclude = FALSE
-	priority = COLDFUSION
-	name = "Cold Plasmic Fusion"
-	id = "coldfusion"
-
-/datum/gas_reaction/cold_fusion/init_reqs()
-	min_requirements = list(
-		"TEMP" = FUSION_TEMPERATURE_THRESHOLD_MINIMUM,
-		"MAX_TEMP" = FUSION_TEMPERATURE_THRESHOLD,
-		GAS_DILITHIUM = MINIMUM_MOLE_COUNT,
-		GAS_TRITIUM = FUSION_TRITIUM_MOLES_USED,
-		GAS_PLASMA = FUSION_MOLE_THRESHOLD,
-		GAS_CO2 = FUSION_MOLE_THRESHOLD)
-
-/datum/gas_reaction/cold_fusion/react(datum/gas_mixture/air, datum/holder)
-	if(air.return_temperature() < (FUSION_TEMPERATURE_THRESHOLD - FUSION_TEMPERATURE_THRESHOLD_MINIMUM) * NUM_E**( - air.get_moles(GAS_DILITHIUM) * DILITHIUM_LAMBDA) + FUSION_TEMPERATURE_THRESHOLD_MINIMUM)
-		// This is an exponential decay equation, actually. Horizontal Asymptote is FUSION_TEMPERATURE_THRESHOLD_MINIMUM.
-		return NO_REACTION
-	return fusion_react(air, holder)
-
 /datum/gas_reaction/fusion
 	exclude = FALSE
 	priority = FUSION
@@ -307,17 +286,15 @@
 
 /datum/gas_reaction/fusion/init_reqs()
 	min_requirements = list(
-		"TEMP" = FUSION_TEMPERATURE_THRESHOLD, 
+		"TEMP" = FUSION_TEMPERATURE_THRESHOLD_MINIMUM, 
 		GAS_TRITIUM = FUSION_TRITIUM_MOLES_USED,
 		GAS_PLASMA = FUSION_MOLE_THRESHOLD,
-		GAS_CO2 = FUSION_MOLE_THRESHOLD)
+		GAS_CO2 = FUSION_MOLE_THRESHOLD,
+	)
 
 /datum/gas_reaction/fusion/react(datum/gas_mixture/air, datum/holder)
-	return fusion_react(air, holder)
-
-/proc/fusion_react(datum/gas_mixture/air, datum/holder)
-	var/turf/open/location = get_holder_turf(holder)
-	if(!location)
+	if(air.return_temperature() < (FUSION_TEMPERATURE_THRESHOLD - FUSION_TEMPERATURE_THRESHOLD_MINIMUM) * NUM_E**( - air.get_moles(GAS_DILITHIUM) * DILITHIUM_LAMBDA) + FUSION_TEMPERATURE_THRESHOLD_MINIMUM)
+		// This is an exponential decay equation, actually. Horizontal Asymptote is FUSION_TEMPERATURE_THRESHOLD_MINIMUM.
 		return NO_REACTION
 	if(!air.analyzer_results)
 		air.analyzer_results = new
@@ -366,6 +343,7 @@
 		air.adjust_moles(GAS_NITRIUM, FUSION_TRITIUM_MOLES_USED*(reaction_energy*-FUSION_TRITIUM_CONVERSION_COEFFICIENT))
 
 	if(reaction_energy)
+		var/turf/open/location = get_holder_turf(holder)
 		if(location)
 			var/particle_chance = ((PARTICLE_CHANCE_CONSTANT)/(reaction_energy-PARTICLE_CHANCE_CONSTANT)) + 1//Asymptopically approaches 100% as the energy of the reaction goes up.
 			if(prob(PERCENT(particle_chance)))
@@ -375,7 +353,7 @@
 
 		var/new_heat_capacity = air.heat_capacity()
 		if(new_heat_capacity > MINIMUM_HEAT_CAPACITY)
-			air.set_temperature(clamp(((old_thermal_energy + reaction_energy)/new_heat_capacity),TCMB,INFINITY))
+			air.set_temperature(clamp(((old_thermal_energy + reaction_energy)/(new_heat_capacity*0.8)),TCMB,INFINITY))
 		return REACTING
 
 /datum/gas_reaction/nitriumformation //The formation of nitrium. Endothermic. Requires N2O as a catalyst.
@@ -429,7 +407,7 @@
 		GAS_PLASMA = 10,
 	)
 
-/datum/gas_reaction/bzformation/react(datum/gas_mixture/air)
+/datum/gas_reaction/bzformation/react(datum/gas_mixture/air, datum/holder)
 	var/pressure = air.return_pressure()
 	var/old_thermal_energy = air.thermal_energy()
 
@@ -448,7 +426,9 @@
 	air.adjust_moles(GAS_PLASMA, -2*reaction_efficency)
 
 	//clamps by a minimum amount in the event of an underflow.
-	SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, clamp((reaction_efficency**2)*BZ_RESEARCH_AMOUNT,0.01,BZ_RESEARCH_MAX_AMOUNT))
+	var/turf/holder_turf = get_holder_turf(holder)
+	if(holder_turf && SSmapping.level_trait(holder_turf.z, ZTRAIT_STATION))
+		SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, clamp((reaction_efficency**2)*BZ_RESEARCH_AMOUNT,0.01,BZ_RESEARCH_MAX_AMOUNT))
 
 	if(energy_released > 0)
 		var/new_heat_capacity = air.heat_capacity()
@@ -467,7 +447,7 @@
 		GAS_TRITIUM = 10,
 		"TEMP" = 5000000)
 
-/datum/gas_reaction/nobliumformation/react(datum/gas_mixture/air)
+/datum/gas_reaction/nobliumformation/react(datum/gas_mixture/air, datum/holder)
 	var/initial_trit = air.get_moles(GAS_TRITIUM)
 	var/initial_n2 = air.get_moles(GAS_N2)
 	var/initial_bz = air.get_moles(GAS_BZ)
@@ -480,7 +460,11 @@
 	air.adjust_moles(GAS_TRITIUM, -10*nob_formed)
 	air.adjust_moles(GAS_N2, -20*nob_formed)
 	air.adjust_moles(GAS_HYPERNOB, nob_formed)
-	SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, clamp(nob_formed*NOBLIUM_RESEARCH_AMOUNT, 0.01, NOBLIUM_RESEARCH_MAX_AMOUNT))
+
+	var/turf/holder_turf = get_holder_turf(holder)
+	if(holder_turf && SSmapping.level_trait(holder_turf.z, ZTRAIT_STATION))
+		SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, clamp(nob_formed*NOBLIUM_RESEARCH_AMOUNT, 0.01, NOBLIUM_RESEARCH_MAX_AMOUNT))
+
 	var/new_heat_capacity = air.heat_capacity()
 	if(new_heat_capacity > MINIMUM_HEAT_CAPACITY)
 		air.set_temperature(max(((old_thermal_energy - energy_taken)/new_heat_capacity),TCMB))
@@ -510,7 +494,10 @@
 
 	//Possibly burning a bit of organic matter through maillard reaction, so a *tiny* bit more heat would be understandable
 	air.set_temperature(air.return_temperature() + cleaned_air * 0.002)
-	SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, clamp(cleaned_air*MIASMA_RESEARCH_AMOUNT,0.01, MIASMA_RESEARCH_MAX_AMOUNT))//Turns out the burning of miasma is kinda interesting to scientists
+
+	var/turf/holder_turf = get_holder_turf(holder)
+	if(holder_turf && SSmapping.level_trait(holder_turf.z, ZTRAIT_STATION))
+		SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, clamp(cleaned_air*MIASMA_RESEARCH_AMOUNT,0.01, MIASMA_RESEARCH_MAX_AMOUNT))//Turns out the burning of miasma is kinda interesting to scientists
 	return REACTING
 
 /datum/gas_reaction/nitro_ball
@@ -730,7 +717,9 @@
 		if (prob(25 * increase_factor))
 			air.adjust_moles(GAS_H2, -(heat_efficency * 10))
 			new /obj/item/stack/sheet/mineral/metal_hydrogen(location)
-			SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, min((heat_efficency * increase_factor * 0.5), METAL_HYDROGEN_RESEARCH_MAX_AMOUNT))
+			var/turf/holder_turf = get_holder_turf(holder)
+			if(holder_turf && SSmapping.level_trait(holder_turf.z, ZTRAIT_STATION))
+				SSresearch.science_tech.add_point_type(TECHWEB_POINT_TYPE_DEFAULT, min((heat_efficency * increase_factor * 0.5), METAL_HYDROGEN_RESEARCH_MAX_AMOUNT))
 
 	if(energy_used > 0)
 		var/new_heat_capacity = air.heat_capacity()

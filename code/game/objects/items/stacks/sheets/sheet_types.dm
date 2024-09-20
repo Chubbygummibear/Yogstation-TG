@@ -52,7 +52,7 @@ GLOBAL_LIST_INIT(metal_recipes, list ( \
 	new/datum/stack_recipe("crate shelf parts", /obj/item/rack_parts/shelf), \
 		)), \
 	null, \
-	new/datum/stack_recipe("canister", /obj/machinery/portable_atmospherics/canister/generic, 10, time = 15, one_per_turf = TRUE, on_floor = TRUE), \
+	new/datum/stack_recipe("canister", /obj/machinery/portable_atmospherics/canister, 10, time = 15, one_per_turf = TRUE, on_floor = TRUE), \
 	new/datum/stack_recipe("portable pump", /obj/machinery/portable_atmospherics/pump, 10, time = 15, one_per_turf = TRUE, on_floor = TRUE), \
 	null, \
 	new/datum/stack_recipe("floor tile", /obj/item/stack/tile/plasteel, 1, 4, 20), \
@@ -258,14 +258,13 @@ GLOBAL_LIST_INIT(wood_recipes, list ( \
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 0)
 	resistance_flags = FLAMMABLE
 	merge_type = /obj/item/stack/sheet/mineral/wood
-	novariants = TRUE
 	grind_results = list(/datum/reagent/cellulose = 20) //no lignocellulose or lignin reagents yet,
 
 /obj/item/stack/sheet/mineral/wood/Initialize(mapload, new_amount, merge = TRUE)
 	recipes = GLOB.wood_recipes
 	return ..()
 
-/obj/item/stack/sheet/mineral/wood/attack_obj(obj/O, mob/living/user)
+/obj/item/stack/sheet/mineral/wood/attack_atom(obj/O, mob/living/user)
 	if(istype(O, /obj/structure/window) || istype(O, /obj/machinery/door/airlock) || istype(O,/obj/machinery/door)) //I hate this but reportedly there is no other way :skull:
 		for(var/obj/structure/barricade/wooden/crude/crude in get_turf(O))
 			to_chat(user, span_warning("There is already a barricade there!"))
@@ -308,6 +307,8 @@ GLOBAL_LIST_INIT(wood_recipes, list ( \
 	if(!wood_stack && replace)
 		user.put_in_hands(new_item)
 
+/obj/item/stack/sheet/mineral/wood/ten
+	amount = 10
 /obj/item/stack/sheet/mineral/wood/fifty
 	amount = 50
 
@@ -511,6 +512,7 @@ GLOBAL_LIST_INIT(cardboard_recipes, list (														\
 
 	new/datum/stack_recipe("folder", /obj/item/folder),											\
 	new/datum/stack_recipe("pizza box", /obj/item/pizzabox),									\
+	new/datum/stack_recipe("ice cream carton", /obj/item/storage/box/ice_cream_carton),			\
 	null,																						\
 	//TO-DO: Find a proper way to just change the illustration on the box. Code isn't the issue, input is.
 	new/datum/stack_recipe_list("fancy boxes", list(
@@ -566,7 +568,6 @@ GLOBAL_LIST_INIT(cardboard_recipes, list (														\
 	force = 0
 	throwforce = 0
 	merge_type = /obj/item/stack/sheet/cardboard
-	novariants = TRUE
 	grind_results = list(/datum/reagent/cellulose = 10)
 	fryable = TRUE
 
@@ -628,7 +629,6 @@ GLOBAL_LIST_INIT(runed_metal_recipes, list ( \
 	icon = 'icons/obj/stack_objects.dmi'
 	sheettype = "runed"
 	merge_type = /obj/item/stack/sheet/runed_metal
-	novariants = TRUE
 	grind_results = list(/datum/reagent/iron = 5, /datum/reagent/blood = 15)
 
 /obj/item/stack/sheet/runed_metal/ratvar_act()
@@ -864,12 +864,14 @@ new /datum/stack_recipe("paper frame separator", /obj/structure/window/paperfram
 /obj/item/stack/sheet/capitalisium
 	name = "capitalisium sheet"
 	desc = "A source of raw capitalism, capable of bringing forth the prophesized Capitalist Golem."
+	icon = 'yogstation/icons/obj/stack_objects.dmi'
 	icon_state = "sheet-capitalisium"
 	merge_type = /obj/item/stack/sheet/capitalisium
 
 /obj/item/stack/sheet/stalinium
 	name = "stalinium sheet"
 	desc = "A source of raw socialism, capable of bringing forth the prophesized Soviet Golem."
+	icon = 'yogstation/icons/obj/stack_objects.dmi'
 	icon_state = "sheet-stalinium"
 	merge_type = /obj/item/stack/sheet/stalinium
 
@@ -878,7 +880,7 @@ new /datum/stack_recipe("paper frame separator", /obj/structure/window/paperfram
 	desc = "A stack of cheese that seems sturdier than regular cheese."
 	icon_state = "sheet-cheese"
 	item_state = "sheet-cheese"
-	icon = 'icons/obj/stack_objects.dmi'
+	icon = 'yogstation/icons/obj/stack_objects.dmi'
 	singular_name = "reinforced cheese block"
 	sheettype = "cheese"
 	max_amount = 15
@@ -902,7 +904,6 @@ GLOBAL_LIST_INIT(cheese_recipes, list (
 	singular_name = "ruinous metal sheet"
 	sheettype = null
 	max_amount = 20
-	novariants = TRUE
 	grind_results = list(/datum/reagent/iron = 5, /datum/reagent/blood = 15)
 	merge_type = /obj/item/stack/sheet/ruinous_metal
 
@@ -919,7 +920,7 @@ GLOBAL_LIST_INIT(ruinous_metal_recipes, list (
 	desc = "A solidified mass of sticky plant resin. Useful as an incredibly strong bonding agent."
 	icon_state = "sheet-resin"
 	item_state = "sheet-resin"
-	icon = 'icons/obj/stack_objects.dmi'
+	icon = 'yogstation/icons/obj/stack_objects.dmi'
 	sheettype = null
 	singular_name = "resin droplet"
 	max_amount = 10

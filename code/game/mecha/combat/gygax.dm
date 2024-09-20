@@ -4,12 +4,12 @@
 	icon_state = "gygax"
 	step_in = 3
 	dir_in = 1 //Facing North.
-	max_integrity = 250
+	max_integrity = 500
+	integrity_failure = 250
 	deflect_chance = 5
 	armor = list(MELEE = 25, BULLET = 20, LASER = 30, ENERGY = 0, BOMB = 0, BIO = 100, RAD = 40, FIRE = 100, ACID = 100)
 	max_temperature = 25000
 	infra_luminosity = 6
-	wreckage = /obj/structure/mecha_wreckage/gygax
 	internal_damage_threshold = 35
 	max_equip = 3
 
@@ -21,11 +21,10 @@
 	deflect_chance = 15
 	armor = list(MELEE = 40, BULLET = 40, LASER = 50, ENERGY = 0, BOMB = 20, BIO = 100, RAD = 100, FIRE = 100, ACID = 100)
 	max_temperature = 35000
-	leg_overload_coeff = 100
 	operation_req_access = list(ACCESS_SYNDICATE)
 	internals_req_access = list(ACCESS_SYNDICATE)
-	wreckage = /obj/structure/mecha_wreckage/gygax/dark
-	max_equip = 6
+	max_equip = 7
+	self_destruct = 4
 	destruction_sleep_duration = 20
 
 /obj/mecha/combat/gygax/dark/loaded/Initialize(mapload)
@@ -42,6 +41,8 @@
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/emergency_eject
 	ME.attach(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/thrusters/ion
+	ME.attach(src)
 	max_ammo()
 
 /obj/mecha/combat/gygax/dark/add_cell(obj/item/stock_parts/cell/C=null)
@@ -56,16 +57,6 @@
 	..()
 	overload_action.Grant(user, src)
 
-/obj/mecha/combat/gygax/dark/GrantActions(mob/living/user, human_occupant = 0)
-	..()
-	thrusters_action.Grant(user, src)
-
-
 /obj/mecha/combat/gygax/RemoveActions(mob/living/user, human_occupant = 0)
 	..()
 	overload_action.Remove(user)
-
-/obj/mecha/combat/gygax/dark/RemoveActions(mob/living/user, human_occupant = 0)
-	..()
-	thrusters_action.Remove(user)
-

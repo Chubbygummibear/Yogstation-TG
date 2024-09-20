@@ -179,7 +179,7 @@
 	name = "Hot Chamber Vent";
 	pixel_x = -26;
 	pixel_y = 8;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /mob/living/simple_animal/opossum/poppy,
 /obj/structure/chair/office/dark{
@@ -226,6 +226,20 @@
 /area/engine/engineering)
 "fb" = (
 /obj/effect/decal/cleanable/dirt,
+/turf/open/floor/engine,
+/area/engine/engineering)
+"fc" = (
+/obj/machinery/camera{
+	c_tag = "Engineering TEG Fore";
+	network = list("ss13","engine");
+	pixel_x = 23
+	},
+/obj/effect/turf_decal/stripes/line{
+	dir = 1
+	},
+/obj/machinery/light_switch{
+	pixel_y = 24
+	},
 /turf/open/floor/engine,
 /area/engine/engineering)
 "fo" = (
@@ -307,10 +321,10 @@
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2,
 /obj/machinery/door/airlock/engineering/glass{
-	name = "TEG Room";
-	req_access_txt = "10"
+	name = "TEG Room"
 	},
 /obj/machinery/atmospherics/pipe/simple/orange/visible,
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plasteel/dark,
 /area/engine/engineering)
 "iX" = (
@@ -318,10 +332,10 @@
 	dir = 1
 	},
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
 /obj/machinery/atmospherics/pipe/layer_manifold,
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "kp" = (
@@ -338,7 +352,7 @@
 	dir = 4
 	},
 /obj/effect/decal/cleanable/dirt,
-/obj/machinery/atmospherics/components/unary/tank/toxins{
+/obj/machinery/atmospherics/components/unary/tank/plasma{
 	dir = 8;
 	volume = 6e+006
 	},
@@ -361,11 +375,11 @@
 "la" = (
 /obj/effect/mapping_helpers/airlock/cyclelink_helper,
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2,
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "lw" = (
@@ -396,6 +410,22 @@
 	},
 /turf/template_noop,
 /area/space/nearstation)
+"mf" = (
+/obj/effect/turf_decal/stripes/line,
+/obj/machinery/camera{
+	c_tag = "Engineering TEG Aft";
+	dir = 1;
+	network = list("ss13","engine");
+	pixel_x = 23
+	},
+/obj/machinery/atmospherics/pipe/simple/purple/visible{
+	dir = 4
+	},
+/obj/machinery/light_switch{
+	pixel_y = -23
+	},
+/turf/open/floor/engine,
+/area/engine/engineering)
 "mp" = (
 /obj/effect/decal/cleanable/dirt,
 /obj/machinery/atmospherics/pipe/manifold/orange/visible{
@@ -777,7 +807,7 @@
 	id = "teghot";
 	name = "Hot Chamber Vent";
 	pixel_x = 26;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /obj/structure/lattice/catwalk,
 /turf/template_noop,
@@ -827,19 +857,6 @@
 /obj/machinery/atmospherics/components/unary/tank/oxygen{
 	dir = 8;
 	volume = 9e+006
-	},
-/turf/open/floor/engine,
-/area/engine/engineering)
-"zP" = (
-/obj/effect/turf_decal/stripes/line,
-/obj/machinery/camera{
-	c_tag = "Engineering TEG Aft";
-	dir = 1;
-	network = list("ss13","engine");
-	pixel_x = 23
-	},
-/obj/machinery/atmospherics/pipe/simple/purple/visible{
-	dir = 4
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
@@ -1002,9 +1019,9 @@
 	dir = 8
 	},
 /obj/machinery/door/airlock/engineering{
-	name = "AI Satellite Access";
-	req_one_access_txt = "10;17;32"
+	name = "AI Satellite Access"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plasteel,
 /area/engine/engineering)
 "FG" = (
@@ -1120,7 +1137,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
 /obj/machinery/firealarm{
-	dir = 8;
+	dir = 4;
 	pixel_x = -26
 	},
 /obj/machinery/light{
@@ -1167,8 +1184,7 @@
 /area/engine/engineering)
 "Lt" = (
 /obj/machinery/door/airlock/engineering/glass{
-	name = "TEG Room";
-	req_access_txt = "10"
+	name = "TEG Room"
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4{
 	dir = 4
@@ -1303,9 +1319,9 @@
 	dir = 8
 	},
 /obj/machinery/door/airlock/engineering/glass{
-	name = "TEG Room";
-	req_access_txt = "10"
+	name = "TEG Room"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/engine,
 /area/engine/engineering)
 "Ov" = (
@@ -1608,17 +1624,6 @@
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
-"Wn" = (
-/obj/machinery/camera{
-	c_tag = "Engineering TEG Fore";
-	network = list("ss13","engine");
-	pixel_x = 23
-	},
-/obj/effect/turf_decal/stripes/line{
-	dir = 1
-	},
-/turf/open/floor/engine,
-/area/engine/engineering)
 "Ws" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 6
@@ -1737,9 +1742,9 @@
 	},
 /obj/machinery/door/firedoor/border_only,
 /obj/machinery/door/airlock/engineering/glass{
-	name = "TEG Room";
-	req_access_txt = "10"
+	name = "TEG Room"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/engine,
 /area/engine/engineering)
 "ZP" = (
@@ -2284,7 +2289,7 @@ dG
 "}
 (20,1,1) = {"
 ad
-Wn
+fc
 cA
 mp
 EE
@@ -2321,7 +2326,7 @@ aH
 nh
 Nw
 oa
-zP
+mf
 ad
 sT
 Si

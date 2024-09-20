@@ -7,14 +7,14 @@
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "the chief medical officer"
-	selection_color = "#d4ebf2"
 	alt_titles = list("Counsellor", "Therapist", "Mentalist")
 	minimal_player_age = 5 //stop griefing
 
 	outfit = /datum/outfit/job/psych
 
 	added_access = list(ACCESS_CHEMISTRY)
-	base_access = list(ACCESS_MEDICAL, ACCESS_PSYCH)
+	base_access = list(ACCESS_MEDICAL, ACCESS_PSYCHOLOGY)
+
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_MED
 	mind_traits = list(TRAIT_PSYCH)
@@ -47,7 +47,7 @@
 	jobtype = /datum/job/psych
 
 	shoes = /obj/item/clothing/shoes/sneakers/brown
-	uniform = /obj/item/clothing/under/suit_jacket/burgundy
+	uniform = /obj/item/clothing/under/suit/burgundy
 	l_hand = /obj/item/storage/briefcase
 	glasses = /obj/item/clothing/glasses/regular
 	ears = /obj/item/radio/headset/headset_med

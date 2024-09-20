@@ -8,15 +8,16 @@
 	total_positions = 5
 	spawn_positions = 3
 	supervisors = "the chief medical officer"
-	selection_color = "#d4ebf2"
 	exp_requirements = 180
 	exp_type = EXP_TYPE_CREW
 	alt_titles = list("Physician", "Surgeon", "Nurse", "Medical Resident", "Attending Physician", "General Practitioner")
 
 	outfit = /datum/outfit/job/doctor
 
-	added_access = list(ACCESS_CHEMISTRY, ACCESS_GENETICS)
-	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CLONING, ACCESS_MECH_MEDICAL, ACCESS_MINERAL_STOREROOM)
+	added_access = list(ACCESS_CHEMISTRY, ACCESS_GENETICS, ACCESS_VIROLOGY)
+	base_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CLONING,
+					ACCESS_MECH_MEDICAL)
+
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_MED
 
@@ -54,8 +55,8 @@
 	belt = /obj/item/storage/belt/medical
 	ears = /obj/item/radio/headset/headset_med
 	pda_type = /obj/item/modular_computer/tablet/pda/preset/medical
-	uniform = /obj/item/clothing/under/rank/medical
-	uniform_skirt = /obj/item/clothing/under/rank/medical/skirt
+	uniform = /obj/item/clothing/under/rank/medical/doctor
+	uniform_skirt = /obj/item/clothing/under/rank/medical/doctor/skirt
 	shoes = /obj/item/clothing/shoes/sneakers/white
 	suit =  /obj/item/clothing/suit/toggle/labcoat/md
 	l_hand = /obj/item/storage/firstaid/medical

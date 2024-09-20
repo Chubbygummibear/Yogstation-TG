@@ -109,28 +109,17 @@
 #define FEMALE_UNIFORM_FULL			1
 #define FEMALE_UNIFORM_TOP			2
 
-//flags for alternate styles: These are hard sprited so don't set this if you didn't put the effort in
-#define NORMAL_STYLE		0
-#define ALT_STYLE			1
-#define DIGITIGRADE_STYLE 	2
-#define DIGIALT_STYLE       3		//Yogs
-
 //flags for digitigrade checks related to footwear. Only Human accessible / Both accessible / Only funny leg accessible.
 #define NO_DIGIT			0
 #define EITHER_STYLE		1
 #define YES_DIGIT		 	2
 
 //flags for outfits that have mutantrace variants (try not to use this): Currently only needed if you're trying to add tight fitting bootyshorts
-#define NO_MUTANTRACE_VARIATION		0
-#define MUTANTRACE_VARIATION		1
-
-#define NOT_DIGITIGRADE				0
-#define FULL_DIGITIGRADE			1
-#define SQUISHED_DIGITIGRADE		2
+#define DIGITIGRADE_VARIATION (1<<0)
 
 //flags for covering body parts
 #define GLASSESCOVERSEYES	(1<<0)
-#define MASKCOVERSEYES		(1<<1)		// get rid of some of the other retardation in these flags
+#define MASKCOVERSEYES		(1<<1)		// get rid of some of the other ridiculousness in these flags
 #define HEADCOVERSEYES		(1<<2)		// feel free to realloc these numbers for other purposes
 #define MASKCOVERSMOUTH		(1<<3)		// on other items, these are just for mask/head
 #define HEADCOVERSMOUTH		(1<<4)
@@ -155,8 +144,7 @@ GLOBAL_LIST_INIT(security_hardsuit_allowed, typecacheof(list(
 	/obj/item/ammo_box,
 	/obj/item/ammo_casing,
 	/obj/item/flashlight,
-	/obj/item/gun/ballistic,
-	/obj/item/gun/energy,
+	/obj/item/gun,
 	/obj/item/melee/baton,
 	/obj/item/melee/classic_baton,
 	/obj/item/reagent_containers/spray/pepper,
@@ -169,46 +157,72 @@ GLOBAL_LIST_INIT(detective_vest_allowed, typecacheof(list(
 	/obj/item/detective_scanner,
 	/obj/item/flashlight,
 	/obj/item/taperecorder,
-	/obj/item/gun/ballistic,
-	/obj/item/gun/energy,
+	/obj/item/gun,
 	/obj/item/lighter,
 	/obj/item/melee/baton,
 	/obj/item/melee/classic_baton,
 	/obj/item/reagent_containers/spray/pepper,
 	/obj/item/restraints/handcuffs,
 	/obj/item/storage/fancy/cigarettes,
-	/obj/item/tank/internals/emergency_oxygen,
-	/obj/item/tank/internals/plasmaman,
-	/obj/item/tank/internals/ipc_coolant)))
+	/obj/item/tank/internals)))
 
 GLOBAL_LIST_INIT(security_vest_allowed, typecacheof(list(
 	/obj/item/ammo_box,
 	/obj/item/ammo_casing,
 	/obj/item/flashlight,
-	/obj/item/gun/ballistic,
-	/obj/item/gun/energy,
+	/obj/item/gun,
 	/obj/item/kitchen/knife/combat,
 	/obj/item/melee/baton,
 	/obj/item/melee/classic_baton,
 	/obj/item/reagent_containers/spray/pepper,
 	/obj/item/restraints/handcuffs,
-	/obj/item/tank/internals/emergency_oxygen,
-	/obj/item/tank/internals/plasmaman,
-	/obj/item/tank/internals/ipc_coolant)))
+	/obj/item/tank/internals)))
 
 GLOBAL_LIST_INIT(security_wintercoat_allowed, typecacheof(list(
 	/obj/item/ammo_box,
 	/obj/item/ammo_casing,
 	/obj/item/flashlight,
 	/obj/item/storage/fancy/cigarettes,
-	/obj/item/gun/ballistic,
-	/obj/item/gun/energy,
+	/obj/item/gun,
 	/obj/item/lighter,
 	/obj/item/melee/baton,
 	/obj/item/melee/classic_baton,
 	/obj/item/reagent_containers/spray/pepper,
 	/obj/item/restraints/handcuffs,
-	/obj/item/tank/internals/emergency_oxygen,
-	/obj/item/tank/internals/plasmaman,
-	/obj/item/tank/internals/ipc_coolant,
+	/obj/item/tank/internals,
 	/obj/item/toy)))
+
+GLOBAL_LIST_INIT(labcoat_allowed, typecacheof(list(
+	/obj/item/analyzer,
+	/obj/item/multitool/tricorder,
+	/obj/item/stack/medical,
+	/obj/item/dnainjector,
+	/obj/item/reagent_containers/dropper,
+	/obj/item/reagent_containers/syringe,
+	/obj/item/reagent_containers/autoinjector,
+	/obj/item/healthanalyzer,
+	/obj/item/reagent_containers/glass/bottle,
+	/obj/item/reagent_containers/glass/beaker,
+	/obj/item/reagent_containers/pill,
+	/obj/item/storage/pill_bottle,
+	/obj/item/paper,
+	/obj/item/melee/classic_baton/telescopic,
+	/obj/item/soap,
+	/obj/item/sensor_device,
+	/obj/item/tank/internals, 
+	/obj/item/hypospray,
+	/obj/item/flashlight)))
+
+GLOBAL_LIST_INIT(mining_allowed, typecacheof(list(
+	/obj/item/flashlight, 
+	/obj/item/tank/internals, 
+	/obj/item/resonator, 
+	/obj/item/mining_scanner, 
+	/obj/item/t_scanner/adv_mining_scanner, 
+	/obj/item/gun/energy/kinetic_accelerator, 
+	/obj/item/pickaxe, 
+	/obj/item/organ/regenerative_core/legion, 
+	/obj/item/kitchen/knife/combat,
+	/obj/item/storage/bag/ore,
+	/obj/item/storage/bag/gem
+	)))

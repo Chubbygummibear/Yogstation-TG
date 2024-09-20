@@ -10,7 +10,7 @@
 /// Allows carbon to toggle internals via AltClick of the equipped tank.
 /obj/item/tank/internals/AltClick(mob/user)
 	..()
-	if((loc == user) && user.canUseTopic(src, be_close = TRUE, no_dextery = TRUE, no_tk = TRUE))
+	if((loc == user) && user.canUseTopic(src, be_close = TRUE, no_dexterity = TRUE, no_tk = TRUE))
 		toggle_internals(user)
 
 /obj/item/tank/internals/examine(mob/user)
@@ -97,14 +97,14 @@
 	air_contents.set_moles(GAS_PLASMA, (3*ONE_ATMOSPHERE)*volume/(R_IDEAL_GAS_EQUATION*T20C))
 
 /obj/item/tank/internals/plasma/attackby(obj/item/W, mob/user, params)
-	if(istype(W, /obj/item/flamethrower))
-		var/obj/item/flamethrower/F = W
-		if ((!F.status)||(F.ptank))
+	if(istype(W, /obj/item/gun/flamethrower))
+		var/obj/item/gun/flamethrower/F = W
+		if (F.fuel_tank)
 			return
 		if(!user.transferItemToLoc(src, F))
 			return
 		src.master = F
-		F.ptank = src
+		F.fuel_tank = src
 		F.update_appearance(UPDATE_ICON)
 	else
 		return ..()
@@ -183,6 +183,7 @@
 /obj/item/tank/internals/emergency_oxygen/double
 	name = "double emergency oxygen tank"
 	icon_state = "emergency_double"
+	item_state = "emergency_engi"
 	volume = 8
 
 /obj/item/tank/internals/emergency_oxygen/double/empty/populate_gas()

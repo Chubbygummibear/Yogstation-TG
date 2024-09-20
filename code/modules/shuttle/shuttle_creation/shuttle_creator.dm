@@ -23,7 +23,7 @@ GLOBAL_LIST_EMPTY(custom_shuttle_machines)		//Machines that require updating (He
 	throw_speed = 3
 	throw_range = 5
 	w_class = WEIGHT_CLASS_NORMAL
-	req_access_txt = "11"
+	req_access = list(ACCESS_CONSTRUCTION)
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 50)
 	resistance_flags = FIRE_PROOF
 	var/ready = TRUE
@@ -180,7 +180,7 @@ GLOBAL_LIST_EMPTY(custom_shuttle_machines)		//Machines that require updating (He
 		to_chat(user, "<span class='warning'>Invalid shuttle, restarting bluespace systems...</span>")
 		return FALSE
 
-	var/datum/map_template/shuttle/new_shuttle = new /datum/map_template/shuttle()
+	//var/datum/map_template/shuttle/new_shuttle = new /datum/map_template/shuttle()
 
 	var/obj/docking_port/mobile/port = new /obj/docking_port/mobile(get_turf(target))
 	var/obj/docking_port/stationary/stationary_port = new /obj/docking_port/stationary(get_turf(target))
@@ -227,10 +227,10 @@ GLOBAL_LIST_EMPTY(custom_shuttle_machines)		//Machines that require updating (He
 			if(length(curT.baseturfs) < 2)
 				continue
 			//Add the shuttle base shit to the shuttle
-			curT.baseturfs.Insert(3, /turf/baseturf_skipover/shuttle)
+			curT.insert_baseturf(3, /turf/baseturf_skipover/shuttle)
 			port.shuttle_areas[cur_area] = TRUE
 
-	port.linkup(new_shuttle, stationary_port)
+	port.linkup(stationary_port)
 
 	port.movement_force = list("KNOCKDOWN" = 0, "THROW" = 0)
 	port.initiate_docking(stationary_port)

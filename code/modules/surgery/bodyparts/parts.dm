@@ -259,6 +259,8 @@
 	px_y = 12
 	max_stamina_damage = 50
 	can_be_disabled = TRUE
+	/// Used by the bloodysoles component to make footprints
+	var/footprint_sprite = FOOTPRINT_SPRITE_SHOES
 
 /obj/item/bodypart/l_leg/set_owner(new_owner)
 	. = ..()
@@ -307,7 +309,7 @@
 
 /obj/item/bodypart/l_leg/digitigrade
 	name = "left digitigrade leg"
-	use_digitigrade = FULL_DIGITIGRADE
+	use_digitigrade = TRUE
 
 /obj/item/bodypart/l_leg/monkey
 	icon = 'icons/mob/animal_parts.dmi'
@@ -315,6 +317,7 @@
 	animal_origin = MONKEY_BODYPART
 	wound_resistance = -10
 	px_y = 4
+	footprint_sprite = FOOTPRINT_SPRITE_PAWS
 
 /obj/item/bodypart/l_leg/alien
 	icon = 'icons/mob/animal_parts.dmi'
@@ -348,6 +351,8 @@
 	px_y = 12
 	max_stamina_damage = 50
 	can_be_disabled = TRUE
+	/// Used by the bloodysoles component to make footprints
+	var/footprint_sprite = FOOTPRINT_SPRITE_SHOES
 
 /obj/item/bodypart/r_leg/set_owner(new_owner)
 	. = ..()
@@ -396,7 +401,7 @@
 
 /obj/item/bodypart/r_leg/digitigrade
 	name = "right digitigrade leg"
-	use_digitigrade = FULL_DIGITIGRADE
+	use_digitigrade = TRUE
 
 /obj/item/bodypart/r_leg/monkey
 	icon = 'icons/mob/animal_parts.dmi'
@@ -404,6 +409,7 @@
 	animal_origin = MONKEY_BODYPART
 	wound_resistance = -10
 	px_y = 4
+	footprint_sprite = FOOTPRINT_SPRITE_PAWS
 
 /obj/item/bodypart/r_leg/alien
 	icon = 'icons/mob/animal_parts.dmi'

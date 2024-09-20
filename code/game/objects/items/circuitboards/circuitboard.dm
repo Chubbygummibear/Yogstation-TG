@@ -6,14 +6,20 @@
 /obj/item/circuitboard
 	name = "circuit board"
 	icon = 'icons/obj/module.dmi'
-	icon_state = "id_mod"
+	icon_state = "circuit_map"
 	item_state = "electronic"
 	lefthand_file = 'icons/mob/inhands/misc/devices_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/misc/devices_righthand.dmi'
 	materials = list(/datum/material/glass=1000)
 	w_class = WEIGHT_CLASS_SMALL
 	grind_results = list(/datum/reagent/silicon = 20, /datum/reagent/gold = 10)
+	greyscale_colors = CIRCUIT_COLOR_GENERIC
 	var/build_path = null
+
+/obj/item/circuitboard/Initialize(mapload)
+	if(icon_state == "circuit_map") // some circuitboards have cool custom sprites
+		set_greyscale(new_config = /datum/greyscale_config/circuit)
+	return ..()
 
 /obj/item/circuitboard/proc/apply_default_parts(obj/machinery/M)
 	return
@@ -65,3 +71,6 @@ micro-manipulator, console screen, beaker, Microlaser, matter bin, power cells.
 				continue
 			nice_list += list("[req_components[A]] [initial(A.name)]")
 		. += span_notice("Required components: [english_list(nice_list)].")
+
+/obj/item/circuitboard/machine/get_shipbreaking_reward()
+	return /obj/item/stack/scrap/electronics

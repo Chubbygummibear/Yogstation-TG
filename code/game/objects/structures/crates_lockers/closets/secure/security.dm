@@ -7,7 +7,6 @@
 	..()
 	new /obj/item/clothing/neck/petcollar(src)
 	new /obj/item/pet_carrier(src)
-	new /obj/item/cartridge/captain(src)
 	new /obj/item/storage/box/silver_ids(src)
 	new /obj/item/clothing/neck/cloak/cap(src)
 	new /obj/item/radio/headset/heads/captain/alt(src)
@@ -27,7 +26,6 @@
 /obj/structure/closet/secure_closet/hop/PopulateContents()
 	..()
 	new /obj/item/storage/lockbox/medal/service(src)
-	new /obj/item/cartridge/hop(src)
 	new /obj/item/radio/headset/heads/hop(src)
 	new /obj/item/storage/box/ids(src)
 	new /obj/item/storage/box/ids(src)
@@ -53,7 +51,6 @@
 
 /obj/structure/closet/secure_closet/hos/PopulateContents()
 	..()
-	new /obj/item/cartridge/hos(src)
 	new /obj/item/radio/headset/heads/hos/alt(src)
 	new /obj/item/radio/headset/heads/hos(src)
 	new /obj/item/storage/lockbox/medal/sec(src)
@@ -161,7 +158,7 @@
 
 /obj/structure/closet/secure_closet/detective
 	name = "\improper detective's cabinet"
-	req_access = list(ACCESS_FORENSICS_LOCKERS)
+	req_access = list(ACCESS_DETECTIVE)
 	icon_state = "cabinet"
 	resistance_flags = FLAMMABLE
 	max_integrity = 70
@@ -200,12 +197,12 @@
 /obj/structure/closet/secure_closet/evidence
 	anchored = TRUE
 	name = "Secure Evidence Closet"
-	req_access_txt = "0"
-	req_one_access_txt = list(ACCESS_ARMORY, ACCESS_FORENSICS_LOCKERS)
+	req_access = list(ACCESS_ARMORY, ACCESS_DETECTIVE)
 
 /obj/structure/closet/secure_closet/brig/PopulateContents()
 	..()
 	new /obj/item/clothing/under/rank/prisoner( src )
+	new /obj/item/clothing/under/plasmaman/prisoner(src)
 	new /obj/item/clothing/shoes/sneakers/orange( src )
 
 /obj/structure/closet/secure_closet/brig/cell
@@ -213,7 +210,7 @@
 
 /obj/structure/closet/secure_closet/courtroom
 	name = "courtroom locker"
-	req_access = list(ACCESS_COURT)
+	req_access = list(ACCESS_SEC_BASIC)
 
 /obj/structure/closet/secure_closet/courtroom/PopulateContents()
 	..()
@@ -233,7 +230,7 @@
 /obj/structure/closet/secure_closet/contraband/heads
 	anchored = TRUE
 	name = "Contraband Locker"
-	req_access = list(ACCESS_HEADS)
+	req_access = list(ACCESS_COMMAND)
 
 /obj/structure/closet/secure_closet/armory1
 	name = "armory armor locker"
@@ -291,7 +288,7 @@
 
 /obj/structure/closet/secure_closet/lethalshots
 	name = "shotgun lethal rounds"
-	req_access = list(ACCESS_ARMORY)
+	req_access = list(ACCESS_SECURITY)
 	icon_state = "tac"
 
 /obj/structure/closet/secure_closet/lethalshots/PopulateContents()
@@ -299,12 +296,13 @@
 	for(var/i in 1 to 3)
 		new /obj/item/storage/box/lethalshot(src)
 
-//Yogs Start: Brig Pysh Closet
+//Yogs Start: Brig Phys Closet
 /obj/structure/closet/secure_closet/physician
 	name = "\improper brig physician's cabinet"
-	req_access = list(ACCESS_BRIG_PHYS)
 	icon = 'yogstation/icons/obj/closet.dmi'
 	icon_state = "physician"
+
+	req_access = list(ACCESS_BRIG_PHYS)
 	resistance_flags = FLAMMABLE
 	max_integrity = 70
 	door_anim_time = 0
@@ -312,7 +310,6 @@
 /obj/structure/closet/secure_closet/physician/PopulateContents()
 	..()
 	new /obj/item/storage/backpack/duffelbag/clothing/sec/physician(src)
-	new /obj/item/cartridge/medical(src)
 	new /obj/item/radio/headset/headset_medsec(src)
 	new /obj/item/storage/belt/medical(src)
 	new /obj/item/pinpointer/crew(src)

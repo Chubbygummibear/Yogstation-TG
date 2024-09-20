@@ -44,7 +44,7 @@
 		var/datum/action/A = X
 		A.build_all_button_icons()
 
-/obj/item/clothing/head/helmet/space/hardsuit/worn_overlays(isinhands = FALSE)
+/obj/item/clothing/head/helmet/space/hardsuit/worn_overlays(mutable_appearance/standing, isinhands = FALSE, icon_file)
 	. = ..()
 	if(!isinhands && hat_overlay)
 		. += hat_overlay
@@ -68,7 +68,7 @@
 	add_overlay(hat)
 	hat.forceMove(src)
 
-	hat_overlay = mutable_appearance(hat.mob_overlay_icon, hat.icon_state)
+	hat_overlay = mutable_appearance(hat.worn_icon, hat.icon_state)
 	hat_overlay.alpha = hat.alpha
 	hat_overlay.color = hat.color
 	if(ishuman(loc))
@@ -321,7 +321,6 @@
 	heat_protection = HEAD
 	armor = list(MELEE = 30, BULLET = 5, LASER = 10, ENERGY = 5, BOMB = 50, BIO = 100, RAD = 50, FIRE = 50, ACID = 75, WOUND = 15, ELECTRIC = 100)
 	light_range = 7
-	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/resonator, /obj/item/mining_scanner, /obj/item/t_scanner/adv_mining_scanner, /obj/item/gun/energy/kinetic_accelerator)
 
 /obj/item/clothing/head/helmet/space/hardsuit/mining/Initialize(mapload)
 	. = ..()
@@ -335,12 +334,12 @@
 	max_heat_protection_temperature = FIRE_SUIT_MAX_TEMP_PROTECT
 	resistance_flags = FIRE_PROOF
 	armor = list(MELEE = 30, BULLET = 5, LASER = 10, ENERGY = 5, BOMB = 50, BIO = 100, RAD = 50, FIRE = 50, ACID = 75, WOUND = 15, ELECTRIC = 100)
-	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/storage/bag/ore, /obj/item/pickaxe)
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/mining
 	heat_protection = CHEST|GROIN|LEGS|FEET|ARMS|HANDS
 
 /obj/item/clothing/suit/space/hardsuit/mining/Initialize(mapload)
 	. = ..()
+	allowed |= GLOB.mining_allowed
 	AddComponent(/datum/component/armor_plate)
 
 	//Syndicate hardsuit
@@ -743,7 +742,7 @@
 	armor = list(MELEE = 30, BULLET = 5, LASER = 10, ENERGY = 5, BOMB = 10, BIO = 100, RAD = 75, FIRE = 60, ACID = 30, ELECTRIC = 100)
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/clown
 
-/obj/item/clothing/suit/space/hardsuit/clown/mob_can_equip(mob/M, slot)
+/obj/item/clothing/suit/space/hardsuit/clown/mob_can_equip(mob/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
 	if(!..() || !ishuman(M))
 		return FALSE
 	var/mob/living/carbon/human/H = M
@@ -961,57 +960,15 @@
 	allowed = null
 	armor = list(MELEE = 30, BULLET = 15, LASER = 30, ENERGY = 10, BOMB = 10, BIO = 100, RAD = 50, FIRE = 100, ACID = 100, ELECTRIC = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
-	var/current_charges = 3
-	var/max_charges = 3 //How many charges total the shielding has
-	var/recharge_delay = 200 //How long after we've been shot before we can start recharging. 20 seconds here
-	var/recharge_cooldown = 0 //Time since we've last been shot
-	var/recharge_rate = 1 //How quickly the shield recharges once it starts charging
+	var/num_charges = 3 //How many charges total the shielding has
+	var/recharge_delay = 20 SECONDS //How long after we've been shot before we can start recharging. 20 seconds here
 	var/shield_state = "shield-old"
-	var/shield_on = "shield-old"
 
 /obj/item/clothing/suit/space/hardsuit/shielded/Initialize(mapload)
 	. = ..()
 	if(!allowed)
 		allowed = GLOB.advanced_hardsuit_allowed
-
-/obj/item/clothing/suit/space/hardsuit/shielded/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
-	recharge_cooldown = world.time + recharge_delay
-	if(current_charges > 0)
-		var/datum/effect_system/spark_spread/s = new
-		s.set_up(2, 1, src)
-		s.start()
-		owner.visible_message(span_danger("[owner]'s shields deflect [attack_text] in a shower of sparks!"))
-		current_charges--
-		if(recharge_rate)
-			START_PROCESSING(SSobj, src)
-		if(current_charges <= 0)
-			owner.visible_message("[owner]'s shield overloads!")
-			shield_state = "broken"
-			owner.update_inv_wear_suit()
-		return 1
-	return 0
-
-
-/obj/item/clothing/suit/space/hardsuit/shielded/Destroy()
-	STOP_PROCESSING(SSobj, src)
-	return ..()
-
-/obj/item/clothing/suit/space/hardsuit/shielded/process()
-	if(world.time > recharge_cooldown && current_charges < max_charges)
-		current_charges = clamp((current_charges + recharge_rate), 0, max_charges)
-		playsound(loc, 'sound/magic/charge.ogg', 50, 1)
-		if(current_charges == max_charges)
-			playsound(loc, 'sound/machines/ding.ogg', 50, 1)
-			STOP_PROCESSING(SSobj, src)
-		shield_state = "[shield_on]"
-		if(ishuman(loc))
-			var/mob/living/carbon/human/C = loc
-			C.update_inv_wear_suit()
-
-/obj/item/clothing/suit/space/hardsuit/shielded/worn_overlays(isinhands)
-	. = list()
-	if(!isinhands)
-		. += mutable_appearance('icons/effects/effects.dmi', shield_state, MOB_LAYER + 0.01)
+	AddComponent(/datum/component/shielded, 'icons/effects/effects.dmi', shield_state, num_charges, recharge_delay, ITEM_SLOT_OCLOTHING, TRUE)
 
 /obj/item/clothing/head/helmet/space/hardsuit/shielded
 	resistance_flags = FIRE_PROOF | ACID_PROOF
@@ -1028,7 +985,7 @@
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/shielded/ctf
 	armor = list(MELEE = 0, BULLET = 30, LASER = 30, ENERGY = 30, BOMB = 50, BIO = 100, RAD = 100, FIRE = 95, ACID = 95, ELECTRIC = 100)
 	slowdown = 0
-	max_charges = 5
+	num_charges = 5
 
 /obj/item/clothing/suit/space/hardsuit/shielded/ctf/red
 	name = "red team armor"
@@ -1037,7 +994,6 @@
 	hardsuit_type = "ert_security"
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/shielded/ctf/red
 	shield_state = "shield-red"
-	shield_on = "shield-red"
 
 /obj/item/clothing/suit/space/hardsuit/shielded/ctf/blue
 	name = "blue team armor"
@@ -1131,8 +1087,7 @@
 	icon_state = "deathsquad"
 	item_state = "swat_suit"
 	hardsuit_type = "syndi"
-	max_charges = 4
-	current_charges = 4
+	num_charges = 4
 	recharge_delay = 15
 	armor = list(MELEE = 80, BULLET = 80, LASER = 50, ENERGY = 50, BOMB = 100, BIO = 100, RAD = 100, FIRE = 100, ACID = 100, ELECTRIC = 100)
 	strip_delay = 130
@@ -1212,7 +1167,7 @@
 	item_state = "advpa1_hardsuit"
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/powerarmor_advanced
 	hardsuit_type = "advancedpa1"
-	allowed = list(/obj/item/flashlight, /obj/item/tank/internals, /obj/item/resonator, /obj/item/mining_scanner, /obj/item/t_scanner/adv_mining_scanner, /obj/item/gun/energy/kinetic_accelerator, /obj/item/kinetic_crusher, /obj/item/pickaxe, /obj/item/pickaxe/drill/jackhammer, /obj/item/shield/riot/goliath, /obj/item/shield/riot/roman)
+	allowed = list(/obj/item/kinetic_crusher, /obj/item/shield/riot/goliath, /obj/item/shield/riot/roman, /obj/item/kinetic_javelin)
 	armor = list(MELEE = 50, BULLET = 10, LASER = 25, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 0, ACID = 10, WOUND = 0, ELECTRIC = 100)
 	slowdown = 0
 	strip_delay = 180
@@ -1222,6 +1177,7 @@
 
 /obj/item/clothing/suit/space/hardsuit/powerarmor_advanced/Initialize(mapload)
 	. = ..()
+	allowed |= GLOB.mining_allowed
 	AddComponent(/datum/component/armor_plate,10,/obj/item/stack/sheet/animalhide/weaver_chitin, list(MELEE = 0.5, BULLET = 3, LASER = 0.5, ENERGY = 2.5, BOMB = 5, BIO = 10, RAD = 8, FIRE = 10, ACID = 9, WOUND = 0.1))
 
 /obj/item/clothing/head/helmet/space/hardsuit/powerarmor_advanced/Initialize(mapload)
@@ -1251,3 +1207,57 @@
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	slowdown = 0
+
+/obj/item/clothing/head/helmet/space/hardsuit/synth
+	name = "\improper synthetic worksuit helmet"
+	desc = "An integrated helmet that provides some level of resistance, to assist in hostile environments."
+	icon = 'icons/mob/clothing/head/head.dmi'
+	icon_state = "hardsuit0-synth"
+	item_state = "centcom"
+	w_class = WEIGHT_CLASS_BULKY
+	clothing_flags = THICKMATERIAL | STOPSPRESSUREDAMAGE
+	min_cold_protection_temperature = FIRE_SUIT_MIN_TEMP_PROTECT
+	max_heat_protection_temperature = SPACE_SUIT_MAX_TEMP_PROTECT
+	armor = list(MELEE = 10, BULLET = 15, LASER = 15, ENERGY = 15, BOMB = 15, BIO = 15, RAD = 100, FIRE = 10, ACID = 15)
+	hardsuit_type = "synth"
+	resistance_flags = LAVA_PROOF | FIRE_PROOF | UNACIDABLE | INDESTRUCTIBLE | FREEZE_PROOF
+
+/obj/item/clothing/head/helmet/space/hardsuit/synth/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_NODROP, SYNTHETIC_TRAIT)
+
+/obj/item/clothing/suit/space/hardsuit/synth
+	name = "\improper synthetic worksuit"
+	desc = "An integrated suit that provides some level of resistance, to assist in hostile environments."
+	icon = 'icons/mob/clothing/suit/suit.dmi'
+	icon_state = "synth_suit"
+	item_state = "centcom"
+	w_class = WEIGHT_CLASS_BULKY
+	body_parts_covered = CHEST|GROIN|LEGS|FEET|ARMS|HANDS
+	clothing_flags = THICKMATERIAL | STOPSPRESSUREDAMAGE
+	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
+	cold_protection = CHEST | GROIN | LEGS | FEET | ARMS | HANDS
+	min_cold_protection_temperature = FIRE_SUIT_MIN_TEMP_PROTECT
+	heat_protection = CHEST|GROIN|LEGS|FEET|ARMS|HANDS
+	max_heat_protection_temperature = SPACE_SUIT_MAX_TEMP_PROTECT
+	armor = list(MELEE = 30, BULLET = 25, LASER = 25, ENERGY = 25, BOMB = 25, BIO = 25, RAD = 100, FIRE = 10, ACID = 25)
+	var/evil = FALSE
+	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/synth
+	slowdown = 0
+
+	resistance_flags = LAVA_PROOF | FIRE_PROOF | UNACIDABLE | INDESTRUCTIBLE | FREEZE_PROOF
+
+/obj/item/clothing/suit/space/hardsuit/synth/Initialize(mapload)
+	. = ..()
+	ADD_TRAIT(src, TRAIT_NODROP, SYNTHETIC_TRAIT)
+
+/obj/item/clothing/suit/space/hardsuit/synth/update_icon_state()
+	. = ..()
+	if(evil)
+		icon_state = "synth_suit_evil"
+	else
+		icon_state = "synth_suit"
+
+	var/mob/living/carbon/human/user = loc
+	if(user && istype(user))
+		user.update_inv_wear_suit()

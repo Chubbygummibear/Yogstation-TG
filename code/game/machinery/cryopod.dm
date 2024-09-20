@@ -19,7 +19,7 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 	icon_state = "cellconsole_1"
 	density = FALSE
 	interaction_flags_machine = INTERACT_MACHINE_OFFLINE
-	req_one_access = list(ACCESS_HEADS, ACCESS_ARMORY) //Heads of staff or the warden can go here to claim recover items from their department that people went were cryodormed with.
+	req_one_access = list(ACCESS_COMMAND, ACCESS_ARMORY) //Heads of staff or the warden can go here to claim recover items from their department that people went were cryodormed with.
 	var/mode = null
 
 	//Used for logging people entering cryosleep and important items they are carrying.
@@ -134,8 +134,6 @@ GLOBAL_LIST_EMPTY(cryopod_computers)
 	updateUsrDialog()
 	return
 
-GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
-
 //Cryopods themselves.
 /obj/machinery/cryopod
 	name = "cryogenic freezer"
@@ -167,7 +165,9 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 
 /obj/machinery/cryopod/Initialize(mapload)
 	..()
+	open_machine()
 	GLOB.cryopods += src
+	RegisterSignal(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED, PROC_REF(update_security_level))
 	return INITIALIZE_HINT_LATELOAD //Gotta populate the cryopod computer GLOB first
 
 /obj/machinery/cryopod/Destroy()
@@ -177,6 +177,12 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 /obj/machinery/cryopod/LateInitialize()
 	update_appearance(UPDATE_ICON)
 	find_control_computer()
+
+/obj/machinery/cryopod/proc/update_security_level(_, datum/security_level/new_level)
+	if(new_level.allow_cryo)
+		PowerOn()
+	else
+		PowerOff()
 
 /obj/machinery/cryopod/proc/PowerOn()
 	if(!occupant)
@@ -232,7 +238,7 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 
 /obj/machinery/cryopod/open_machine()
 	..()
-	icon_state = GLOB.cryopods_enabled ? "cryopod-open" : "cryopod-off"
+	icon_state = SSsecurity_level.current_security_level.allow_cryo ? "cryopod-open" : "cryopod-off"
 	if(open_sound)
 		playsound(src, open_sound, 40)
 	density = TRUE
@@ -286,7 +292,7 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 			if((O.type in subtypesof(/datum/objective/assassinate)) && O.check_completion()) //kill once/kill+clone objective that's already been completed, don't give a new objective
 				continue
 			O.target = null
-			O.find_target()
+			O.find_target(blacklist = list(mob_occupant.mind)) // don't pick the same person again, they're about to be deleted
 			O.update_explanation_text()
 
 			var/list/owners = O.get_owners()
@@ -303,6 +309,12 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 /obj/machinery/cryopod/proc/despawn_occupant()
 	var/mob/living/mob_occupant = occupant
 	if(mob_occupant.mind && mob_occupant.mind.assigned_role)
+		// Removes from team antag teams to avoid influencing gameplay
+		for(var/datum/antagonist/antag as anything in mob_occupant.mind.antag_datums)
+			if(antag && istype(antag))
+				var/datum/team/antag_team = antag.get_team()
+				if(antag_team)
+					antag_team.remove_member(mob_occupant.mind)
 		//Handle job slot/tater cleanup.
 		var/job = mob_occupant.mind.assigned_role
 		SSjob.FreeRole(job)
@@ -378,7 +390,7 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 	if(!istype(target) || user.incapacitated() || !target.Adjacent(user) || !Adjacent(user) || !ismob(target) || (!ishuman(user) && !iscyborg(user)) || !istype(user.loc, /turf) || target.buckled)
 		return
 
-	if(!GLOB.cryopods_enabled)
+	if(!SSsecurity_level.current_security_level.allow_cryo)
 		to_chat(user, span_boldnotice("Nanotrasen does not allow abandoning your crew during a crisis. Cryo systems disabled until the current crisis is resolved."))
 		return
 
@@ -437,12 +449,6 @@ GLOBAL_VAR_INIT(cryopods_enabled, FALSE)
 	log_admin(span_notice("[key_name(target)] entered a stasis pod."))
 	message_admins("[key_name_admin(target)] entered a stasis pod. (<A HREF='?_src_=holder;[HrefToken()];adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)")
 	add_fingerprint(target)
-
-/obj/machinery/cryopod/JoinPlayerHere(mob/M, buckle)
-	. = ..()
-	open_machine()
-	if(iscarbon(M))
-		apply_effects_to_mob(M)
 
 /obj/machinery/cryopod/proc/apply_effects_to_mob(mob/living/carbon/sleepyhead)
 	to_chat(sleepyhead, span_boldnotice("You begin to wake from cryosleep..."))

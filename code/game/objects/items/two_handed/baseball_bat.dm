@@ -1,7 +1,7 @@
 /obj/item/melee/baseball_bat
 	name = "baseball bat"
 	desc = "A traditional tool for a game of Baseball. Modern wood isn't very strong, try not to crack the bat!"
-	icon = 'icons/obj/weapons/misc.dmi'
+	icon = 'icons/obj/weapons/bat.dmi'
 	icon_state = "baseball_bat"
 	item_state = "baseball_bat"
 	lefthand_file = 'icons/mob/inhands/weapons/melee_lefthand.dmi'
@@ -21,6 +21,7 @@
 /obj/item/melee/baseball_bat/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/two_handed, require_twohands = TRUE)
+	AddComponent(/datum/component/cleave_attack, arc_size=90, requires_wielded=TRUE, no_multi_hit=TRUE)
 
 /obj/item/melee/baseball_bat/homerun
 	name = "home run bat"

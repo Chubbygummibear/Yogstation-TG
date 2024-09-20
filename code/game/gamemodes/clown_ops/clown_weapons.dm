@@ -14,7 +14,7 @@
 //Clown shoes with combat stats and noslip. Of course they still squeak.
 /obj/item/clothing/shoes/clown_shoes/combat
 	name = "combat clown shoes"
-	desc = "advanced clown shoes that protect the wearer and render them nearly immune to slipping on their own peels. They also squeak at 100% capacity."
+	desc = "A pair of advanced clown shoes that protect the wearer and render them nearly immune to slipping on their own peels. They also squeak at 100% capacity."
 	clothing_flags = NOSLIP
 	slowdown = SHOES_SLOWDOWN
 	armor = list(MELEE = 25, BULLET = 25, LASER = 25, ENERGY = 25, BOMB = 50, BIO = 60, RAD = 0, FIRE = 70, ACID = 50)
@@ -182,13 +182,11 @@
 	trash = /obj/item/grown/bananapeel/bombanana
 	bitesize = 1
 	customfoodfilling = FALSE
-	seed = null
 	tastes = list("explosives" = 10)
 	list_reagents = list(/datum/reagent/consumable/nutriment/vitamin = 1)
 
 /obj/item/grown/bananapeel/bombanana
 	desc = "A peel from a banana. Why is it beeping?"
-	seed = null
 	var/det_time = 50
 	var/obj/item/grenade/syndieminibomb/concussion/bomb
 
@@ -285,17 +283,7 @@
 	max_temperature = 35000
 	operation_req_access = list(ACCESS_SYNDICATE)
 	internals_req_access = list(ACCESS_SYNDICATE)
-	wreckage = /obj/structure/mecha_wreckage/honker/dark
-	max_equip = 3
-
-/obj/mecha/combat/honker/dark/GrantActions(mob/living/user, human_occupant = 0)
-	..()
-	thrusters_action.Grant(user, src)
-
-
-/obj/mecha/combat/honker/dark/RemoveActions(mob/living/user, human_occupant = 0)
-	..()
-	thrusters_action.Remove(user)
+	max_equip = 4
 
 /obj/mecha/combat/honker/dark/add_cell(obj/item/stock_parts/cell/C)
 	if(C)
@@ -312,11 +300,12 @@
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/launcher/flashbang/tearstache()//The mousetrap mortar was not up-to-snuff.
 	ME.attach(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/thrusters/ion()
+	ME.attach(src)
 
 /obj/mecha/combat/honker/dark/crew
 	operation_req_access = list()
 	internals_req_access = list()
-	wreckage = /obj/structure/mecha_wreckage/honker/dark/crew
 
 /obj/mecha/combat/honker/dark/crew/loaded/Initialize(mapload)
 	. = ..()

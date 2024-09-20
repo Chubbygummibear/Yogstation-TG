@@ -146,12 +146,13 @@
 /datum/species/preternis/zombie
 	name = "Low-Functioning Preternis"
 	id = "preterniszombie"
-	limbs_id = "preternis"
+	limbs_id = SPECIES_PRETERNIS
 	inherent_traits = list(TRAIT_NOBREATH, TRAIT_NOHUNGER, TRAIT_RADIMMUNE, TRAIT_MEDICALIGNORE, TRAIT_NO_BLOOD_REGEN, TRAIT_STABLELIVER, TRAIT_STABLEHEART, TRAIT_RESISTCOLD,TRAIT_RESISTHIGHPRESSURE,TRAIT_RESISTLOWPRESSURE, TRAIT_FAKEDEATH, TRAIT_STUNIMMUNE, TRAIT_NODEATH)
 	mutanthands = /obj/item/zombie_hand
 	var/static/list/spooks = list('sound/hallucinations/growl1.ogg','sound/hallucinations/growl2.ogg','sound/hallucinations/growl3.ogg','sound/hallucinations/veryfar_noise.ogg','sound/hallucinations/wail.ogg')
 	armor = 20
 	speedmod = 1.6
+	changesource_flags = MIRROR_BADMIN //deliberate admin spawn only
 	var/heal_rate = 1
 	var/regen_cooldown = 0
 
@@ -165,7 +166,7 @@
 
 /datum/species/preternis/zombie/spec_life(mob/living/carbon/C)
 	. = ..()
-	C.a_intent = INTENT_HARM // THE SUFFERING MUST FLOW
+	C.set_combat_mode(TRUE, TRUE) // THE SUFFERING MUST FLOW
 
 	//Zombies never actually die, they just fall down until they regenerate enough to rise back up.
 	//They must be restrained, beheaded or gibbed to stop being a threat.

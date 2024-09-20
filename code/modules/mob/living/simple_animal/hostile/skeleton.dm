@@ -10,7 +10,7 @@
 	turns_per_move = 5
 	speak_emote = list("rattles")
 	emote_see = list("rattles")
-	a_intent = INTENT_HARM
+	combat_mode = TRUE
 	maxHealth = 40
 	health = 40
 	speed = 1
@@ -46,7 +46,7 @@
 	icon_dead = "eskimo_dead"
 	maxHealth = 55
 	health = 55
-	weather_immunities = list(WEATHER_SNOW)
+	weather_immunities = WEATHER_STORM
 	gold_core_spawnable = NO_SPAWN
 	melee_damage_lower = 17
 	melee_damage_upper = 20
@@ -65,7 +65,7 @@
 	icon_dead = "templar_dead"
 	maxHealth = 150
 	health = 150
-	weather_immunities = list(WEATHER_SNOW)
+	weather_immunities = WEATHER_STORM
 	speed = 2
 	gold_core_spawnable = NO_SPAWN
 	speak_chance = 1
@@ -86,7 +86,7 @@
 	speed = 5
 	maxHealth = 75
 	health = 75
-	weather_immunities = list(WEATHER_SNOW)
+	weather_immunities = WEATHER_STORM
 	color = rgb(114,228,250)
 	loot = list(/obj/effect/decal/remains/human{color = rgb(114,228,250)})
 

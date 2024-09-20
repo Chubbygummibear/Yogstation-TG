@@ -69,7 +69,7 @@
 	var/amount
 	if(reagents.has_reagent(/datum/reagent/medicine/morphine))
 		amount = -1
-	if(reagents.has_reagent(/datum/reagent/consumable/nuka_cola))
+	if(reagents.has_reagent(/datum/reagent/consumable/energy_drink/nuka_cola))
 		amount = -1
 	if(amount)
 		add_movespeed_modifier(MOVESPEED_ID_MONKEY_REAGENT_SPEEDMOD, TRUE, 100, override = TRUE, multiplicative_slowdown = amount)
@@ -92,7 +92,7 @@
 
 /mob/living/carbon/monkey/get_status_tab_items()
 	. = ..()
-	. += "Intent: [a_intent]"
+	. += "Combat Mode: [combat_mode ? "On" : "Off"]"
 	. += "Move Mode: [m_intent]"
 	if(client && mind)
 		var/datum/antagonist/changeling/changeling = mind.has_antag_datum(/datum/antagonist/changeling)

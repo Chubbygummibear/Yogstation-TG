@@ -1,12 +1,12 @@
 /datum/species/snail
 	name = "Snailperson"
 	plural_form = "Snailpeople"
-	id = "snail"
+	id = SPECIES_SNAIL
 	offset_features = list(OFFSET_UNIFORM = list(0,0), OFFSET_ID = list(0,0), OFFSET_GLOVES = list(0,0), OFFSET_GLASSES = list(0,4), OFFSET_EARS = list(0,0), OFFSET_SHOES = list(0,0), OFFSET_S_STORE = list(0,0), OFFSET_FACEMASK = list(0,0), OFFSET_HEAD = list(0,0), OFFSET_FACE = list(0,0), OFFSET_BELT = list(0,0), OFFSET_BACK = list(0,0), OFFSET_SUIT = list(0,0), OFFSET_NECK = list(0,0))
 	default_color = "336600" //vomit green
 	species_traits = list(MUTCOLORS, NO_UNDERWEAR, HAS_FLESH, HAS_BONE)
-	inherent_traits = list(TRAIT_ALWAYS_CLEAN)
-	attack_verb = "slap"
+	attack_verbs = list("slap")
+	attack_effect = ATTACK_EFFECT_DISARM
 	say_mod = "slurs"
 	coldmod = 0.5 //snails only come out when its cold and wet
 	burnmod = 2
@@ -14,7 +14,7 @@
 	punchdamagehigh = 0.5 //snails are soft and squishy
 	siemens_coeff = 2 //snails are mostly water
 	changesource_flags = MIRROR_BADMIN | WABBAJACK | MIRROR_MAGIC | MIRROR_PRIDE | RACE_SWAP | SLIME_EXTRACT
-	sexes = FALSE //snails are hermaphrodites
+	possible_genders = list(PLURAL) //snails are hermaphrodites
 	var/shell_type = /obj/item/storage/backpack/snail/species
 
 	mutanteyes = /obj/item/organ/eyes/snail

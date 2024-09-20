@@ -21,7 +21,7 @@ If you create T5+ please take a pass at gene_modder.dm [L40]. Max_values MUST fi
 		if(works_from_distance)
 			user.Beam(T, icon_state = "rped_upgrade", time = 5)
 		T.exchange_parts(user, src)
-		return FALSE
+		return TRUE
 	return ..()
 
 /obj/item/storage/part_replacer/afterattack(obj/machinery/T, mob/living/user, adjacent, params)
@@ -133,6 +133,17 @@ If you create T5+ please take a pass at gene_modder.dm [L40]. Max_values MUST fi
 
 /obj/item/stock_parts/get_part_rating()
 	return rating
+
+/obj/item/stock_parts/get_shipbreaking_reward()
+	if(prob(rating * 10)) //more chance to get better things if you have a higher rating
+		switch(rand(1,10))
+			if(1 to 6)
+				return /obj/item/stack/scrap/electronics
+			if(6 to 9)
+				return /obj/item/stack/scrap/plasma
+			if(10)
+				return /obj/item/stack/scrap/crystalline_matrix
+	return null
 
 //Rating 1
 

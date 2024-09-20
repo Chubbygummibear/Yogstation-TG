@@ -137,12 +137,12 @@
 /area/engine/engineering)
 "fh" = (
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
 /obj/machinery/atmospherics/pipe/layer_manifold{
 	dir = 4
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "fm" = (
@@ -167,6 +167,18 @@
 	},
 /turf/open/floor/engine/airless,
 /area/engine/engineering)
+"gA" = (
+/obj/structure/sign/warning/securearea{
+	pixel_y = 32
+	},
+/obj/effect/turf_decal/stripes{
+	dir = 5
+	},
+/obj/structure/sign/warning/vacuum/external{
+	pixel_x = 32
+	},
+/turf/open/floor/plasteel,
+/area/engine/engineering)
 "gK" = (
 /obj/structure/cable/yellow{
 	icon_state = "1-8"
@@ -188,7 +200,7 @@
 	id = "teghot";
 	name = "Hot Chamber Vent";
 	pixel_y = 22;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /obj/structure/lattice/catwalk,
 /turf/open/floor/plating/asteroid/snow/icemoon/top_layer,
@@ -242,8 +254,7 @@
 /area/engine/engineering)
 "hO" = (
 /obj/machinery/door/airlock/engineering/glass{
-	name = "Supermatter Engine";
-	req_access_txt = "10"
+	name = "Supermatter Engine"
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2{
 	dir = 8
@@ -254,6 +265,7 @@
 /obj/machinery/door/firedoor/border_only{
 	dir = 8
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "ib" = (
@@ -270,8 +282,7 @@
 /area/engine/engineering)
 "ij" = (
 /obj/machinery/door/airlock/engineering/glass{
-	name = "Supermatter Engine";
-	req_access_txt = "10"
+	name = "Supermatter Engine"
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4{
 	dir = 4
@@ -282,6 +293,7 @@
 /obj/machinery/door/firedoor/border_only{
 	dir = 8
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "iq" = (
@@ -396,8 +408,7 @@
 /area/engine/engineering)
 "oc" = (
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4{
 	dir = 4
@@ -405,12 +416,12 @@
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2{
 	dir = 4
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "oJ" = (
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 8
@@ -418,6 +429,7 @@
 /obj/machinery/atmospherics/pipe/layer_manifold{
 	dir = 4
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "oN" = (
@@ -427,6 +439,17 @@
 /obj/structure/lattice/catwalk,
 /turf/open/floor/plating/asteroid/snow/icemoon/top_layer,
 /area/space/nearstation)
+"oP" = (
+/obj/structure/closet/emcloset/anchored,
+/obj/machinery/light/small{
+	dir = 8
+	},
+/obj/machinery/advanced_airlock_controller/lavaland{
+	dir = 8;
+	pixel_x = 24
+	},
+/turf/open/floor/plating,
+/area/engine/engineering)
 "oZ" = (
 /obj/machinery/bounty_board,
 /turf/closed/wall/r_wall,
@@ -617,6 +640,13 @@
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
+"wj" = (
+/obj/machinery/atmospherics/components/unary/outlet_injector{
+	dir = 8;
+	id = "teghot_in"
+	},
+/turf/open/floor/engine/airless,
+/area/engine/engineering)
 "wu" = (
 /obj/machinery/atmospherics/components/binary/valve/digital{
 	dir = 1
@@ -667,17 +697,6 @@
 	dir = 1
 	},
 /turf/open/floor/engine,
-/area/engine/engineering)
-"yP" = (
-/obj/machinery/advanced_airlock_controller{
-	dir = 8;
-	pixel_x = 24
-	},
-/obj/structure/closet/emcloset/anchored,
-/obj/machinery/light/small{
-	dir = 8
-	},
-/turf/open/floor/plating,
 /area/engine/engineering)
 "yS" = (
 /obj/machinery/atmospherics/components/binary/pump{
@@ -735,12 +754,6 @@
 /obj/effect/turf_decal/stripes/line,
 /obj/machinery/atmospherics/pipe/manifold/dark/visible,
 /turf/open/floor/engine,
-/area/engine/engineering)
-"Az" = (
-/obj/machinery/atmospherics/components/unary/vent_scrubber/on{
-	dir = 8
-	},
-/turf/open/floor/engine/airless,
 /area/engine/engineering)
 "AW" = (
 /obj/effect/turf_decal/stripes/line{
@@ -854,12 +867,6 @@
 /obj/structure/sign/warning/securearea,
 /turf/closed/wall/r_wall,
 /area/engine/engineering)
-"FQ" = (
-/obj/machinery/atmospherics/components/unary/outlet_injector{
-	dir = 8
-	},
-/turf/open/floor/engine/airless,
-/area/engine/engineering)
 "Gm" = (
 /obj/effect/turf_decal/stripes/line{
 	dir = 9
@@ -884,7 +891,7 @@
 	name = "Hot Chamber Vent";
 	pixel_x = -7;
 	pixel_y = -24;
-	req_access_txt = "10"
+	req_access = list("engineering")
 	},
 /obj/machinery/button/ignition{
 	id = "teghotburn";
@@ -901,7 +908,7 @@
 /turf/open/floor/engine,
 /area/engine/engineering)
 "Hc" = (
-/obj/machinery/atmospherics/components/unary/tank/toxins{
+/obj/machinery/atmospherics/components/unary/tank/plasma{
 	dir = 4;
 	volume = 6e+006
 	},
@@ -1032,24 +1039,6 @@
 /obj/structure/lattice,
 /turf/open/floor/plating/asteroid/snow/icemoon/top_layer,
 /area/space/nearstation)
-"Md" = (
-/obj/structure/sign/warning/securearea{
-	pixel_y = 32
-	},
-/obj/effect/turf_decal/stripes{
-	dir = 5
-	},
-/obj/structure/sign/warning/securearea{
-	pixel_y = 32
-	},
-/obj/effect/turf_decal/stripes{
-	dir = 5
-	},
-/obj/structure/sign/warning/vacuum/external{
-	pixel_x = 32
-	},
-/turf/open/floor/plasteel,
-/area/engine/engineering)
 "Ms" = (
 /obj/effect/mapping_helpers/teleport_anchor,
 /obj/effect/turf_decal/stripes/line{
@@ -1069,14 +1058,14 @@
 /area/engine/engineering)
 "Ns" = (
 /obj/machinery/door/airlock/engineering{
-	name = "Supermatter Engine";
-	req_access_txt = "10"
+	name = "Supermatter Engine"
 	},
 /obj/machinery/door/firedoor/border_only{
 	dir = 1
 	},
 /obj/machinery/door/firedoor/border_only,
 /obj/machinery/atmospherics/pipe/simple/orange/visible,
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "NH" = (
@@ -1136,17 +1125,6 @@
 	},
 /turf/open/floor/engine,
 /area/engine/engineering)
-"Pu" = (
-/obj/structure/closet/emcloset/anchored,
-/obj/machinery/advanced_airlock_controller{
-	dir = 8;
-	pixel_x = 24
-	},
-/obj/machinery/light/small{
-	dir = 8
-	},
-/turf/open/floor/plating,
-/area/engine/engineering)
 "PC" = (
 /obj/machinery/igniter{
 	id = "teghotburn";
@@ -1169,8 +1147,7 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/door/airlock/engineering/glass{
-	name = "Supermatter Engine";
-	req_access_txt = "10"
+	name = "Supermatter Engine"
 	},
 /obj/machinery/door/firedoor/border_only{
 	dir = 4
@@ -1178,6 +1155,7 @@
 /obj/machinery/door/firedoor/border_only{
 	dir = 8
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "QQ" = (
@@ -1380,6 +1358,13 @@
 "Vz" = (
 /turf/open/floor/engine,
 /area/engine/engineering)
+"VP" = (
+/obj/machinery/atmospherics/components/unary/vent_pump/siphon/atmos{
+	dir = 8;
+	id_tag = "teghot_out"
+	},
+/turf/open/floor/engine/airless,
+/area/engine/engineering)
 "VQ" = (
 /obj/structure/cable/yellow{
 	icon_state = "4-8"
@@ -1494,8 +1479,7 @@
 /area/engine/engineering)
 "Yy" = (
 /obj/machinery/door/airlock/external{
-	name = "Engineering External Access";
-	req_access_txt = "10;13"
+	name = "Engineering External Access"
 	},
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 4
@@ -1506,6 +1490,7 @@
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4{
 	dir = 4
 	},
+/obj/effect/mapping_helpers/airlock/access/all/engineering/general,
 /turf/open/floor/plating,
 /area/engine/engineering)
 "Yz" = (
@@ -1640,7 +1625,7 @@ xR
 xR
 "}
 (5,1,1) = {"
-Md
+gA
 xR
 aF
 pN
@@ -1692,7 +1677,7 @@ xR
 xR
 "}
 (7,1,1) = {"
-Pu
+oP
 ib
 Tl
 Mb
@@ -1970,7 +1955,7 @@ UH
 Mb
 Tl
 Yg
-yP
+oP
 Tl
 xR
 xR
@@ -2040,9 +2025,9 @@ Mb
 lU
 Xo
 PC
-FQ
+wj
 fU
-Az
+VP
 PC
 nK
 lU

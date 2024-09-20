@@ -61,7 +61,6 @@
 /datum/action/cooldown/bloodsucker/gangrel/transform/proc/transform(chosen_transform)
 	var/datum/antagonist/bloodsucker/bloodsuckerdatum = owner.mind.has_antag_datum(/datum/antagonist/bloodsucker)
 	var/mob/living/carbon/human/user = owner
-	var/datum/species/user_species = user.dna.species
 	switch(chosen_transform)
 		if("Lizard/Felinid")
 			if(iscatperson(user))
@@ -70,17 +69,13 @@
 			else
 				user.set_species(/datum/species/human/felinid)
 				playsound(user.loc, 'sound/voice/feline/meow1.ogg', 50)
-			if(!LAZYFIND(user_species.species_traits, DIGITIGRADE))
-				user_species.species_traits += DIGITIGRADE
-				user.dna.species.armor -= 20 //careful
-				user.dna.species.speedmod = -0.5
-				user.dna.species.action_speed_coefficient *= 0.7
-				bloodsuckerdatum.AddBloodVolume(75)
+			user.dna.species.armor -= 20 //careful
+			user.dna.species.speedmod = -0.5
+			user.dna.species.action_speed_coefficient *= 0.7
+			bloodsuckerdatum.AddBloodVolume(75)
 		if("Gorilla")
 			user.set_species(/datum/species/gorilla)
 			playsound(user.loc, 'sound/creatures/gorilla.ogg', 50)
-			if(DIGITIGRADE in user_species.species_traits)
-				user_species.species_traits -= DIGITIGRADE
 			user.dna.species.punchdamagelow += 10
 			user.dna.species.punchdamagehigh += 10 //very stronk
 			user.dna.species.punchstunthreshold += 10
@@ -576,7 +571,7 @@
 	icon_state = "collar"
 	item_state = "collar"
 	icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
-	mob_overlay_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
+	worn_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 10, "energy" = 10, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 10, "acid" = 100)
 	body_parts_covered = NECK|HEAD
 
@@ -586,7 +581,7 @@
 	icon_state = "ears"
 	item_state = "ears"
 	icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
-	mob_overlay_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
+	worn_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 10, "energy" = 10, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 10, "acid" = 100)
 	flags_inv = HIDEHAIR|HIDEFACE
 	alternate_worn_layer = ABOVE_BODY_FRONT_LAYER
@@ -598,7 +593,7 @@
 	icon_state = "claws"
 	item_state = "claws"
 	icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
-	mob_overlay_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
+	worn_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
 	body_parts_covered = ARMS|HANDS
 	flags_inv = HIDEJUMPSUIT
 	var/datum/action/cooldown/bloodsucker/targeted/tear/tearaction = new
@@ -609,7 +604,7 @@
 	icon_state = "legs"
 	item_state = "legs"
 	icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
-	mob_overlay_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
+	worn_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
 	slowdown = SHOES_SLOWDOWN - 0.5
 	body_parts_covered = GROIN|LEGS|FEET
 
@@ -619,7 +614,7 @@
 	icon_state = "digilegs"
 	item_state = "digilegs"
 	icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
-	mob_overlay_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
+	worn_icon = 'icons/mob/actions/actions_gangrel_bloodsucker.dmi'
 	slowdown = SHOES_SLOWDOWN - 0.5
 	xenoshoe = YES_DIGIT
 	body_parts_covered = GROIN|LEGS|FEET

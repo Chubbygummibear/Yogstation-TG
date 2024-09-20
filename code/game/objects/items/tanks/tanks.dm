@@ -6,6 +6,9 @@
 	flags_1 = CONDUCT_1
 	slot_flags = ITEM_SLOT_BACK
 	hitsound = 'sound/weapons/smash.ogg'
+	pickup_sound = 'sound/items/gas_tank_pick_up.ogg'
+	drop_sound = 'sound/items/gas_tank_drop.ogg'
+	sound_vary = TRUE
 	pressure_resistance = ONE_ATMOSPHERE * 5
 	force = 5
 	throwforce = 10
@@ -73,6 +76,11 @@
 
 	air_contents = new(volume) //liters
 	air_contents.set_temperature(T20C)
+
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
 
 	populate_gas()
 
@@ -367,8 +375,7 @@
 
 //Assembly / attached device memes
 
-/obj/item/tank/Crossed(atom/movable/AM) //for mousetraps
-	..()
+/obj/item/tank/proc/on_entered(datum/source, atom/movable/AM, ...)
 	if(tank_assembly)
 		tank_assembly.Crossed(AM)
 
@@ -377,11 +384,11 @@
 	if(tank_assembly)
 		tank_assembly.on_found(finder)
 
-/obj/item/tank/attack_hand() //also for mousetraps
+/obj/item/tank/attack_hand(mob/user, modifiers) //also for mousetraps
 	if(..())
 		return
 	if(tank_assembly)
-		tank_assembly.attack_hand()
+		tank_assembly.attack_hand(user, modifiers)
 
 /obj/item/tank/Move()
 	..()

@@ -6,7 +6,6 @@
 /obj/structure/closet/secure_closet/engineering_chief/PopulateContents()
 	..()
 	new /obj/item/tank/jetpack/suit(src)
-	new /obj/item/cartridge/ce(src)
 	new /obj/item/radio/headset/heads/ce(src)
 	new /obj/item/storage/toolbox/mechanical(src)
 	new /obj/item/megaphone/command(src)
@@ -30,7 +29,7 @@
 	new /obj/item/storage/backpack/duffelbag/clothing/ce(src)
 	new /obj/item/storage/lockbox/medal/eng(src)
 	new /obj/item/barrier_taperoll/engineering(src)
-	new /obj/item/multisurgeon/magboots(src)
+	new /obj/item/autosurgeon/magboots(src)
 
 /obj/structure/closet/secure_closet/engineering_electrical
 	name = "electrical supplies locker"

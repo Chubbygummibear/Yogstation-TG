@@ -8,7 +8,7 @@
 	icon_state = "donut1"
 	bitesize = 5
 	bonus_reagents = list(/datum/reagent/consumable/sugar = 1)
-	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sprinkles = 1, /datum/reagent/consumable/sugar = 2)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sugar = 2)
 	filling_color = "#D2691E"
 	tastes = list("donut" = 1)
 	foodtype = JUNKFOOD | GRAIN | FRIED | SUGAR | BREAKFAST
@@ -27,7 +27,7 @@
 	is_frosted = TRUE
 	name = "frosted [name]"
 	icon_state = frosted_icon //delish!
-	reagents.add_reagent(/datum/reagent/consumable/sprinkles, 1)
+	reagents.add_reagent(/datum/reagent/consumable/sprinkles, 2)
 	filling_color = "#FF69B4"
 	return TRUE
 
@@ -432,6 +432,25 @@
 	tastes = list("meat" = 2, "dough" = 2, "inner peace" = 1)
 	foodtype = GRAIN | MEAT
 
+/obj/item/reagent_containers/food/snacks/donkpocket/mouse
+	name = "mousepocket"
+	desc = "A mouse wrapped in delicious pastry."
+	icon_state = "donkpocketmouse"
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 2, /datum/reagent/consumable/nutriment = 2)
+	cooked_type = /obj/item/reagent_containers/food/snacks/donkpocket/warm/mouse
+	filling_color = "#747474"
+	tastes = list("mice" = 2, "dough" = 2)
+	foodtype = GRAIN | MICE
+
+/obj/item/reagent_containers/food/snacks/donkpocket/warm/mouse
+	name = "warm mousepocket"
+	desc = "A mouse wrapped in delicious pastry."
+	icon_state = "donkpocketmouse"
+	bonus_reagents = list(/datum/reagent/consumable/nutriment = 2)
+	list_reagents = list(/datum/reagent/consumable/nutriment/protein = 2, /datum/reagent/consumable/nutriment = 4)
+	tastes = list("mice" = 2, "dough" = 2)
+	foodtype = GRAIN | MICE
+
 ////////////////////////////////////////////OTHER////////////////////////////////////////////
 /obj/item/reagent_containers/food/snacks/cookie/peanut_butter
 	name = "peanut butter cookie"
@@ -560,7 +579,7 @@
 	desc = "Spooky! It's got delicious coffee flavouring!"
 	icon = 'icons/obj/halloween_items.dmi'
 	icon_state = "coffincookie"
-	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sugar = 3, /datum/reagent/consumable/coffee = 3)
+	list_reagents = list(/datum/reagent/consumable/nutriment = 3, /datum/reagent/consumable/sugar = 3, /datum/reagent/consumable/coffee/hot = 3)
 	tastes = list("cookie" = 2, "coffee" = 1, "sweetness" = 1)
 
 /obj/item/reagent_containers/food/snacks/chococornet
@@ -595,7 +614,7 @@
 
 /obj/item/reagent_containers/food/snacks/cherrycupcake
 	name = "cherry cupcake"
-	desc = "A sweet cupcake with cherry bits."
+	desc = "A sweet cupcake topped with a cherry."
 	icon_state = "cherrycupcake"
 	bonus_reagents = list(/datum/reagent/consumable/nutriment = 1, /datum/reagent/consumable/nutriment/vitamin = 1)
 	list_reagents = list(/datum/reagent/consumable/nutriment = 5, /datum/reagent/consumable/nutriment/vitamin = 1)
@@ -605,7 +624,7 @@
 
 /obj/item/reagent_containers/food/snacks/bluecherrycupcake
 	name = "blue cherry cupcake"
-	desc = "Blue cherries inside a delicious cupcake."
+	desc = "A sweet cupcake topped with a blue cherry."
 	icon_state = "bluecherrycupcake"
 	bonus_reagents = list(/datum/reagent/consumable/nutriment = 1, /datum/reagent/consumable/nutriment/vitamin = 3)
 	list_reagents = list(/datum/reagent/consumable/nutriment = 5, /datum/reagent/consumable/nutriment/vitamin = 1)
@@ -826,8 +845,8 @@
 	add_overlay(pancake_visual)
 	update_appearance()
 
-/obj/item/reagent_containers/food/snacks/pancakes/attack(mob/M, mob/user, def_zone, stacked = TRUE)
-	if(user.a_intent == INTENT_HARM || !contents.len || !stacked)
+/obj/item/reagent_containers/food/snacks/pancakes/attack(mob/M, mob/living/user, def_zone, stacked = TRUE)
+	if(user.combat_mode || !contents.len || !stacked)
 		return ..()
 	var/obj/item/O = contents[contents.len]
 	. = O.attack(M, user, def_zone, FALSE)

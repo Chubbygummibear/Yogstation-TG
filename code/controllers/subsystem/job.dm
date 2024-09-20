@@ -308,6 +308,21 @@ SUBSYSTEM_DEF(job)
 		return TRUE
 	return FALSE
 
+/datum/controller/subsystem/job/proc/FillNetminPosition()
+	var/datum/job/job = GetJob("Network Admin")
+	if(!job)
+		return
+	for(var/i = job.total_positions, i > 0, i--)
+		if(job.current_positions >= job.total_positions) //If we assign a netmin before this proc is run, (malf rework?)
+			return TRUE
+		for(var/level in level_order)
+			var/list/candidates = list()
+			candidates = FindOccupationCandidates(job, level)
+			if(candidates.len)
+				var/mob/dead/new_player/candidate = pick(candidates)
+				if(AssignRole(candidate, "Network Admin"))
+					break
+
 /// Rolls a number of security based on the roundstart population
 /datum/controller/subsystem/job/proc/FillSecurityPositions()
 	var/coeff = CONFIG_GET(number/min_security_scaling_coeff)
@@ -392,7 +407,8 @@ SUBSYSTEM_DEF(job)
 
 	//Check for an AI
 	JobDebug("DO, Running AI Check")
-	FillAIPosition()
+	if(FillAIPosition())
+		FillNetminPosition()
 	JobDebug("DO, AI Check end")
 
 	//Check for Security
@@ -617,9 +633,9 @@ SUBSYSTEM_DEF(job)
 /datum/controller/subsystem/job/proc/irish_override()
 	var/datum/map_template/template = SSmapping.station_room_templates["Bar Irish"]
 
-	for(var/obj/effect/landmark/stationroom/box/bar/B in GLOB.bar_landmarks)
+	for(var/obj/effect/landmark/stationroom/box/bar/B in GLOB.landmarks_list)
 		template.load(B.loc, centered = FALSE)
-
+		qdel(B)
 
 /datum/controller/subsystem/job/proc/random_chapel_init()
 	try
@@ -664,9 +680,9 @@ SUBSYSTEM_DEF(job)
 			log_game("WARNING: CHAPEL RECOVERY FAILED! THERE WILL BE NO CHAPEL FOR THIS ROUND!")
 			return
 
-		for(var/obj/effect/landmark/stationroom/box/chapel/B in GLOB.chapel_landmarks)
+		for(var/obj/effect/landmark/stationroom/box/chapel/B in GLOB.landmarks_list)
 			template.load(B.loc, centered = FALSE)
-
+			qdel(B)
 	catch(var/exception/e)
 		message_admins("RUNTIME IN RANDOM_CHAPEL_INIT")
 		spawn_chapel()
@@ -681,9 +697,9 @@ SUBSYSTEM_DEF(job)
 	if(isnull(template))
 		message_admins("UNABLE TO SPAWN CHAPEL")
 
-	for(var/obj/effect/landmark/stationroom/box/chapel/B in GLOB.chapel_landmarks)
+	for(var/obj/effect/landmark/stationroom/box/chapel/B in GLOB.landmarks_list)
 		template.load(B.loc, centered = FALSE)
-
+		qdel(B)
 
 /datum/controller/subsystem/job/proc/random_clerk_init()
 	try
@@ -728,9 +744,9 @@ SUBSYSTEM_DEF(job)
 			log_game("WARNING: CLERK RECOVERY FAILED! THERE WILL BE NO CLERK SHOP FOR THIS ROUND!")
 			return
 
-		for(var/obj/effect/landmark/stationroom/box/clerk/B in GLOB.clerk_office_landmarks)
+		for(var/obj/effect/landmark/stationroom/box/clerk/B in GLOB.landmarks_list)
 			template.load(B.loc, centered = FALSE)
-
+			qdel(B)
 	catch(var/exception/e)
 		message_admins("RUNTIME IN RANDOM_CLERK_INIT")
 		spawn_clerk()
@@ -745,8 +761,9 @@ SUBSYSTEM_DEF(job)
 	if(isnull(template))
 		message_admins("UNABLE TO SPAWN CLERK")
 	
-	for(var/obj/effect/landmark/stationroom/box/clerk/B in GLOB.clerk_office_landmarks)
+	for(var/obj/effect/landmark/stationroom/box/clerk/B in GLOB.landmarks_list)
 		template.load(B.loc, centered = FALSE)
+		qdel(B)
 
 /datum/controller/subsystem/job/proc/handle_auto_deadmin_roles(client/C, rank)
 	if(!C?.holder)
@@ -873,10 +890,16 @@ SUBSYSTEM_DEF(job)
 	M.forceMove(get_turf(src))
 
 /obj/structure/chair/JoinPlayerHere(mob/M, buckle)
+	. = ..()
 	// Placing a mob in a chair will attempt to buckle it, or else fall back to default.
 	if (buckle && isliving(M) && buckle_mob(M, FALSE, FALSE))
 		return
-	..()
+
+/obj/machinery/cryopod/JoinPlayerHere(mob/M, buckle)
+	. = ..()
+	open_machine()
+	if(iscarbon(M))
+		apply_effects_to_mob(M)
 
 /datum/controller/subsystem/job/proc/SendToLateJoin(mob/M, buckle = TRUE)
 	var/atom/destination
@@ -892,65 +915,49 @@ SUBSYSTEM_DEF(job)
 
 	//bad mojo
 	if(SSmapping.config.cryo_spawn)
-		var/area/shuttle/arrival/A = GLOB.areas_by_type[/area/crew_quarters/cryopods]
-		if(A)
-			var/list/pods = list()
-			var/list/unoccupied_pods = list()
-			for(var/obj/machinery/cryopod/pod in A)
-				pods |= pod
-				if(!pod.occupant)
-					unoccupied_pods |= pod
-			if(length(unoccupied_pods)) //if we have any unoccupied ones
-				destination = pick(unoccupied_pods)
-			else if(length(pods))
-				destination = pick(pods) //if they're all full somehow??
-			else //no pods at all
-				var/list/available = list()
-				for(var/turf/T in A)
-					if(!T.is_blocked_turf(TRUE))
-						available += T
-				if(length(available))
-					destination = pick(available)
-		if(destination)
-			destination.JoinPlayerHere(M, FALSE)
-		else
-			var/msg = "Unable to send mob [M] to late join (CRYOPODS)!"
-			message_admins(msg)
-			CRASH(msg)
-
+		destination = get_cryo_spawn_points()
 	else
-		var/area/shuttle/arrival/A = GLOB.areas_by_type[/area/shuttle/arrival]
-		if(A)
-			//first check if we can find a chair
-			var/obj/structure/chair/C = locate() in A
-			if(C)
-				C.JoinPlayerHere(M, buckle)
-				return
+		destination = get_last_resort_spawn_points()
+	
+	destination.JoinPlayerHere(M, buckle)
 
-			//last hurrah
-			var/list/avail = list()
-			for(var/turf/T in A)
-				if(!T.is_blocked_turf(TRUE))
-					avail += T
-			if(avail.len)
-				destination = pick(avail)
-				destination.JoinPlayerHere(M, FALSE)
-				return
+/datum/controller/subsystem/job/proc/get_cryo_spawn_points()
+	var/area/shuttle/arrival/cryo_spawn_area = GLOB.areas_by_type[/area/crew_quarters/cryopods]
+	if(!isnull(cryo_spawn_area))
+		var/list/turf/available_turfs = list()
+		for (var/list/zlevel_turfs as anything in cryo_spawn_area.get_zlevel_turf_lists())
+			for (var/turf/arrivals_turf as anything in zlevel_turfs)
+				var/obj/machinery/cryopod/spawn_pod = locate() in arrivals_turf
+				if(!isnull(spawn_pod))
+					return spawn_pod
+				if(arrivals_turf.is_blocked_turf(TRUE))
+					continue
+				available_turfs += arrivals_turf
 
-		//pick an open spot on arrivals and dump em
-		var/list/arrivals_turfs = shuffle(get_area_turfs(/area/shuttle/arrival))
-		if(arrivals_turfs.len)
-			for(var/turf/T in arrivals_turfs)
-				if(!T.is_blocked_turf(TRUE))
-					T.JoinPlayerHere(M, FALSE)
-					return
-			//last chance, pick ANY spot on arrivals and dump em
-			destination = arrivals_turfs[1]
-			destination.JoinPlayerHere(M, FALSE)
-		else
-			var/msg = "Unable to send mob [M] to late join!"
-			message_admins(msg)
-			CRASH(msg)
+		if(length(available_turfs))
+			return pick(available_turfs)
+
+	stack_trace("Unable to find cryo spawn point.")
+	return GET_ERROR_ROOM
+
+/datum/controller/subsystem/job/proc/get_last_resort_spawn_points()
+	var/area/shuttle/arrival/arrivals_area = GLOB.areas_by_type[/area/shuttle/arrival]
+	if(!isnull(arrivals_area))
+		var/list/turf/available_turfs = list()
+		for (var/list/zlevel_turfs as anything in arrivals_area.get_zlevel_turf_lists())
+			for (var/turf/arrivals_turf as anything in zlevel_turfs)
+				var/obj/structure/chair/shuttle_chair = locate() in arrivals_turf
+				if(!isnull(shuttle_chair))
+					return shuttle_chair
+				if(arrivals_turf.is_blocked_turf(TRUE))
+					continue
+				available_turfs += arrivals_turf
+
+		if(length(available_turfs))
+			return pick(available_turfs)
+
+	stack_trace("Unable to find last resort spawn point.")
+	return GET_ERROR_ROOM
 
 ///Lands specified mob at a random spot in the hallways
 /datum/controller/subsystem/job/proc/DropLandAtRandomHallwayPoint(mob/living/living_mob)

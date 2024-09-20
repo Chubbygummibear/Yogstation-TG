@@ -1,6 +1,8 @@
 /obj/item/clothing/under
-	icon = 'icons/obj/clothing/uniforms.dmi'
 	name = "under"
+	icon = 'icons/obj/clothing/uniforms.dmi'
+	lefthand_file = 'icons/mob/inhands/clothing/suits_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/clothing/suits_righthand.dmi'
 	body_parts_covered = CHEST|GROIN|LEGS|ARMS
 	slot_flags = ITEM_SLOT_ICLOTHING
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 5, RAD = 0, FIRE = 0, ACID = 0, WOUND = 5)
@@ -8,30 +10,35 @@
 	drop_sound = 'sound/items/handling/cloth_drop.ogg'
 	pickup_sound =  'sound/items/handling/cloth_pickup.ogg'
 	limb_integrity = 30
+	tearable = TRUE //all jumpsuits can be torn down and used for cloth in an emergency | yogs
+
 	var/fitted = FEMALE_UNIFORM_FULL // For use in alternate clothing styles for women
 	var/has_sensor = HAS_SENSORS // For the crew computer
 	var/random_sensor = TRUE
 	var/sensor_mode = NO_SENSORS
 	var/can_adjust = TRUE
-	var/adjusted = NORMAL_STYLE
+	var/adjusted = FALSE
 	var/alt_covers_chest = FALSE // for adjusted/rolled-down jumpsuits, FALSE = exposes chest and arms, TRUE = exposes arms only
+	var/mutantrace_variation = NONE //Are there special sprites for specific situations? Don't use this unless you need to.
+	var/freshly_laundered = FALSE
+
 	var/obj/item/clothing/accessory/attached_accessory
 	var/mutable_appearance/accessory_overlay
-	var/mutantrace_variation = NO_MUTANTRACE_VARIATION //Are there special sprites for specific situations? Don't use this unless you need to.
-	var/freshly_laundered = FALSE
-	tearable = TRUE //all jumpsuits can be torn down and used for cloth in an emergency | yogs
 
-/obj/item/clothing/under/worn_overlays(isinhands = FALSE)
-	. = list()
-	if(!isinhands)
-		if(damaged_clothes)
-			. += mutable_appearance('icons/effects/item_damage.dmi', "damageduniform")
-		if(HAS_BLOOD_DNA(src))
-			var/mutable_appearance/bloody_uniform = mutable_appearance('icons/effects/blood.dmi', "uniformblood")
-			bloody_uniform.color = get_blood_dna_color(return_blood_DNA())
-			. += bloody_uniform
-		if(accessory_overlay)
-			. += accessory_overlay
+/obj/item/clothing/under/worn_overlays(mutable_appearance/standing, isinhands = FALSE, icon_file)
+	. = ..()
+	if(isinhands)
+		return
+	if(damaged_clothes)
+		. += mutable_appearance('icons/effects/item_damage.dmi', "damageduniform")
+	if(HAS_BLOOD_DNA(src))
+		var/mutable_appearance/bloody_uniform = mutable_appearance('icons/effects/blood.dmi', "uniformblood")
+		if(species_fitted && icon_exists(bloody_uniform.icon, "uniformblood_[species_fitted]")) 
+			bloody_uniform.icon_state = "uniformblood_[species_fitted]"
+		bloody_uniform.color = get_blood_dna_color(return_blood_DNA())
+		. += bloody_uniform
+	if(accessory_overlay)
+		. += accessory_overlay
 
 /obj/item/clothing/under/attackby(obj/item/I, mob/user, params)
 	if((has_sensor == BROKEN_SENSORS) && istype(I, /obj/item/stack/cable_coil))
@@ -42,6 +49,14 @@
 		return 1
 	if(!attach_accessory(I, user))
 		return ..()
+
+/obj/item/clothing/under/attack_hand_secondary(mob/user, modifiers)
+	. = ..()
+	if(. == SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN)
+		return
+
+	toggle()
+	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
 /obj/item/clothing/under/update_clothes_damaged_state(damaged_state = CLOTHING_DAMAGED)
 	..()
@@ -75,7 +90,7 @@
 /obj/item/clothing/under/equipped(mob/user, slot)
 	..()
 	if(adjusted)
-		adjusted = NORMAL_STYLE
+		adjusted = FALSE
 		fitted = initial(fitted)
 		if(!alt_covers_chest)
 			body_parts_covered |= CHEST
@@ -86,36 +101,43 @@
 
 	if(!ishuman(user)) //Yogs Start: Reorganized to reduce repetition
 		return
-	var/mob/living/carbon/human/H = user
-	
-	if(mutantrace_variation == MUTANTRACE_VARIATION)
-		var/is_digi = FALSE
-		if(DIGITIGRADE in H.dna.species.species_traits)
-			is_digi = TRUE
-		
-		if(is_digi && !adjusted == ALT_STYLE && mutantrace_variation)
-			adjusted = DIGITIGRADE_STYLE
-		else if(is_digi && adjusted == ALT_STYLE && mutantrace_variation) //Handles when you are using an alternate style while having digi legs
-			adjusted = DIGIALT_STYLE
-		else if(!is_digi && adjusted == DIGITIGRADE_STYLE)
-			adjusted = NORMAL_STYLE
-		else if(!is_digi && adjusted == DIGIALT_STYLE)
-			adjusted = ALT_STYLE
-		H.update_inv_w_uniform()
+	var/update_suit = FALSE
+	var/mob/living/carbon/human/human_user = user
+	if(!(mutantrace_variation & DIGITIGRADE_VARIATION) && (body_parts_covered & LEGS))
+		if(slot_flags & slot)
+			ADD_TRAIT(user, TRAIT_DIGI_SQUISH, REF(src))
+		else
+			REMOVE_TRAIT(user, TRAIT_DIGI_SQUISH, REF(src))
+		human_user.update_inv_shoes()
+		human_user.update_body_parts()
+		update_suit = TRUE
 //Yogs End
 	if(attached_accessory && slot != ITEM_SLOT_HANDS)
 		attached_accessory.on_clothing_equip(src, user)
 		if(attached_accessory.above_suit)
-			H.update_inv_wear_suit()
+			update_suit = TRUE
+	if(update_suit)
+		human_user.update_inv_wear_suit()
+	if(is_synth(user) && has_sensor)
+		to_chat(user, span_notice("Suit sensors disabled due to non-compatible user."))
+		sensor_mode = SENSOR_OFF
 
 /obj/item/clothing/under/dropped(mob/user)
-	if(attached_accessory)
-		attached_accessory.on_clothing_dropped(src, user)
-		if(ishuman(user))
-			var/mob/living/carbon/human/H = user
+	if(ishuman(user))
+		var/update_suit = FALSE
+		var/mob/living/carbon/human/human_user = user
+		if(!(mutantrace_variation & DIGITIGRADE_VARIATION) && (body_parts_covered & LEGS))
+			REMOVE_TRAIT(user, TRAIT_DIGI_SQUISH, REF(src))
+			human_user.update_inv_shoes()
+			human_user.update_body_parts()
+			update_suit = TRUE
+		if(attached_accessory)
+			attached_accessory.on_clothing_dropped(src, user)
 			if(attached_accessory.above_suit)
-				H.update_inv_wear_suit()
-	..()
+				update_suit = TRUE
+		if(update_suit)
+			human_user.update_inv_wear_suit()
+	return ..()
 
 /obj/item/clothing/under/proc/attach_accessory(obj/item/I, mob/user, notifyAttach = 1)
 	. = FALSE
@@ -138,7 +160,7 @@
 				to_chat(user, span_notice("You attach [I] to [src]."))
 
 			var/accessory_color = attached_accessory.icon_state
-			accessory_overlay = mutable_appearance(attached_accessory.mob_overlay_icon, "[accessory_color]")
+			accessory_overlay = mutable_appearance(attached_accessory.worn_icon, "[accessory_color]")
 			accessory_overlay.alpha = attached_accessory.alpha
 			accessory_overlay.color = attached_accessory.color
 
@@ -179,7 +201,7 @@
 	if(freshly_laundered)
 		. += "It looks fresh and clean."
 	if(can_adjust)
-		if(adjusted == ALT_STYLE || adjusted == DIGIALT_STYLE)
+		if(adjusted)
 			. += "Alt-click on [src] to wear it normally."
 		else
 			. += "Alt-click on [src] to wear it casually."

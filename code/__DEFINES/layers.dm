@@ -132,7 +132,7 @@
 #define HIGH_TURF_LAYER 2.03
 #define LATTICE_LAYER 2.04
 #define DISPOSAL_PIPE_LAYER 2.042
-#define WIRE_LAYER 2.044
+#define ETHERNET_LAYER 2.043
 #define GLASS_FLOOR_LAYER 2.046
 #define TRAM_RAIL_LAYER 2.047
 #define ABOVE_OPEN_TURF_LAYER 2.049
@@ -144,6 +144,7 @@
 #define BULLET_HOLE_LAYER 2.06
 #define ABOVE_NORMAL_TURF_LAYER 2.08
 #define GAS_PIPE_HIDDEN_LAYER 2.35 //layer = initial(layer) + piping_layer / 1000 in atmospherics/update_icon() to determine order of pipe overlap
+#define WIRE_LAYER 2.43 //Yog Biome request
 #define WIRE_BRIDGE_LAYER 2.44
 #define WIRE_TERMINAL_LAYER 2.45
 #define GAS_SCRUBBER_LAYER 2.46
@@ -180,10 +181,11 @@
 //#define OBJ_LAYER 3 //For easy recordkeeping; this is a byond define
 #define CLOSED_DOOR_LAYER 3.1
 #define CLOSED_FIREDOOR_LAYER 3.11
+#define SHUTTER_LAYER 3.12 // HERE BE DRAGONS
+#define CLOSED_BLASTDOOR_LAYER 3.13 // ABOVE DOORS
 #define ABOVE_OBJ_LAYER 3.2
-#define CLOSED_BLASTDOOR_LAYER 3.3 // ABOVE WINDOWS AND DOORS
-#define SHUTTER_LAYER 3.3 // HERE BE DRAGONS
 #define ABOVE_WINDOW_LAYER 3.3
+#define WINDOW_HELPER_LAYER 3.31 // Keep above windows/windoors - see mapping_helpers.dm
 #define SIGN_LAYER 3.4
 #define CORGI_ASS_PIN_LAYER 3.41
 #define NOT_HIGH_OBJ_LAYER 3.5

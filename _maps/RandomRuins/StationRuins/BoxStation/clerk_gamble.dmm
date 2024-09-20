@@ -29,17 +29,10 @@
 /turf/open/floor/wood,
 /area/clerk)
 "f" = (
-/obj/structure/table/wood,
-/obj/item/coinstack,
-/obj/item/coin/gold,
-/obj/item/coin/gold,
-/obj/item/coin/gold,
-/obj/item/coin/plasma,
-/obj/item/coin/uranium,
-/obj/item/coin/diamond,
-/obj/item/coin/iron,
-/obj/item/coin/iron,
-/turf/open/floor/carpet/black,
+/obj/machinery/light_switch{
+	pixel_y = 25
+	},
+/turf/open/floor/wood,
 /area/clerk)
 "g" = (
 /obj/structure/table/wood/poker,
@@ -274,8 +267,7 @@
 /area/clerk)
 "R" = (
 /obj/machinery/door/airlock{
-	name = "Gambling Hall";
-	req_access_txt = "36"
+	name = "Gambling Hall"
 	},
 /obj/machinery/door/firedoor/border_only,
 /obj/machinery/door/firedoor/border_only{
@@ -286,6 +278,7 @@
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
+/obj/effect/mapping_helpers/airlock/access/all/service/clerk,
 /turf/open/floor/wood,
 /area/clerk)
 "S" = (
@@ -301,11 +294,11 @@
 	dir = 1
 	},
 /obj/machinery/door/airlock{
-	name = "Gambling Hall";
-	req_access_txt = "36"
+	name = "Gambling Hall"
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2,
+/obj/effect/mapping_helpers/airlock/access/all/service/clerk,
 /turf/open/floor/wood,
 /area/clerk)
 "U" = (
@@ -317,6 +310,19 @@
 /turf/open/floor/carpet/black,
 /area/clerk)
 "V" = (
+/turf/open/floor/carpet/black,
+/area/clerk)
+"W" = (
+/obj/structure/table/wood,
+/obj/item/coinstack,
+/obj/item/coin/gold,
+/obj/item/coin/gold,
+/obj/item/coin/gold,
+/obj/item/coin/plasma,
+/obj/item/coin/uranium,
+/obj/item/coin/diamond,
+/obj/item/coin/iron,
+/obj/item/coin/iron,
 /turf/open/floor/carpet/black,
 /area/clerk)
 "X" = (
@@ -374,7 +380,7 @@ G
 (3,1,1) = {"
 j
 G
-H
+f
 Z
 G
 e
@@ -441,7 +447,7 @@ G
 G
 F
 u
-f
+W
 G
 w
 A

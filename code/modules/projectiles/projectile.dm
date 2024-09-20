@@ -40,6 +40,8 @@
 
 	/// If objects are below this layer, we pass through them
 	var/hit_threshhold = PROJECTILE_HIT_THRESHHOLD_LAYER
+	/// Hit mobs regardless of stun or critical condition
+	var/ignore_crit = FALSE
 
 	/// During each fire of SSprojectiles, the number of deciseconds since the last fire of SSprojectiles
 	/// is divided by this var, and the result truncated to the next lowest integer is
@@ -67,7 +69,8 @@
 	var/hitscan = FALSE		//Whether this is hitscan. If it is, speed is basically ignored.
 	var/list/beam_segments	//assoc list of datum/point or datum/point/vector, start = end. Used for hitscan effect generation.
 	var/datum/point/beam_index
-	var/turf/hitscan_last	//last turf touched during hitscanning.
+	/// The ending/last touched turf during hitscanning.
+	var/turf/hitscan_last
 	var/tracer_type
 	var/muzzle_type
 	var/impact_type
@@ -172,6 +175,11 @@
 	impacted = list()
 	decayedRange = range
 
+	var/static/list/loc_connections = list(
+		COMSIG_ATOM_ENTERED = PROC_REF(on_entered),
+	)
+	AddElement(/datum/element/connect_loc, loc_connections)
+
 /obj/projectile/proc/Range()
 	range--
 	if(wound_bonus != CANT_WOUND)
@@ -218,7 +226,7 @@
 
 		W.add_dent(WALL_DENT_SHOT, hitx, hity)
 
-		if((penetration_flags & PENETRATE_OBJECTS) && penetrations > 0)
+		if((penetration_flags & PENETRATE_WALLS) && penetrations > 0)
 			penetrations -= 1
 			return BULLET_ACT_FORCE_PIERCE
 
@@ -244,8 +252,11 @@
 				splatter_dir = get_dir(starting, target_loca)
 			if(isalien(L) || ispolysmorph(L))
 				new /obj/effect/temp_visual/dir_setting/bloodsplatter/xenosplatter(target_loca, splatter_dir)
-			else if (iscarbon(L) && !(NOBLOOD in C.dna.species.species_traits))
-				new /obj/effect/temp_visual/dir_setting/bloodsplatter(target_loca, splatter_dir)
+			else if(iscarbon(L) && !(NOBLOOD in C.dna.species.species_traits))
+				var/splatter_color
+				var/mob/living/carbon/carbon_bleeder = L
+				splatter_color = carbon_bleeder.dna.blood_type.color
+				new /obj/effect/temp_visual/dir_setting/bloodsplatter(target_loca, splatter_dir, splatter_color)
 			else
 				new /obj/effect/temp_visual/dir_setting/bloodsplatter/genericsplatter(target_loca, splatter_dir)
 			var/obj/item/bodypart/B = L.get_bodypart(def_zone)
@@ -596,10 +607,9 @@
 				pixel_x = trajectory.return_px()
 				pixel_y = trajectory.return_py()
 			forcemoved = TRUE
-			hitscan_last = loc
 		else if(T != loc)
 			step_towards(src, T)
-			hitscan_last = loc
+		hitscan_last = T
 	if(!hitscanning && !forcemoved)
 		pixel_x = trajectory.return_px() - trajectory.mpx * trajectory_multiplier * SSprojectiles.global_iterations_per_move
 		pixel_y = trajectory.return_py() - trajectory.mpy * trajectory_multiplier * SSprojectiles.global_iterations_per_move
@@ -655,7 +665,7 @@
 			return FALSE
 	else
 		var/mob/living/L = target
-		if(!direct_target)
+		if(!direct_target && !ignore_crit)
 			if(!CHECK_BITFIELD(L.mobility_flags, MOBILITY_STAND) && (L in range(1, starting))) //if we're shooting over someone who's prone and nearby bc formations are cool and not going to be unbalanced
 				return FALSE
 			if(!CHECK_BITFIELD(L.mobility_flags, MOBILITY_USE | MOBILITY_STAND | MOBILITY_MOVE) || !(L.stat == CONSCIOUS))		//If they're able to 1. stand or 2. use items or 3. move, AND they are not softcrit,  they are not stunned enough to dodge projectiles passing over.
@@ -719,8 +729,7 @@
 		angle = ATAN2(y - oy, x - ox)
 	return list(angle, p_x, p_y)
 
-/obj/projectile/Crossed(atom/movable/AM) //A mob moving on a tile with a projectile is hit by it.
-	. = ..()
+/obj/projectile/proc/on_entered(datum/source, atom/movable/AM, ...) //A mob moving on a tile with a projectile is hit by it.
 	if(isliving(AM) && !(pass_flags & PASSMOB))
 		var/mob/living/L = AM
 		if(can_hit_target(L, impacted, (AM == original)))

@@ -20,6 +20,7 @@
 	var/icon_type = "donut"
 	var/spawn_type = null
 	var/fancy_open = FALSE
+	var/can_toggle = TRUE //some things are always open like candles
 
 /obj/item/storage/fancy/PopulateContents()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
@@ -42,8 +43,9 @@
 			. += "There are [contents.len <= 0 ? "no" : "[contents.len]"] [icon_type]s left."
 
 /obj/item/storage/fancy/attack_self(mob/user)
-	fancy_open = !fancy_open
-	update_appearance(UPDATE_ICON)
+	if(can_toggle)
+		fancy_open = !fancy_open
+		update_appearance(UPDATE_ICON)
 	return ..()
 
 /obj/item/storage/fancy/Exited()
@@ -66,10 +68,9 @@
 	name = "donut box"
 	desc = "Mmm. Donuts."
 	icon = 'icons/obj/food/containers.dmi'
-	icon_state = "donutbox_inner"
+	icon_state = "donutbox"
 	icon_type = "donut"
 	spawn_type = /obj/item/reagent_containers/food/snacks/donut
-	fancy_open = TRUE
 	appearance_flags = KEEP_TOGETHER
 
 /obj/item/storage/fancy/donut_box/Initialize(mapload)
@@ -152,6 +153,8 @@
 	slot_flags = ITEM_SLOT_BELT
 	spawn_type = /obj/item/candle
 	fancy_open = TRUE
+	can_toggle = FALSE
+
 
 /obj/item/storage/fancy/candle_box/attack_self(mob_user)
 	. = ..()
@@ -374,30 +377,6 @@
 /obj/item/storage/fancy/cigarettes/cigpack_mindbreaker/PopulateContents()
 	for(var/i in 1 to 6)
 		new /obj/item/clothing/mask/cigarette/rollie/mindbreaker(src)
-
-/obj/item/storage/fancy/rollingpapers
-	name = "rolling paper pack"
-	desc = "A pack of Nanotrasen brand rolling papers."
-	w_class = WEIGHT_CLASS_TINY
-	icon = 'icons/obj/cigarettes.dmi'
-	icon_state = "cig_paper_pack"
-	icon_type = "rolling paper"
-	spawn_type = /obj/item/rollingpaper
-
-/obj/item/storage/fancy/rollingpapers/Initialize(mapload)
-	. = ..()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_items = 10
-	STR.set_holdable(list(/obj/item/rollingpaper))
-
-/obj/item/storage/fancy/rollingpapers/PopulateContents()
-	for(var/i in 1 to 10)
-		new /obj/item/rollingpaper(src)
-
-/obj/item/storage/fancy/rollingpapers/update_overlays()
-	. = ..()
-	if(!contents.len)
-		. += "[icon_state]_empty"
 
 /////////////
 //CIGAR BOX//

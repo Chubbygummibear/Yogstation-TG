@@ -40,7 +40,7 @@
 	STOP_PROCESSING(SSobj, core)
 	update_appearance(UPDATE_ICON)
 	GLOB.poi_list |= src
-	previous_level = get_security_level()
+	previous_level = SSsecurity_level.get_current_level_as_text()
 
 /obj/machinery/nuclearbomb/Destroy()
 	safety = FALSE
@@ -387,7 +387,7 @@
 	safety = !safety
 	if(safety)
 		if(timing)
-			set_security_level(previous_level)
+			SSsecurity_level.set_level(previous_level)
 			for(var/obj/item/pinpointer/nuke/syndicate/S in GLOB.pinpointer_list)
 				S.switch_mode_to(initial(S.mode))
 				S.alert = FALSE
@@ -402,15 +402,15 @@
 		return
 	timing = !timing
 	if(timing)
-		previous_level = get_security_level()
+		previous_level = SSsecurity_level.get_current_level_as_text()
 		detonation_timer = world.time + (timer_set * 10)
 		for(var/obj/item/pinpointer/nuke/syndicate/S in GLOB.pinpointer_list)
 			S.switch_mode_to(TRACK_INFILTRATOR)
 		countdown.start()
-		set_security_level("delta")
+		SSsecurity_level.set_level(SEC_LEVEL_DELTA)
 	else
 		detonation_timer = null
-		set_security_level(previous_level)
+		SSsecurity_level.set_level(previous_level)
 		for(var/obj/item/pinpointer/nuke/syndicate/S in GLOB.pinpointer_list)
 			S.switch_mode_to(initial(S.mode))
 			S.alert = FALSE
@@ -544,7 +544,7 @@
 	detonation_timer = null
 	exploding = FALSE
 	exploded = TRUE
-	set_security_level(previous_level)
+	SSsecurity_level.set_level(previous_level)
 	for(var/obj/item/pinpointer/nuke/syndicate/S in GLOB.pinpointer_list)
 		S.switch_mode_to(initial(S.mode))
 		S.alert = FALSE
@@ -639,7 +639,7 @@ This is here to make the tiles around the station mininuke change when it's arme
 	if(newturf && lastlocation == newturf)
 		if(last_disk_move < world.time - 5000 && prob((world.time - 5000 - last_disk_move)*0.0001))
 			var/datum/round_event_control/operative/loneop = locate(/datum/round_event_control/operative) in SSevents.control
-			if(istype(loneop) && loneop.occurrences < loneop.max_occurrences)
+			if(istype(loneop) && (loneop.occurrences < loneop.max_occurrences) && SSticker.totalPlayers >= 25)
 				loneop.weight += 1
 				if(loneop.weight % 5 == 0 && SSticker.totalPlayers > 1)
 					message_admins("[src] is stationary in [ADMIN_VERBOSEJMP(newturf)]. The weight of Lone Operative is now [loneop.weight].")

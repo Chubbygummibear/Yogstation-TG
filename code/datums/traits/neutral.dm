@@ -26,11 +26,10 @@
 			species.disliked_food &= ~MEAT
 
 /datum/quirk/vegetarian/check_quirk(datum/preferences/prefs)
-	var/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/datum/species/species = new species_type
-
-	var/disallowed_trait = (NOMOUTH in species.species_traits) // Cant eat
-	qdel(species)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait)
 		return "You don't have the ability to eat!"
@@ -57,11 +56,10 @@
 		species.liked_food &= ~PINEAPPLE
 
 /datum/quirk/pineapple_liker/check_quirk(datum/preferences/prefs)
-	var/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/datum/species/species = new species_type
-
-	var/disallowed_trait = (NOMOUTH in species.species_traits) // Cant eat
-	qdel(species)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait)
 		return "You don't have the ability to eat!"
@@ -88,11 +86,10 @@
 		species.disliked_food &= ~PINEAPPLE
 
 /datum/quirk/pineapple_hater/check_quirk(datum/preferences/prefs)
-	var/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/datum/species/species = new species_type
-
-	var/disallowed_trait = (NOMOUTH in species.species_traits) // Cant eat
-	qdel(species)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait)
 		return "You don't have the ability to eat!"
@@ -122,11 +119,10 @@
 		species.disliked_food = initial(species.disliked_food)
 
 /datum/quirk/deviant_tastes/check_quirk(datum/preferences/prefs)
-	var/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/datum/species/species = new species_type
-
-	var/disallowed_trait = (NOMOUTH in species.species_traits) // Cant eat
-	qdel(species)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	species_type = new species_type()
+	var/disallowed_trait = (NOMOUTH in species_type.species_traits) // Cant eat
+	qdel(species_type)
 
 	if(disallowed_trait)
 		return "You don't have the ability to eat!"
@@ -182,11 +178,10 @@
 	to_chat(quirk_holder, span_boldnotice("Your bottle of hair dye spray is [where]."))
 
 /datum/quirk/colorist/check_quirk(datum/preferences/prefs)
-	var/species_type = prefs.read_preference(/datum/preference/choiced/species)
-	var/datum/species/species = new species_type
-
-	var/disallowed_trait = (HAIR in species.species_traits) // No Hair
-	qdel(species)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	species_type = new species_type()
+	var/disallowed_trait = (HAIR in species_type.species_traits) || ("vox_quills" in species_type.mutant_bodyparts) //no hair
+	qdel(species_type)
 
 	if(!disallowed_trait)
 		return "You don't have hair!"
@@ -398,3 +393,44 @@
 	H.remove_language(/datum/language/common, FALSE, TRUE)
 	if(!H.get_selected_language())
 		H.grant_language(/datum/language/japanese)
+
+//regular cybernetic organs
+/datum/quirk/cyberorgan/lungs
+	name = "Cybernetic Organ (Lungs)"
+	desc = "Due to a past incident you lost function of your lungs, but now have cybernetic lungs!"
+	organ_list = list(ORGAN_SLOT_LUNGS = /obj/item/organ/lungs/cybernetic)
+	medical_record_text = "During physical examination, patient was found to have cybernetic lungs."
+	value = 0
+	quality = "regular cybernetic"
+
+/datum/quirk/cyberorgan/lungs/check_quirk(datum/preferences/prefs)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	var/datum/species/species = new species_type
+	if(TRAIT_NOBREATH in species.inherent_traits) // species with TRAIT_NOBREATH don't have lungs
+		return "You don't have lungs!"
+	return ..()
+
+/datum/quirk/cyberorgan/heart
+	name = "Cybernetic Organ (Heart)"
+	desc = "Due to a past incident you lost function of your heart, but now have a cybernetic heart!"
+	organ_list = list(ORGAN_SLOT_HEART = /obj/item/organ/heart/cybernetic)
+	medical_record_text = "During physical examination, patient was found to have a cybernetic heart."
+	value = 0
+	quality = "regular cybernetic"
+
+/datum/quirk/cyberorgan/heart/check_quirk(datum/preferences/prefs)
+	var/datum/species/species_type = prefs.read_preference(/datum/preference/choiced/species)
+	var/datum/species/species = new species_type
+	var/disallowed_trait = ((NOBLOOD in species.species_traits) || (STABLEBLOOD in species.species_traits)) // species with NOBLOOD don't have a heart
+	qdel(species)
+	if(disallowed_trait)
+		return "You don't have a heart!"
+	return ..()
+
+/datum/quirk/cyberorgan/liver
+	name = "Cybernetic Organ (Liver)"
+	desc = "Due to a past incident you lost function of your liver, but now have a cybernetic liver!"
+	organ_list = list(ORGAN_SLOT_LIVER = /obj/item/organ/liver/cybernetic)
+	medical_record_text = "During physical examination, patient was found to have a cybernetic liver."
+	value = 0
+	quality = "regular cybernetic"

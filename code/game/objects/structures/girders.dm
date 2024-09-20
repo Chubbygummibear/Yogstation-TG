@@ -285,6 +285,9 @@
 /obj/structure/girder/deconstruct(disassembled = TRUE)
 	if(!(flags_1 & NODECONSTRUCT_1))
 		var/remains = pick(/obj/item/stack/rods, /obj/item/stack/sheet/metal)
+		var/area/shipbreak/A = get_area(src)
+		if(istype(A)) //shipbreaking
+			remains = /obj/item/stack/scrap/framing
 		new remains(loc)
 	qdel(src)
 
@@ -370,7 +373,7 @@
 	qdel(src)
 
 /obj/structure/girder/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
-	switch(the_rcd.mode)
+	switch(the_rcd.construction_mode)
 		if(RCD_FLOORWALL)
 			return list("mode" = RCD_FLOORWALL, "delay" = 20, "cost" = 8)
 		if(RCD_DECONSTRUCT)

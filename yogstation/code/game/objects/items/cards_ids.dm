@@ -42,6 +42,7 @@
 		"Artist" = list("civillian","yellow"),
 		"Clerk" = list("civillian","blue"),
 		"Tourist" = list("civillian","yellow"),
+		"Synthetic" = list("",""),
 		"Warden" = list("security","black"),
 		"Security Officer" = list("security","red"),
 		"Detective" = list("security","brown"),
@@ -91,7 +92,7 @@
 /obj/item/card/id/gasclerk
 	name = "Clerk"
 	desc = "An employee ID used to access areas around the gas station."
-	access = list(ACCESS_MANUFACTURING)
+	access = list(ACCESS_CLERK)
 
 /obj/item/card/id/gasclerk/New()
 	..()

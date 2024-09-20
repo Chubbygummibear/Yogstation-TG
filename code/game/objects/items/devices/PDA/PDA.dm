@@ -28,8 +28,8 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 
 /obj/item/pda
-	name = "\improper PDA"
-	desc = "A portable microcomputer by Thinktronic Systems, LTD. Functionality determined by a preprogrammed ROM cartridge."
+	name = "\improper antique PDA"
+	desc = "An outdated, portable microcomputer developed by Thinktronic Systems, LTD. Functionality determined by a preprogrammed ROM cartridge."
 	icon = 'icons/obj/pda.dmi'
 	icon_state = "pda"
 	item_state = "electronic"
@@ -174,7 +174,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 		inserted_item = null
 
 /obj/item/pda/proc/update_label()
-	name = "PDA-[owner] ([ownjob])" //Name generalisation
+	name = "\improper antique PDA-[owner] ([ownjob])" //Name generalisation
 
 /obj/item/pda/GetAccess()
 	if(id)
@@ -485,8 +485,6 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 //BASIC FUNCTIONS===================================
 
-			if("Refresh")//Refresh, goes to the end of the proc.
-
 			if ("Toggle_Font")
 				//CODE REVISION 2
 				font_index = (font_index + 1) % 4
@@ -710,7 +708,7 @@ GLOBAL_LIST_EMPTY(PDAs)
 
 //LINK FUNCTIONS===================================
 
-			else//Cartridge menu linking
+			else //Cartridge menu linking
 				mode = max(text2num(href_list["choice"]), 0)
 
 	else//If not in range, can't interact or not using the pda.
