@@ -28,6 +28,9 @@
 	/// Timer id of any transformation
 	var/transformation_timer
 
+	voice = "default"
+	pitch = 2
+
 //inventory slots
 	var/obj/item/back = null
 	var/obj/item/clothing/mask/wear_mask = null

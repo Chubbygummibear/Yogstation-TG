@@ -72,6 +72,15 @@
 	/// Whether this atom should have its dir automatically changed when it moves. Setting this to FALSE allows for things such as directional windows to retain dir on moving without snowflake code all of the place.
 	var/set_dir_on_move = TRUE
 
+	/// The voice that this movable makes when speaking
+	var/voice
+
+	/// The pitch adjustment that this movable uses when speaking.
+	var/pitch = 0
+
+	/// The filter to apply to the voice when processing the TTS audio message.
+	var/voice_filter = ""
+
 /mutable_appearance/emissive_blocker
 
 /mutable_appearance/emissive_blocker/New()

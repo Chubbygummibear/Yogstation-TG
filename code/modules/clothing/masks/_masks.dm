@@ -11,6 +11,12 @@
 	var/mutantrace_variation = NONE //Are there special sprites for specific situations? Don't use this unless you need to.
 	var/mutantrace_adjusted = NONE //Are there special sprites for specific situations? Don't use this unless you need to.
 
+	/// If defined, what voice should we override with if TTS is active?
+	var/voice_override
+
+	/// If set to true, activates the radio effect on TTS. Used for sec hailers, but other masks can utilize it for their own vocal effect.
+	var/use_radio_beeps_tts = FALSE
+
 /obj/item/clothing/mask/attack_self(mob/user)
 	if(CHECK_BITFIELD(clothing_flags, VOICEBOX_TOGGLABLE))
 		TOGGLE_BITFIELD(clothing_flags, VOICEBOX_DISABLED)

@@ -109,14 +109,17 @@ falloff_distance - Distance at which falloff begins, if this is a 3D sound
 distance_multiplier - Can be used to multiply the distance at which the sound is heard
 */
 
-/mob/proc/playsound_local(turf/turf_source, soundin, vol as num, vary, frequency, falloff_exponent = SOUND_FALLOFF_EXPONENT, channel = 0, pressure_affected = TRUE, sound/S, max_distance, falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, distance_multiplier = 1, use_reverb = TRUE, pitch = null)
+/mob/proc/playsound_local(turf/turf_source, soundin, vol as num, vary, frequency, falloff_exponent = SOUND_FALLOFF_EXPONENT, channel = 0, pressure_affected = TRUE, sound/S, max_distance, falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, distance_multiplier = 1, use_reverb = TRUE, pitch = null, wait = FALSE)
 	if(!client || !can_hear())
 		return
 
 	if(!S)
 		S = sound(get_sfx(soundin))
 
-	S.wait = 0 //No queue
+	if(wait)
+		S.wait = wait //No queue
+	else
+		S.wait = FALSE
 	S.channel = channel || SSsounds.random_available_channel()
 	S.volume = vol
 

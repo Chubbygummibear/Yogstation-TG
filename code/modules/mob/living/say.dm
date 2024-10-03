@@ -233,37 +233,21 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 		spans |= SPAN_ITALICS
 
 	send_speech(message, message_range, src, bubble_type, spans, language, message_mods)
-	if(client)
-		var/regex/letter = regex("\[a-z\]", "g")
-		var/regex/non_letter_char = regex("\[^a-z^\\s]", "g")
-		var/list/beep_noises = list('yogstation/sound/voice/spokenletters/bebebese.wav','yogstation/sound/voice/spokenletters/bebebese_slow.wav','yogstation/sound/voice/spokenletters/451.wav')
-		//message_admins("regex part")
-		for(var/char = 1, char <= length(message), char++)
-			//message_admins("message loop char: [lowertext(message[char])]")
-			//at 2x speed we need a .05 second delay
-			//at .1x speed we need a .1 second delay 
-			spawn(char * 0.5)
-				if(findtext_char(lowertext(message[char]),letter))
-					//message_admins("letter playing")
-					playsound_local(src, "yogstation/sound/voice/spokenletters/[lowertext(message[char])].wav", 60, TRUE, frequency = voice_frequency, pitch = voice_pitch)
-				else if(findtext_char(lowertext(message[char]),non_letter_char))
-					//message_admins("beeps playing")
-					playsound_local(src, pick(beep_noises), 60, TRUE, frequency = voice_frequency/2, pitch = voice_pitch)
 
 	//yogs edit (stolen from monkestation)
 	///Play a sound to indicate we just spoke
-	if(client && !HAS_TRAIT(src, TRAIT_SIGN_LANG))
-		var/ending = copytext_char(message, -1)
-		var/sound/speak_sound
-		if(SPAN_HELIUM in spans)
-			speak_sound = sound('sound/effects/mousesqueek.ogg')
-		else if(ending == "?")
-			speak_sound = voice_type2sound[voice_type]["?"]
-		else if(ending == "!")
-			speak_sound = voice_type2sound[voice_type]["!"]
-		else
-			speak_sound = voice_type2sound[voice_type][voice_type]
-		playsound(src, speak_sound, 300, 1, SHORT_RANGE_SOUND_EXTRARANGE-2, falloff_exponent = 1, pressure_affected = FALSE, ignore_walls = FALSE, use_reverb = FALSE)
+	// if(client && !HAS_TRAIT(src, TRAIT_SIGN_LANG))
+	// 	var/ending = copytext_char(message, -1)
+	// 	var/sound/speak_sound
+	// 	if(SPAN_HELIUM in spans)
+	// 		speak_sound = sound('sound/effects/mousesqueek.ogg')
+	// 	else if(ending == "?")
+	// 		speak_sound = voice_type2sound[voice_type]["?"]
+	// 	else if(ending == "!")
+	// 		speak_sound = voice_type2sound[voice_type]["!"]
+	// 	else
+	// 		speak_sound = voice_type2sound[voice_type][voice_type]
+	// 	playsound(src, speak_sound, 300, 1, SHORT_RANGE_SOUND_EXTRARANGE-2, falloff_exponent = 1, pressure_affected = FALSE, ignore_walls = FALSE, use_reverb = FALSE)
 	//yogs change end
 	
 	return on_say_success(message,message_range,succumbed, spans, language, message_mods)//Yogs
@@ -305,7 +289,7 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 	show_message(message, 2, deaf_message, deaf_type, avoid_highlight)
 	return message
 
-/mob/living/send_speech(message, message_range = 6, obj/source = src, bubble_type = bubble_icon, list/spans, datum/language/message_language=null, list/message_mods = list())
+/mob/living/send_speech(message, message_range = 6, obj/source = src, bubble_type = bubble_icon, list/spans, datum/language/message_language=null, list/message_mods = list(), forced = null, tts_message, list/tts_filter)
 	var/static/list/eavesdropping_modes = list(MODE_WHISPER = TRUE, MODE_WHISPER_CRIT = TRUE)
 	var/eavesdrop_range = 0
 	if(message_mods[WHISPER_MODE]) //If we're whispering
@@ -348,6 +332,24 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 	for(var/mob/M in listening)
 		if(M.client)
 			speech_bubble_recipients.Add(M.client)
+	
+	if(SStts.tts_enabled && voice && !HAS_TRAIT(src, TRAIT_SIGN_LANG))
+		message_admins("tts part of send_speech")
+		var/tts_message_to_use = tts_message
+		if(!tts_message_to_use)
+			tts_message_to_use = message
+
+		var/list/filter = list()
+		var/list/special_filter = list()
+		if(length(voice_filter) > 0)
+			filter += voice_filter
+
+		if(length(tts_filter) > 0)
+			filter += tts_filter.Join(",")
+
+		var/voice_to_use = get_tts_voice(filter, special_filter)
+		INVOKE_ASYNC(SStts, TYPE_PROC_REF(/datum/controller/subsystem/tts, queue_tts_message), src, html_decode(tts_message_to_use), message_language, voice_to_use, filter.Join(","), listening, null, message_range, null, pitch, special_filter.Join("|"))
+	
 	var/image/say_popup = image('icons/mob/talk.dmi', src, "[bubble_type][say_test(message)]", FLY_LAYER)
 	if(combat_mode) // ANGRY!!!!
 		var/mutable_appearance/angerlay = mutable_appearance('icons/mob/talk.dmi', "angry")
@@ -357,6 +359,22 @@ GLOBAL_LIST_INIT(special_radio_keys, list(
 	INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(flick_overlay_global), say_popup, speech_bubble_recipients, 3 SECONDS)
 	LAZYADD(update_on_z, say_popup)
 	addtimer(CALLBACK(src, PROC_REF(clear_saypopup), say_popup), 3.5 SECONDS)
+
+/mob/living/proc/get_tts_voice(list/filter, list/special_filter)
+	. = voice
+	var/obj/item/clothing/mask/mask = get_item_by_slot(ITEM_SLOT_MASK)
+	if(!istype(mask) || mask.up)
+		return
+	if(mask.voice_override)
+		. = mask.voice_override
+	if(mask.voice_filter)
+		filter += mask.voice_filter
+	if(mask.use_radio_beeps_tts)
+		special_filter |= TTS_FILTER_RADIO
+
+/mob/living/silicon/get_tts_voice(list/filter, list/special_filter)
+	. = ..()
+	special_filter |= TTS_FILTER_SILICON
 
 /mob/living/proc/clear_saypopup(image/say_popup)
 	LAZYREMOVE(update_on_z, say_popup)

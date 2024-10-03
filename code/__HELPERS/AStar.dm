@@ -111,16 +111,16 @@ Actual Adjacent procs :
 		if(call(start, dist)(end) > maxnodes)
 			return FALSE
 		maxnodedepth = maxnodes //no need to consider path longer than maxnodes
-	var/datum/Heap/open = new /datum/Heap(/proc/HeapPathWeightCompare) //the open list
+	var/datum/heap/open = new /datum/heap(/proc/HeapPathWeightCompare) //the open list
 	var/list/openc = new() //open list for node check
 	var/list/path = null //the returned path, if any
 	//initialization
 	var/datum/PathNode/cur = new /datum/PathNode(start,null,0,call(start,dist)(end),0,15,1)//current processed turf
-	open.Insert(cur)
+	open.insert(cur)
 	openc[start] = cur
 	//then run the main loop
-	while(!open.IsEmpty() && !path)
-		cur = open.Pop() //get the lower f turf in the open list
+	while(!open.is_empty() && !path)
+		cur = open.pop() //get the lower f turf in the open list
 		//get the lower f node on the open list
 		//if we only want to get near the target, check if we're close enough
 		var/closeenough
@@ -152,12 +152,12 @@ Actual Adjacent procs :
 							if((newg < CN.g) )
 								if(call(cur.source,adjacent)(caller, T, id, simulated_only))
 									CN.setp(cur,newg,CN.h,cur.nt+1)
-									open.ReSort(CN)//reorder the changed element in the list
+									open.resort(CN)//reorder the changed element in the list
 						else
 						//is not already in open list, so add it
 							if(call(cur.source,adjacent)(caller, T, id, simulated_only))
 								CN = new(T,cur,newg,call(T,dist)(end),cur.nt+1,15^r)
-								open.Insert(CN)
+								open.insert(CN)
 								openc[T] = CN
 		cur.bf = 0
 		CHECK_TICK

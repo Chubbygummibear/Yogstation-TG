@@ -456,3 +456,12 @@
 
 /datum/config_entry/number/max_shuttle_size
 	config_entry_value = 250
+
+/datum/config_entry/flag/tts_enabled
+	protection = CONFIG_ENTRY_LOCKED
+
+/datum/config_entry/number/tts_max_concurrent_requests
+	default = 4
+	min_val = 1
+
+/datum/config_entry/str_list/tts_voice_blacklist
